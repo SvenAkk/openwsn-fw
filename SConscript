@@ -365,6 +365,41 @@ elif env['toolchain']=='avr':
     if env['board'] not in ['zigduino']:
         raise SystemError('toolchain {0} can not be used for board {1}'.format(env['toolchain'],env['board']))
 
+    if env['board'] in ['zigduino']:
+	    # compiler
+	    env.Replace(CC           = 'avr-gcc')
+	    #env.Append(CCFLAGS       = '-Wstrict-prototypes')
+	    #env.Append(CCFLAGS       = '')
+	    # archiver
+	    env.Replace(AR           = 'avr-ar')
+	    #env.Append(ARFLAGS       = '')
+	    #env.Replace(RANLIB       = 'msp430-ranlib')
+	    #env.Append(RANLIBFLAGS   = '')
+	    # linker
+	    env.Replace(LINK         = 'avr-gcc')
+	    env.Append(LINKFLAGS     = '')
+    
+    # convert ELF to iHex
+    elf2iHexFunc = Builder(
+       action = 'atmega128rfa1-objcopy --output-target=ihex $SOURCE $TARGET',
+       suffix = '.ihex',
+    )
+    env.Append(BUILDERS = {'Elf2iHex' : elf2iHexFunc})
+    
+    # convert ELF to bin
+    elf2BinFunc = Builder(
+       action = 'atmega128rfa1-objcopy --output-target=binary $SOURCE $TARGET',
+       suffix = '.bin',
+    )
+    env.Append(BUILDERS = {'Elf2iBin' : elf2BinFunc})
+    
+    # print sizes
+    printSizeFunc = Builder(
+        action = 'atmega128rfa1-size $SOURCE',
+        suffix = '.phonysize',
+    )
+    env.Append(BUILDERS = {'PrintSize' : printSizeFunc})
+
 else:
     raise SystemError('unexpected toolchain {0}'.format(env['toolchain']))
     

@@ -360,6 +360,11 @@ elif env['toolchain']=='gcc':
     # print sizes
     env.Append(BUILDERS = {'PrintSize' : dummyFunc})
 
+# Sven add
+elif env['toolchain']=='avr':
+    if env['board'] not in ['zigduino']:
+        raise SystemError('toolchain {0} can not be used for board {1}'.format(env['toolchain'],env['board']))
+
 else:
     raise SystemError('unexpected toolchain {0}'.format(env['toolchain']))
     

@@ -112,6 +112,8 @@ command_line_options = {
         'agilefox',
         # misc.
         'python',
+        # sven add
+        'zigduino',
     ],
     'toolchain':   [
         'mspgcc',
@@ -119,6 +121,8 @@ command_line_options = {
         'iar-proj',
         'armgcc',
         'gcc',
+        #sven add
+        'avr',
     ],
     'kernel': [
         'openos',

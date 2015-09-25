@@ -12,6 +12,7 @@ to this board.
 #ifndef __BOARD_INFO_H
 #define __BOARD_INFO_H
 
+
 #include <stdint.h>
 #include <string.h>
 

@@ -381,21 +381,23 @@ elif env['toolchain']=='avr':
     
     # convert ELF to iHex
     elf2iHexFunc = Builder(
-       action = 'atmega128rfa1-objcopy --output-target=ihex $SOURCE $TARGET',
+       action = 'avr-objcopy  -O ihex $SOURCE $TARGET',
+       #'atmega128rfa1-objcopy --output-target=ihex $SOURCE $TARGET',
        suffix = '.ihex',
     )
     env.Append(BUILDERS = {'Elf2iHex' : elf2iHexFunc})
     
     # convert ELF to bin
     elf2BinFunc = Builder(
-       action = 'atmega128rfa1-objcopy --output-target=binary $SOURCE $TARGET',
+       action = 'avr-objcopy  -O binary $SOURCE $TARGET',
+       #'atmega128rfa1-objcopy --output-target=binary $SOURCE $TARGET',
        suffix = '.bin',
     )
     env.Append(BUILDERS = {'Elf2iBin' : elf2BinFunc})
     
     # print sizes
     printSizeFunc = Builder(
-        action = 'atmega128rfa1-size $SOURCE',
+        action = 'avr-size $SOURCE',
         suffix = '.phonysize',
     )
     env.Append(BUILDERS = {'PrintSize' : printSizeFunc})
@@ -414,6 +416,13 @@ def jtagUploadFunc(location):
                 suffix      = '.phonyupload',
                 src_suffix  = '.ihex',
             )
+    elif env['toolchain']=='avr':
+           port = ARGUMENTS.get('jtag', 0)
+           return Builder(
+                action      = 'avrdude -c jtag3 -B 38400 -p m128rfa1 -P ' + port + ' -v $SOURCE',
+                suffix      = '.phonyupload',
+                src_suffix  = '.ihex',
+           )   	
     else:
         if env['fet_version']==2:
             # MSP-FET430uif is running v2 Firmware

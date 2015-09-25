@@ -1,5 +1,5 @@
 /**
- * Author: Sven Akkermans Vilajosana (sven.akkermans@cs.kuleuven.be)
+ * Author: Sven Akkermans (sven.akkermans@cs.kuleuven.be)
  * Date:   September 2015
  * Description: atmega128rfa1-specific definition of the "bsp_timer" bsp module.
  */

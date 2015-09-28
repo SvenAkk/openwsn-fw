@@ -1,3 +1,12 @@
+This fork of the main branch is an independent project by Sven Akkermans, a (new) Phd Student at the Belgian University KU Leuven.
+
+Purpose is to port the OpenWSN stack to the Zigduino platform with Atmega128RFA1 microprocessor. This also requires integrating the AVR toolchain within the current build structure.
+
+Inspiration for the porting is partly gotten form the port of the Contiki to the
+Zigduino platform ( see also https://github.com/maniacbug/contiki-avr-zigduino/wiki and
+https://github.com/wilfrieddaniels/contiki-duino ).
+
+
 OpenWSN firmware: stuff that runs on a mote
 
 Part of UC Berkeley's OpenWSN project, http://www.openwsn.org/.

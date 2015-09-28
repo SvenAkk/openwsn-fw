@@ -6,6 +6,9 @@
 #include <avr/pgmspace.h>
 #include <avr/fuse.h>
 #include <avr/eeprom.h>
+#include <avr/io.h>
+#include <avr/iom128rfa1.h> //Sven: this is advised against, but works.
+
 
 #include "uart.h"
 #include "board.h"
@@ -26,6 +29,14 @@ uart_vars_t uart_vars;
 //=========================== public ==========================================
 
 void uart_init() {
+	//turn on power
+	PRR0 &= ~(1<<PRUSART0);
+
+   // reset local variables
+   memset(&uart_vars,0,sizeof(uart_vars_t));
+
+   UBRR0L = 0xCF;
+   uart_writeByte('A');
 }
 
 void uart_setCallbacks(uart_tx_cbt txCb, uart_rx_cbt rxCb) {

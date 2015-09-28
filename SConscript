@@ -368,15 +368,20 @@ elif env['toolchain']=='avr':
     if env['board'] in ['zigduino']:
 	    # compiler
 	    env.Replace(CC           = 'avr-gcc')
-	    #env.Append(CCFLAGS       = '-Wstrict-prototypes')
-	    #env.Append(CCFLAGS       = '')
+	    env.Append(CCFLAGS       = '-mmcu=atmega128rfa1')
+	    env.Append(CCFLAGS       = '')
+	    # assembler
+	    env.Replace(AS           = 'avr-as')
+	    env.Append(ASFLAGS       = '-mmcu=atmega128rfa1')
+	    env.Append(ASFLAGS       = '')
 	    # archiver
 	    env.Replace(AR           = 'avr-ar')
-	    #env.Append(ARFLAGS       = '')
-	    #env.Replace(RANLIB       = 'msp430-ranlib')
-	    #env.Append(RANLIBFLAGS   = '')
+	    #env.Append(ARFLAGS       = '-mmcu=atmega128rfa1')
+	    env.Append(ARFLAGS       = '')
 	    # linker
-	    env.Replace(LINK         = 'avr-gcc')
+	    env.Replace(LINK         = 'avr-gcc')        
+	    env.Append(LINKFLAGS     = '-mmcu=atmega128rfa1')
+	    env.Append(LINKFLAGS     = '')
 	    env.Append(LINKFLAGS     = '')
     
     # convert ELF to iHex
@@ -419,7 +424,7 @@ def jtagUploadFunc(location):
     elif env['toolchain']=='avr':
            port = ARGUMENTS.get('jtag', 0)
            return Builder(
-                action      = 'avrdude -c jtag3 -B 38400 -p m128rfa1 -P ' + port + ' -v $SOURCE',
+                action      = 'avrdude -c jtag3isp -p m128rfa1 -P ' + port + ' -b 57600 -B 1 -v $SOURCE',
                 suffix      = '.phonyupload',
                 src_suffix  = '.ihex',
            )   	

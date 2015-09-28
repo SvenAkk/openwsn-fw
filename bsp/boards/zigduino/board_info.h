@@ -16,86 +16,49 @@ to this board.
 #include <stdint.h>
 #include <string.h>
 
+
 //=========================== defines =========================================
 
-//===== interrupt state
-
-#define INTERRUPT_DECLARATION()
-#define DISABLE_INTERRUPTS() IntMasterDisable()
-
-#define ENABLE_INTERRUPTS() IntMasterEnable()
+#define PORT_SIGNED_INT_WIDTH				int32_t
 
 //===== timer
 
 #define PORT_TIMER_WIDTH                    uint32_t
 #define PORT_RADIOTIMER_WIDTH               uint32_t
 
-#define PORT_SIGNED_INT_WIDTH               int32_t
 #define PORT_TICS_PER_MS                    33
+/*
+#define SCHEDULER_WAKEUP()                  radiotimer_isr()
+#define SCHEDULER_ENABLE_INTERRUPT()        TIMSK2 |= (1<<OCIE2A)
+*/
+/*
+#define ENABLE_INTERRUPTS()					 __asm__ __volatile__ ("sei" ::: "memory")
+#define DISABLE_INTERRUPTS()				 __asm__ __volatile__ ("cli" ::: "memory")
+*/
+#define ENABLE_INTERRUPTS()
+#define DISABLE_INTERRUPTS()
 
-// on GINA, we use the comparatorA interrupt for the OS
-#define SCHEDULER_WAKEUP()
-#define SCHEDULER_ENABLE_INTERRUPT()
-
-// this is a workaround from the fact that the interrupt pin for the GINA radio
-// is not connected to a pin on the MSP which allows time capture.
-#define CAPTURE_TIME()
-
-/* sleep timer interrupt */
-#define HAL_INT_PRIOR_ST        (4 << 5)
-/* MAC interrupts */
-#define HAL_INT_PRIOR_MAC       (4 << 5)
-/* UART interrupt */
-#define HAL_INT_PRIOR_UART      (5 << 5)
-
-//===== pinout
-
-// [P4.7] radio SLP_TR_CNTL
-#define PORT_PIN_RADIO_SLP_TR_CNTL_HIGH()
-#define PORT_PIN_RADIO_SLP_TR_CNTL_LOW()
-// radio reset line
-// on cc2538, the /RST line is not connected to the uC
-#define PORT_PIN_RADIO_RESET_HIGH()    // nothing
-#define PORT_PIN_RADIO_RESET_LOW()     // nothing
+#define SCHEDULER_WAKEUP()                  //do nothing
+#define SCHEDULER_ENABLE_INTERRUPT()        // do nothing
 
 //===== IEEE802154E timing
-#ifdef GOLDEN_IMAGE_ROOT
+
 // time-slot related
-#define PORT_TsSlotDuration                 328   // counter counts one extra count, see datasheet
-// execution speed related
-#define PORT_maxTxDataPrepare               10    //  305us (measured  82us)
-#define PORT_maxRxAckPrepare                10    //  305us (measured  83us)
-#define PORT_maxRxDataPrepare                4    //  122us (measured  22us)
-#define PORT_maxTxAckPrepare                10    //  122us (measured  94us)
-// radio speed related
-#ifdef L2_SECURITY_ACTIVE
-#define PORT_delayTx                         7    //  366us (measured xxxus)
-#else
-#define PORT_delayTx                        12    //  366us (measured xxxus)
-#endif
-#define PORT_delayRx                         0    //    0us (can not measure)
-// radio watchdog
-#else
-// time-slot related
-#define PORT_TsSlotDuration                 492   // counter counts one extra count, see datasheet
+#define PORT_TsSlotDuration                 491   // counter counts one extra count, see datasheet
 // execution speed related
 #define PORT_maxTxDataPrepare               66    // 2014us (measured 746us)
 #define PORT_maxRxAckPrepare                10    //  305us (measured  83us)
 #define PORT_maxRxDataPrepare               33    // 1007us (measured  84us)
-#define PORT_maxTxAckPrepare                22    //  305us (measured 219us)
+#define PORT_maxTxAckPrepare                10    //  305us (measured 219us)
 // radio speed related
-#define PORT_delayTx                        12    //  214us (measured 219us)
+#define PORT_delayTx                        7     //  214us (measured 219us)
 #define PORT_delayRx                        0     //    0us (can not measure)
 // radio watchdog
-#endif
 
 //===== adaptive_sync accuracy
 
 #define SYNC_ACCURACY                       1     // ticks
 
-//===== per-board number of sensors
-
-#define NUMSENSORS 7
 
 //=========================== typedef  ========================================
 

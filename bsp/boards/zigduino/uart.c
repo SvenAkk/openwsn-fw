@@ -13,9 +13,20 @@
 #include "uart.h"
 #include "board.h"
 
-//=========================== defines =========================================
 
+//=========================== defines =========================================
+#define	F_CPU 16000000UL // The clock frequesncy
+#define BAUD 19200 //The baud rate you want
+
+//this next line calculates the values for the Baud Rate Generator
+#define CLOCKGEN (((unsigned long)FOSC/(16UL*(unsigned long)BAUD))-1)
 //=========================== variables =======================================
+
+FUSES = {
+  .low = FUSE_CKSEL3,
+  .high = (FUSE_SPIEN & FUSE_EESAVE),
+  .extended = (FUSE_BODLEVEL1 & ~_BV(3)), /* 128rfa1 has an unused extended fuse bit which is immutable */
+};
 
 typedef struct {
    uart_tx_cbt txCb;
@@ -29,14 +40,33 @@ uart_vars_t uart_vars;
 //=========================== public ==========================================
 
 void uart_init() {
-	//turn on power
-	PRR0 &= ~(1<<PRUSART0);
+    // See doc8266 p342: 23.3.1 Internal Clock Generation
 
-   // reset local variables
-   memset(&uart_vars,0,sizeof(uart_vars_t));
+    // Asynchronous normal mode (U2X1 = 0): (Fosc/(16 * Baud)) - 1
+    UBRR1 = ((F_CPU/16)/BAUD) - 1;
 
-   UBRR0L = 0xCF;
-   uart_writeByte('A');
+    // Enable receive and transmit
+    UCSR1B = (1 << RXEN1) | (1 << TXEN1);
+
+    // Set 8 data bits (UCSZ12:10 = 011) and 2 stop bits (USBS1 = 1)
+    UCSR1C = (1 << UCSZ11) | (1 << UCSZ10) | (1 << USBS1);
+
+    // Configure the MAX3221E: PD7 = !FORCEOFF, PD6 = FORCEON, PD4 = !EN
+    DDRD = (1 << PD7) | (1 << PD6) | (1 << PD4);
+
+    // Force the MAX3221E on: !FORCEOFF = 1, FORCEON = 1, !EN = 0
+    PORTD = (1 << PD7) | (1 << PD6);
+
+//	PRR0 &= ~(1<<PRUSART0); //According to pg 343
+//	PRR1 &= ~(1<<PRUSART1);
+//
+//	/* Set baud rate */
+//	UBRR0H = (unsigned char)(CLOCKGEN>>8);
+//	UBRR0L = (unsigned char) CLOCKGEN;
+//	/* Enable receiver and transmitter */
+//	UCSR0B = (1<<RXEN0)|(1<<TXEN0);
+//	/* Set frame format: 8data, 2stop bit */
+//	UCSR0C = (1<<USBS0)|(3<<UCSZ00);
 }
 
 void uart_setCallbacks(uart_tx_cbt txCb, uart_rx_cbt rxCb) {

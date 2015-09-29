@@ -424,7 +424,7 @@ def jtagUploadFunc(location):
     elif env['toolchain']=='avr':
            port = ARGUMENTS.get('jtag', 0)
            return Builder(
-                action      = 'avrdude -c jtag3isp -p m128rfa1 -P ' + port + ' -b 57600 -B 1 -v $SOURCE',
+                action      = 'avrdude -c jtag3 -p m128rfa1 -P ' + port + ' -v $SOURCE',
                 suffix      = '.phonyupload',
                 src_suffix  = '.ihex',
            )   	

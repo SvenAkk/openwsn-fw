@@ -44,7 +44,10 @@ void cb_compare(void);
 int mote_main(void) {  
    // initialize board
    board_init();
-   
+   leds_error_off();
+   leds_error_on();
+   leds_error_off();
+
    bsp_timer_set_callback(cb_compare);
    bsp_timer_scheduleIn(BSP_TIMER_PERIOD);
    
@@ -62,7 +65,6 @@ void cb_compare(void) {
    
    // toggle error led
    leds_error_toggle();
-   
    // increment counter
    app_vars.num_compare++;
    

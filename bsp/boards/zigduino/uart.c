@@ -22,11 +22,11 @@
 #define CLOCKGEN (((unsigned long)FOSC/(16UL*(unsigned long)BAUD))-1)
 //=========================== variables =======================================
 
-FUSES = {
-  .low = FUSE_CKSEL3,
-  .high = (FUSE_SPIEN & FUSE_EESAVE),
-  .extended = (FUSE_BODLEVEL1 & ~_BV(3)), /* 128rfa1 has an unused extended fuse bit which is immutable */
-};
+//FUSES = {
+//  .low = FUSE_CKSEL3,
+//  .high = (FUSE_SPIEN & FUSE_EESAVE),
+//  .extended = (FUSE_BODLEVEL1 & ~_BV(3)), /* 128rfa1 has an unused extended fuse bit which is immutable */
+//};
 
 typedef struct {
    uart_tx_cbt txCb;
@@ -40,7 +40,7 @@ uart_vars_t uart_vars;
 //=========================== public ==========================================
 
 void uart_init() {
-    // See doc8266 p342: 23.3.1 Internal Clock Generation
+	PRR0 &= ~(1<<PRUSART0); //According to pg 343
 
     // Asynchronous normal mode (U2X1 = 0): (Fosc/(16 * Baud)) - 1
     UBRR1 = ((F_CPU/16)/BAUD) - 1;
@@ -57,7 +57,6 @@ void uart_init() {
     // Force the MAX3221E on: !FORCEOFF = 1, FORCEON = 1, !EN = 0
     PORTD = (1 << PD7) | (1 << PD6);
 
-//	PRR0 &= ~(1<<PRUSART0); //According to pg 343
 //	PRR1 &= ~(1<<PRUSART1);
 //
 //	/* Set baud rate */

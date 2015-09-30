@@ -386,7 +386,7 @@ elif env['toolchain']=='avr':
     
     # convert ELF to iHex
     elf2iHexFunc = Builder(
-       action = 'avr-objcopy  --verbose -O  ihex $SOURCE $TARGET',
+       action = 'avr-objcopy -O  ihex $SOURCE $TARGET',
        #'atmega128rfa1-objcopy --output-target=ihex $SOURCE $TARGET',
        suffix = '.ihex',
     )
@@ -394,7 +394,7 @@ elif env['toolchain']=='avr':
     
     # convert ELF to bin
     elf2BinFunc = Builder(
-       action = 'avr-objcopy --verbose -O binary $SOURCE $TARGET',
+       action = 'avr-objcopy -O binary $SOURCE $TARGET',
        #'atmega128rfa1-objcopy --output-target=binary $SOURCE $TARGET',
        suffix = '.bin',
     )
@@ -424,7 +424,7 @@ def jtagUploadFunc(location):
     elif env['toolchain']=='avr':
            port = ARGUMENTS.get('jtag', 0)
            return Builder(
-                action      = 'avrdude -v -c jtag3isp -p m128rfa1  -B 4 -U flash:w:$SOURCE',
+                action      = 'avrdude -c jtag3isp -p m128rfa1  -B 4 -U flash:w:$SOURCE',
                 suffix      = '.phonyupload',
                 src_suffix  = '.ihex',
            )   	

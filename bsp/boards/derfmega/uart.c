@@ -59,6 +59,7 @@ void    uart_disableInterrupts(){
 }
 
 void    uart_clearRxInterrupts(){
+	  UCSR0A |= 0x40;
 }
 
 void    uart_clearTxInterrupts(){

@@ -12,6 +12,8 @@ to this board.
 #ifndef __BOARD_INFO_H
 #define __BOARD_INFO_H
 
+#include <avr/io.h>
+#include <avr/iom128rfa1.h>
 
 #include <stdint.h>
 #include <string.h>
@@ -42,6 +44,7 @@ to this board.
 #define SCHEDULER_ENABLE_INTERRUPT()        // do nothing
 
 //===== IEEE802154E timing
+//Sven: based on derfmega
 
 // time-slot related
 #define PORT_TsSlotDuration                 491   // counter counts one extra count, see datasheet

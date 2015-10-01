@@ -58,7 +58,7 @@ enum {
   CAR = 2,
 };
 
-void main(void) {
+void main(void, int MCUSR) {
    //configuring
    P1OUT |=  0x04;                               // set P1.2 for debug
    P4DIR  |= 0x20;                               // P4.5 as output (for debug)

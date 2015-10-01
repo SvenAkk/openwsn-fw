@@ -32,7 +32,7 @@ to see the clock signals and measure their frequency.
 /**
 \brief The program starts executing here.
 */
-int main(void) {
+int main(void, int MCUSR) {
    uint8_t delay;
    
    WDTCTL     = WDTPW + WDTHOLD;                 // disable watchdog timer

@@ -12,7 +12,7 @@
 #include <cr_section_macros.h>
 #include <NXP/crp.h>
 
-int main(void) {
+int main(void, int MCUSR) {
    uint8_t byte;
    
    // power SPI

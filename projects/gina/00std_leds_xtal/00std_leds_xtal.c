@@ -29,7 +29,7 @@ The debug pins are:
 /**
 \brief The program starts executing here.
 */
-int main(void)
+int main(void, int MCUSR)
 {
    WDTCTL     =  WDTPW + WDTHOLD;                // disable watchdog timer
    BCSCTL1    =  CALBC1_16MHZ;                   // MCLK at 16MHz

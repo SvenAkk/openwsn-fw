@@ -25,6 +25,7 @@ source = [
     'radiotimer.c',
     'spi.c',
     'uart.c',
+    'watchdog.c',
 ]
 
 board  = localEnv.Object(source=source) + atmega128rfa1

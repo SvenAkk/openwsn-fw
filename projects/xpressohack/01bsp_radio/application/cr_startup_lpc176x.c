@@ -129,7 +129,7 @@ void CANActivity_IRQHandler(void) ALIAS(IntDefaultHandler);
 #if defined (__REDLIB__)
 extern void __main(void);
 #endif
-extern int main(void);
+extern int main(void, int MCUSR);
 //*****************************************************************************
 //
 // External declaration for the pointer to the stack top from the Linker Script

@@ -220,7 +220,7 @@ volatile uint_8 kbi_stat;	   /* Status of the Key Pressed */
 #ifdef __GNUC__
  int main(void)
 #else
- void main(void)
+void main(void, int MCUSR)
 #endif
 {
 	/* initialize the system */

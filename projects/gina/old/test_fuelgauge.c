@@ -36,7 +36,7 @@ void init ( void ) {
    _BIS_SR(GIE);                                  // enable interrupts
 }
 
-int main( void ) {
+int main(void, int MCUSR) {
    unsigned int i = 0;
    static int voltage;
 

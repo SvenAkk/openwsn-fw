@@ -129,7 +129,7 @@ void radio_cfg() {
    return;
 }
 
-int main(void) {
+int main(void, int MCUSR) {
    char blah;
    
    //initialization

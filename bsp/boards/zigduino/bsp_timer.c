@@ -29,14 +29,32 @@ bsp_timer_vars_t bsp_timer_vars;
 This functions starts the timer, i.e. the counter increments, but doesn't set
 any compare registers, so no interrupt will fire.
 */
-void bsp_timer_init(){}
+void bsp_timer_init(){
+	   // clear local variables
+	   memset(&bsp_timer_vars,0,sizeof(bsp_timer_vars_t));
+
+	   PRR0 &= ~(1<<PRTIM2); // turn on timer 2 for crystal
+	   SCCR0 = (SCCR0 | 0b00110000) & 0b11111110; // enable symbol counter, 32KHz clock, absolute compare 1
+	   SCCR1 = 0; // no backoff slot counter
+	   ASSR |= (1<<AS2); // enable 32KHz crystal
+
+	   //set compare1 registers
+	   SCOCR1HH = SCOCR1HL = SCOCR1LH = SCOCR1LL = 0;
+
+	   // don't enable interrupts until first compare is set
+
+	   // wait for register writes
+	   while(SCSR & 0x01);
+}
 
 /**
 \brief Register a callback.
 
 \param cb The function to be called when a compare event happens.
 */
-void bsp_timer_set_callback(bsp_timer_cbt cb) {}
+void bsp_timer_set_callback(bsp_timer_cbt cb) {
+	   bsp_timer_vars.cb   = cb;
+}
 
 /**
 \brief Reset the timer.
@@ -44,7 +62,17 @@ void bsp_timer_set_callback(bsp_timer_cbt cb) {}
 This function does not stop the timer, it rather resets the value of the
 counter, and cancels a possible pending compare event.
 */
-void               bsp_timer_reset(){}
+void bsp_timer_reset(){
+	   // disable interrupts
+	   SCIRQM &= 0xFE;
+
+	   // reset timer
+	   SCCNTHH = SCCNTHL = SCCNTLH = 0;
+	   SCCNTLL = 0;
+
+	   // record last timer compare value
+	   bsp_timer_vars.last_compare_value =  0;
+}
 
 /**
 \brief Schedule the callback to be called in some specified time.
@@ -63,12 +91,37 @@ propagate to subsequent timers.
 \param delayTicks Number of ticks before the timer expired, relative to the
                   last compare event.
 */
-void               bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){}
+void bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){
+	   PORT_TIMER_WIDTH newCompareValue;
+	   PORT_TIMER_WIDTH temp_last_compare_value;
+	   PORT_TIMER_WIDTH current_value;
+
+	   temp_last_compare_value = bsp_timer_vars.last_compare_value;
+
+	   newCompareValue      =  bsp_timer_vars.last_compare_value+delayTicks;
+	   bsp_timer_vars.last_compare_value   =  newCompareValue;
+
+	   current_value = bsp_timer_get_currentValue();
+	   if (current_value > temp_last_compare_value && delayTicks<current_value-temp_last_compare_value) {
+	      // we're already too late, schedule the ISR right now manually
+	      bsp_timer_isr();
+	   } else {
+	      // this is the normal case, have timer expire at newCompareValue
+	      SCOCR1HH  =  (uint8_t)(newCompareValue>>24);
+		  SCOCR1HL  =  (uint8_t)(newCompareValue>>16);
+		  SCOCR1LH  =  (uint8_t)(newCompareValue>>8);
+		  SCOCR1LL  =  (uint8_t)(newCompareValue);
+		  // enable interrupts
+		  SCIRQM |= 0x01;
+	   }
+}
 
 /**
 \brief Cancel a running compare.
 */
-void               bsp_timer_cancel_schedule(){}
+void bsp_timer_cancel_schedule(){
+	SCIRQM &= 0xFE;
+}
 
 /**
 \brief Return the current value of the timer's counter.
@@ -76,12 +129,19 @@ void               bsp_timer_cancel_schedule(){}
 \returns The current value of the timer's counter.
 */
 PORT_TIMER_WIDTH   bsp_timer_get_currentValue(){
-	return 0;
+	   PORT_TIMER_WIDTH retval = SCCNTLL;
+	   retval |= (PORT_TIMER_WIDTH)SCCNTLH << 8;
+	   retval |= (PORT_TIMER_WIDTH)SCCNTHL << 16;
+	   retval |= (PORT_TIMER_WIDTH)SCCNTHH << 24;
+	   return retval;
 }
 
 //=========================== private =========================================
 
 //=========================== interrupt handlers ===============================
 kick_scheduler_t   bsp_timer_isr(){
-	return 0;
+	   // call the callback
+	   bsp_timer_vars.cb();
+	   // kick the OS
+	   return 1;
 }

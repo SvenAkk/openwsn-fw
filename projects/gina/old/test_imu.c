@@ -43,7 +43,7 @@ uint8_t  large_range_accel_data[6];
 uint8_t  magnetometer_data[6];
 uint8_t  sensitive_accel_temperature_data[10];
 
-void main(void)
+void main(void, int MCUSR)
 {
    WDTCTL  = WDTPW + WDTHOLD;                    // disable watchdog timer
    BCSCTL1 = CALBC1_16MHZ;                       // MCLK at 16MHz

@@ -11,7 +11,7 @@
 /**
 \brief The program starts executing here.
 */
-void main(void)
+void main(void, int MCUSR)
 {
    WDTCTL     =  WDTPW + WDTHOLD;                // disable watchdog timer
    

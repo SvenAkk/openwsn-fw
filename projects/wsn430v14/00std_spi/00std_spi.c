@@ -31,7 +31,7 @@ Extra lines:
 #include "msp430f1611.h"
 #include "stdint.h"
 
-void main(void)
+void main(void, int MCUSR)
 {  
    volatile uint16_t delay;
    

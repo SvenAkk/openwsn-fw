@@ -18,7 +18,7 @@
 
 OpenQueueEntry_t* testRadioPacketToSend;
 
-int main(void) {
+int main(void, int MCUSR) {
    //configuring
    P1OUT |=  0x04;                               // set P1.2 for debug
    

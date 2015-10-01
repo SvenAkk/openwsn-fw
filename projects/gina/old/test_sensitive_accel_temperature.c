@@ -41,7 +41,7 @@ uint16_t sensitive_accel_z1;
 uint16_t sensitive_accel_z3;
 uint16_t temperature;
 
-int main(void) {
+int main(void, int MCUSR) {
    uint16_t raw_temperature;
    WDTCTL  = WDTPW + WDTHOLD;                    // disable watchdog timer
    BCSCTL1 = CALBC1_16MHZ;                       // MCLK at 16MHz

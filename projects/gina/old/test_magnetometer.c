@@ -36,7 +36,7 @@ uint16_t magnetometer_x, old_magnetometer_x;
 uint16_t magnetometer_y, old_magnetometer_y;
 uint16_t magnetometer_z, old_magnetometer_z;
 
-void main(void)
+void main(void, int MCUSR)
 {
    WDTCTL  = WDTPW + WDTHOLD;                    // disable watchdog timer
    BCSCTL1 = CALBC1_16MHZ;                       // MCLK at 16MHz

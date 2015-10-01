@@ -45,12 +45,10 @@ int mote_main(void) {
    // initialize board
    board_init();
    leds_error_off();
-   leds_error_on();
-   leds_error_off();
 
    bsp_timer_set_callback(cb_compare);
    bsp_timer_scheduleIn(BSP_TIMER_PERIOD);
-   
+
    while (1) {
       board_sleep();
    }

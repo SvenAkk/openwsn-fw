@@ -33,9 +33,6 @@
 //=========================== prototypes ======================================
 
 //=========================== public ==========================================
-#define setb(X,Y) {X |= (1<<Y);}
-#define clrb(X,Y) {X &= ~(1<<Y);}
-#define togb(X,Y) {X ^= (1<<Y);}
 
 void    leds_init() {
 	LED_PORT0 |= (1 << LED_PIN_13);
@@ -44,7 +41,6 @@ void    leds_init() {
 	LED_PORT_DIR |= (1 << LED_ERR_1);
 	LED_PORT |= (1 << LED_ERR_2);
 	LED_PORT_DIR |= (1 << LED_ERR_2);
-
 }
 
 void    leds_error_on() {
@@ -138,5 +134,4 @@ void    leds_circular_shift() {
 
 void    leds_increment() {
 }
-
 //=========================== private =========================================

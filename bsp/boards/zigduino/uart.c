@@ -50,12 +50,6 @@ void uart_init() {
 
 	// Set 8 data bits (UCSZ12:10 = 011) and 2 stop bits (USBS1 = 1)
 	UCSR0C = (1 << UCSZ11) | (1 << UCSZ10) | (1 << USBS1);
-
-	// Configure the MAX3221E: PD7 = !FORCEOFF, PD6 = FORCEON, PD4 = !EN
-	DDRD = (1 << PD7) | (1 << PD6) | (1 << PD4);
-
-	// Force the MAX3221E on: !FORCEOFF = 1, FORCEON = 1, !EN = 0
-	PORTD = (1 << PD7) | (1 << PD6);
 }
 
 void uart_setCallbacks(uart_tx_cbt txCb, uart_rx_cbt rxCb) {

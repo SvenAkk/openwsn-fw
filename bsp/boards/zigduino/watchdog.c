@@ -45,7 +45,7 @@
  *
  * Setting WATCHDOG_CONF_TIMEOUT -1 will disable the WDT.
  */
-//#define WATCHDOG_CONF_TIMEOUT -1
+#define WATCHDOG_CONF_TIMEOUT -1
 
 #ifndef WATCHDOG_CONF_TIMEOUT
 #define WATCHDOG_CONF_TIMEOUT WDTO_2S

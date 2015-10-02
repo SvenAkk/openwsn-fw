@@ -60,16 +60,16 @@ int main(void) {
 
 void board_init() {
 	  watchdog_init();
-	  watchdog_start();
+	  watchdog_start(); // Sven: Watchdog is disabled.
 
-	  // Print reboot reason
-	  if(mcusr_backup & (1<<PORF )) PRINTD("Power-on reset.\n");
-	  if(mcusr_backup & (1<<EXTRF)) PRINTD("External reset!\n");
-	  if(mcusr_backup & (1<<BORF )) PRINTD("Brownout reset!\n");
-	  if(mcusr_backup & (1<<WDRF )) PRINTD("Watchdog reset!\n");
-	  if(mcusr_backup & (1<<JTRF )) PRINTD("JTAG reset!\n");
-
-	PRINTA("\n*******Booting Zigduino with OpenWSN*******\n");
+//	  // Print reboot reason
+//	  if(mcusr_backup & (1<<PORF )) PRINTD("Power-on reset.\n");
+//	  if(mcusr_backup & (1<<EXTRF)) PRINTD("External reset!\n");
+//	  if(mcusr_backup & (1<<BORF )) PRINTD("Brownout reset!\n");
+//	  if(mcusr_backup & (1<<WDRF )) PRINTD("Watchdog reset!\n");
+//	  if(mcusr_backup & (1<<JTRF )) PRINTD("JTAG reset!\n");
+//
+//	PRINTA("\n*******Booting Zigduino with OpenWSN*******\n");
 
 	// setup clock speed
 
@@ -96,10 +96,13 @@ void board_init() {
 	sei();
 }
 
+// Uses high-level functions from avr/sleep.h
 void board_sleep() {
-	   SMCR = (0x03<<1) | 1; // power-save, enable sleep
-	 //  sleep_cpu();
-	   SMCR &= 0xFE; // disable sleep
+	TRXPR = 1 << SLPTR; // sent transceiver to sleep
+	set_sleep_mode(SLEEP_MODE_PWR_SAVE); // Power save mode to allow Timer/counter2 interrupts, see pg 162
+	sleep_enable();
+	sleep_cpu(); // go to deep sleep
+	sleep_disable(); // executed after wake-up
 }
 
 void board_reset() {

@@ -15,11 +15,10 @@
 
 
 //=========================== defines =========================================
-#define	F_CPU 16000000UL // The clock frequesncy
-#define BAUD 19200 //The baud rate you want
+#define	F_CPU 16000000 // The clock frequency
+#define BAUD 57600 //The baud rate you want
 
-//this next line calculates the values for the Baud Rate Generator
-#define CLOCKGEN (((unsigned long)FOSC/(16UL*(unsigned long)BAUD))-1)
+#define UBRR_VALUE (((F_CPU) + 8UL * (BAUD)) / (16UL * (BAUD)) -1UL)
 //=========================== variables =======================================
 
 //FUSES = {
@@ -40,16 +39,21 @@ uart_vars_t uart_vars;
 //=========================== public ==========================================
 
 void uart_init() {
-	PRR0 &= ~(1<<PRUSART0); //According to pg 343
+	//PRR0 &= ~(1<<PRUSART0); //According to pg 343
 
-	// Asynchronous normal mode (U2X1 = 0): (Fosc/(16 * Baud)) - 1
-	UBRR0 = ((F_CPU/16)/BAUD) - 1;
+	// reset local variables
+	memset(&uart_vars,0,sizeof(uart_vars_t));
 
-	// Enable receive and transmit
-	UCSR0B = (1 << RXEN1) | (1 << TXEN1);
+	//UBRRnH contains the baud rate
+	UBRR0H =  UBRR_VALUE & 0xff;
+	UBRR0L = UBRR_VALUE >> 8;
 
-	// Set 8 data bits (UCSZ12:10 = 011) and 2 stop bits (USBS1 = 1)
-	UCSR0C = (1 << UCSZ11) | (1 << UCSZ10) | (1 << USBS1);
+	//Not using 2x
+    UCSR0A &= ~(1 << U2X0);
+	// enable async usart, disabled parity, 1-bit stop, 8-bit mode and async
+	UCSR0C = 0b00000110;
+	// Enable rx&tx interrupt, disable empty interrupt, enable rx&tx
+	UCSR0B = 0b11011000;
 }
 
 void uart_setCallbacks(uart_tx_cbt txCb, uart_rx_cbt rxCb) {
@@ -58,11 +62,11 @@ void uart_setCallbacks(uart_tx_cbt txCb, uart_rx_cbt rxCb) {
 }
 
 void    uart_enableInterrupts(){
-	UCSR0B |= 0xC0;
+	UCSR0B |= 0b11000000; // == 0xC0
 }
 
 void    uart_disableInterrupts(){
-	UCSR0B &= ~0xC0;
+	UCSR0B &= ~0b11000000; // == ~0xC0
 }
 
 void    uart_clearRxInterrupts(){
@@ -74,12 +78,13 @@ void    uart_clearTxInterrupts(){
 }
 
 void    uart_writeByte(uint8_t byteToWrite){
-	while((UCSR0A & _BV(UDRE0))==0);
+	while((UCSR0A & (1 << UDRE0))==0); /* Wait until data register empty. */
 	UDR0 = byteToWrite;
 }
 
 uint8_t uart_readByte(){
-	return 0;
+	//while((UCSR0A & (1 << RXC0))==0);/* Wait until data exists. */
+	return UDR0;
 }
 
 //=========================== private =========================================

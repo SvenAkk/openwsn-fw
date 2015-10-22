@@ -7,6 +7,9 @@
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
 #include <avr/pgmspace.h>
+#include <avr/io.h>
+#include <avr/iom128rfa1.h>
+
 #include "watchdog.h"
 
 #include "board.h"
@@ -62,21 +65,21 @@ void board_init() {
 	  watchdog_init();
 	  watchdog_start(); // Sven: Watchdog is disabled.
 
-//	  // Print reboot reason
-//	  if(mcusr_backup & (1<<PORF )) PRINTD("Power-on reset.\n");
-//	  if(mcusr_backup & (1<<EXTRF)) PRINTD("External reset!\n");
-//	  if(mcusr_backup & (1<<BORF )) PRINTD("Brownout reset!\n");
-//	  if(mcusr_backup & (1<<WDRF )) PRINTD("Watchdog reset!\n");
-//	  if(mcusr_backup & (1<<JTRF )) PRINTD("JTAG reset!\n");
-//
-//	PRINTA("\n*******Booting Zigduino with OpenWSN*******\n");
+	  // Print reboot reason
+	  if(mcusr_backup & (1<<PORF )) PRINTD("Power-on reset.\n");
+	  if(mcusr_backup & (1<<EXTRF)) PRINTD("External reset!\n");
+	  if(mcusr_backup & (1<<BORF )) PRINTD("Brownout reset!\n");
+	  if(mcusr_backup & (1<<WDRF )) PRINTD("Watchdog reset!\n");
+	  if(mcusr_backup & (1<<JTRF )) PRINTD("JTAG reset!\n");
+
+	PRINTA("\n*******Booting Zigduino with OpenWSN*******\n");
 
 	// setup clock speed
 
-	// initialize pins
-	// turn off power to all periphrals ( will be enabled specifically later)
-	PRR0 = 0x00;
-	PRR1 = 0x00;
+//	// initialize pins
+//	// turn off power to all periphrals ( will be enabled specifically later)
+//	PRR0 = 0x00;
+//	PRR1 = 0x00;
 	// enable data retention
 	DRTRAM0 |= 0x10;
 	DRTRAM1 |= 0x10;
@@ -100,12 +103,11 @@ void board_init() {
 void board_sleep() {
 	TRXPR = 1 << SLPTR; // sent transceiver to sleep
 	set_sleep_mode(SLEEP_MODE_PWR_SAVE); // Power save mode to allow Timer/counter2 interrupts, see pg 162
-	sleep_enable();
-	sleep_cpu(); // go to deep sleep
-	sleep_disable(); // executed after wake-up
+	sleep_mode();
 }
 
 void board_reset() {
+	watchdog_reboot(); //rebooting the wd, resets the board
 }
 
 //=========================== private =========================================
@@ -148,14 +150,18 @@ ISR(TRX24_TX_END_vect) {
 
 // MAC symbol counter interrupt compare 1
 // pass to bsp_timer_isr
+//SVEN CHANGED
 ISR(SCNT_CMP1_vect) {
-	//bsp_timer_isr();
+	bsp_timer_isr();
+
+	//radiotimer_compare_isr();
+
 }
 
 //MAC symbol counter interrupt compare 2/3
-// pass to radiotimer_isr
-ISR(SCNT_CMP2_vect) {
-	//radiotimer_compare_isr();
+// pass to radiotimer_isr //SVEN Changed
+ISR(TIMER2_COMPA_vect) {
+	bsp_timer_isr();
 }
 
 ISR(SCNT_CMP3_vect) {

@@ -23,7 +23,7 @@
 
 extern int mote_main(void);
 
-int main(void, int MCUSR) {
+int main(void) {
    return mote_main();
 }
 

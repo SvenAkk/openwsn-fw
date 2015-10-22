@@ -15,17 +15,12 @@
 
 
 //=========================== defines =========================================
-#define	F_CPU 16000000 // The clock frequency
+#define	F_CPU 16000000UL // The clock frequency
 #define BAUD 57600 //The baud rate you want
 
-#define UBRR_VALUE (((F_CPU) + 8UL * (BAUD)) / (16UL * (BAUD)) -1UL)
-//=========================== variables =======================================
+#include <util/setbaud.h>
 
-//FUSES = {
-//  .low = FUSE_CKSEL3,
-//  .high = (FUSE_SPIEN & FUSE_EESAVE),
-//  .extended = (FUSE_BODLEVEL1 & ~_BV(3)), /* 128rfa1 has an unused extended fuse bit which is immutable */
-//};
+//=========================== variables =======================================
 
 typedef struct {
 	uart_tx_cbt txCb;
@@ -39,17 +34,17 @@ uart_vars_t uart_vars;
 //=========================== public ==========================================
 
 void uart_init() {
-	//PRR0 &= ~(1<<PRUSART0); //According to pg 343
+	PRR0 &= ~(1<<PRUSART0); //enable usart0, according to pg 343
 
 	// reset local variables
 	memset(&uart_vars,0,sizeof(uart_vars_t));
 
 	//UBRRnH contains the baud rate
-	UBRR0H =  UBRR_VALUE & 0xff;
-	UBRR0L = UBRR_VALUE >> 8;
+	UBRR0H =  UBRRH_VALUE;
+	UBRR0L = UBRRL_VALUE;
 
-	//Not using 2x
-    UCSR0A &= ~(1 << U2X0);
+	//use 2x
+    UCSR0A |= (1 << U2X0);
 	// enable async usart, disabled parity, 1-bit stop, 8-bit mode and async
 	UCSR0C = 0b00000110;
 	// Enable rx&tx interrupt, disable empty interrupt, enable rx&tx
@@ -78,12 +73,14 @@ void    uart_clearTxInterrupts(){
 }
 
 void    uart_writeByte(uint8_t byteToWrite){
-	while((UCSR0A & (1 << UDRE0))==0); /* Wait until data register empty. */
+	//while((UCSR0A & (1 << UDRE0))==0); /* Wait until data register empty. */
+	loop_until_bit_is_set(UCSR0A,UDRE0);
 	UDR0 = byteToWrite;
 }
 
 uint8_t uart_readByte(){
 	//while((UCSR0A & (1 << RXC0))==0);/* Wait until data exists. */
+	loop_until_bit_is_set(UCSR0A,UDRE0);
 	return UDR0;
 }
 

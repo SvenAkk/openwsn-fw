@@ -81,10 +81,10 @@ void board_init() {
 //	PRR0 = 0x00;
 //	PRR1 = 0x00;
 	// enable data retention
-	DRTRAM0 |= 0x10;
-	DRTRAM1 |= 0x10;
-	DRTRAM2 |= 0x10;
-	DRTRAM3 |= 0x10;
+//	DRTRAM0 |= 0x10;
+//	DRTRAM1 |= 0x10;
+//	DRTRAM2 |= 0x10;
+//	DRTRAM3 |= 0x10;
 
 	// initialize bsp modules
 	debugpins_init();
@@ -129,11 +129,11 @@ void board_reset() {
 // UART0 interrupt
 // pass to uart_isr_rx/tx
 ISR(USART0_RX_vect) {
-	//uart_isr_rx(); // doing nothing w/ return value
+	uart_tx_isr(); // doing nothing w/ return value
 }
 
 ISR(USART0_TX_vect) {
-	//uart_isr_tx();
+	uart_rx_isr();
 }
 // radio interrupt(s)
 // pass to radio_isr

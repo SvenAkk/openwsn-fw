@@ -50,28 +50,28 @@ void radiotimer_setEndFrameCb(radiotimer_capture_cbt cb) {
 }
 
 void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
-	   PRR0 &= ~(1<<PRTIM2); // turn on timer 2 for crystal
-	   SCCR0 = (SCCR0 | 0b00110110) & 0b11111110; // enable symbol counter, 32KHz clock, absolute compare 1,
-												  // relative compare 2, relative compare 3
-	   SCCR1 = 0; // no backoff slot counter
-	   ASSR |= (1<<AS2); // enable 32KHz crystal
-
-	   //set compare registers
-	   *((PORT_RADIOTIMER_WIDTH *)(&SCOCR2LL)) = 0;
-	   SCOCR2LL = 0;
-
-	   // reset timer value
-	   SCCNTHH = SCCNTHL = SCCNTLH = 0;
-	   SCCNTLL = 0;
-
-	   //set period
-	   radiotimer_setPeriod(period);
-	   SCCR0 |= _BV(SCMBTS); // "reset" radiotimer
-
-	   // wait for register writes
-	   while(SCSR & 0x01);
-	   //enable interrupts
-	   SCIRQM |= 0x06;
+//	   PRR0 &= ~(1<<PRTIM2); // turn on timer 2 for crystal
+//	   SCCR0 = (SCCR0 | 0b00110110) & 0b11111110; // enable symbol counter, 32KHz clock, absolute compare 1,
+//												  // relative compare 2, relative compare 3
+//	   SCCR1 = 0; // no backoff slot counter
+//	   ASSR |= (1<<AS2); // enable 32KHz crystal
+//
+//	   //set compare registers
+//	   *((PORT_RADIOTIMER_WIDTH *)(&SCOCR2LL)) = 0;
+//	   SCOCR2LL = 0;
+//
+//	   // reset timer value
+//	   SCCNTHH = SCCNTHL = SCCNTLH = 0;
+//	   SCCNTLL = 0;
+//
+//	   //set period
+//	   radiotimer_setPeriod(period);
+//	   SCCR0 |= _BV(SCMBTS); // "reset" radiotimer
+//
+//	   // wait for register writes
+//	   while(SCSR & 0x01);
+//	   //enable interrupts
+//	   SCIRQM |= 0x06;
 }
 
 //===== direct access

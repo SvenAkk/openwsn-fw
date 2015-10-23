@@ -8,7 +8,7 @@
 #include <avr/eeprom.h>
 #include <avr/io.h>
 #include <avr/iom128rfa1.h> //Sven: this is advised against, but works.
-
+#include <stdio.h>
 
 #include "uart.h"
 #include "board.h"
@@ -19,6 +19,14 @@
 #define BAUD 57600 //The baud rate you want
 
 #include <util/setbaud.h>
+
+void uart_putchar(char c, FILE *stream);
+
+char uart_getchar(FILE *stream);
+
+FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
+FILE uart_input = FDEV_SETUP_STREAM(NULL, uart_getchar, _FDEV_SETUP_READ);
+
 
 //=========================== variables =======================================
 
@@ -49,6 +57,9 @@ void uart_init() {
 	UCSR0C = 0b00000110;
 	// Enable rx&tx interrupt, disable empty interrupt, enable rx&tx
 	UCSR0B = 0b11011000;
+
+    stdout = &uart_output;
+    stdin  = &uart_input;
 }
 
 void uart_setCallbacks(uart_tx_cbt txCb, uart_rx_cbt rxCb) {
@@ -82,6 +93,19 @@ uint8_t uart_readByte(){
 	//while((UCSR0A & (1 << RXC0))==0);/* Wait until data exists. */
 	loop_until_bit_is_set(UCSR0A,UDRE0);
 	return UDR0;
+}
+
+void uart_putchar(char c, FILE *stream) {
+    if (c == '\n') {
+        uart_putchar('\r', stream);
+    }
+    loop_until_bit_is_set(UCSR0A, UDRE0);
+    UDR0 = c;
+}
+
+char uart_getchar(FILE *stream) {
+    loop_until_bit_is_set(UCSR0A, RXC0); /* Wait until data exists. */
+    return UDR0;
 }
 
 //=========================== private =========================================

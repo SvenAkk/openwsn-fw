@@ -7,7 +7,7 @@ to this board.
 \author Sven Akkermans <sven.akkermans@cs.kuleuven.be>, September 2015.
 */
 
-// Based on the description: CC2538-specific board information bsp module.
+// Based on the description: atmega128RFA1-specific board information bsp module.
 
 #ifndef __BOARD_INFO_H
 #define __BOARD_INFO_H

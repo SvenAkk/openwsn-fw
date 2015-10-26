@@ -31,23 +31,6 @@ extern uint8_t radio_trx_end_isr();
 extern uint8_t radiotimer_compare_isr();
 extern uint8_t radiotimer_overflow_isr();
 
-//From contiki
-#define PRINTF(FORMAT,args...) printf_P(PSTR(FORMAT),##args)
-
-#define ANNOUNCE_BOOT 1    //adds about 600 bytes to program size
-#if ANNOUNCE_BOOT
-#define PRINTA(FORMAT,args...) printf_P(PSTR(FORMAT),##args)
-#else
-#define PRINTA(...)
-#endif
-
-#define DEBUG 1
-#if DEBUG
-#define PRINTD(FORMAT,args...) printf_P(PSTR(FORMAT),##args)
-#else
-#define PRINTD(...)
-#endif
-
 //=========================== main ============================================
 uint8_t mcusr_backup;
 
@@ -66,13 +49,13 @@ void board_init() {
 	  watchdog_start(); // Sven: Watchdog is disabled.
 
 	  // Print reboot reason
-	  if(mcusr_backup & (1<<PORF )) PRINTD("Power-on reset.\n");
-	  if(mcusr_backup & (1<<EXTRF)) PRINTD("External reset!\n");
-	  if(mcusr_backup & (1<<BORF )) PRINTD("Brownout reset!\n");
-	  if(mcusr_backup & (1<<WDRF )) PRINTD("Watchdog reset!\n");
-	  if(mcusr_backup & (1<<JTRF )) PRINTD("JTAG reset!\n");
+	  if(mcusr_backup & (1<<PORF )) printf("Power-on reset.\n");
+	  if(mcusr_backup & (1<<EXTRF)) printf("External reset!\n");
+	  if(mcusr_backup & (1<<BORF )) printf("Brownout reset!\n");
+	  if(mcusr_backup & (1<<WDRF )) printf("Watchdog reset!\n");
+	  if(mcusr_backup & (1<<JTRF )) printf("JTAG reset!\n");
 
-	PRINTA("\n*******Booting Zigduino with OpenWSN*******\n");
+	  printf("\n*******Booting Zigduino with OpenWSN*******\n");
 
 	// setup clock speed
 
@@ -161,6 +144,7 @@ ISR(SCNT_CMP1_vect) {
 //MAC symbol counter interrupt compare 2/3
 // pass to radiotimer_isr //SVEN Changed
 ISR(TIMER2_COMPA_vect) {
+	printf("TIMER2_COMPA_vect ISR raised");
 	bsp_timer_isr();
 }
 

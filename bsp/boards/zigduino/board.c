@@ -149,6 +149,8 @@ ISR(TIMER2_COMPA_vect) {
 }
 
 ISR(SCNT_CMP3_vect) {
+	printf("SCNT_CMP3_vect ISR raised");
+
 	//radiotimer_overflow_isr();
 }
 

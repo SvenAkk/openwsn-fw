@@ -46,19 +46,21 @@ void bsp_timer_init(){
 	memset(&bsp_timer_vars,0,sizeof(bsp_timer_vars_t));
 
 	PRR0 &= ~(1<<PRTIM2); // turn on timer 2 for crystal
-//	SCCR0 = (SCCR0 | 0b00110000) & 0b11111110; // enable symbol counter, 32KHz clock, absolute compare 1
 
-//	When the AS2 bit in the ASSR Register is written to logic one, the clock source is either
-//	taken from the Timer/Counter Oscillator connected to TOSC1 and TOSC2 or from the AMR pin.
-	ASSR |= (1 << AS2); // Timer 2 in async, turn on 32kHz crystal oscillator
+	/* Disable TIMER2 interrupt */
+	TIMSK2 &= ~(1 << OCIE2A);
+
+	ASSR = 0x00;
 	while(ASSR & (1<<TCN2UB));      // Wait for ASSR to change.
-	TCCR2A = (0<<COM2A1) | (0<<COM2A0) | (0<<COM2B1) | (0<<COM2B0) | (0<<WGM21) | (0<<WGM20);
-	TCCR2B = (0<<WGM22) |(0<<CS22)|(0<<CS21)|(1<<CS20);
+
 
 	/* Set counter to zero */
 	TCNT2 = 0;
-	OCR2A = 0;
+	while(ASSR & (1<<TCN2UB)) {};
 
+	TCCR2A = (0<<COM2A1) | (0<<COM2A0) | (0<<COM2B1) | (0<<COM2B0) | (1<<WGM21) | (0<<WGM20);
+	TCCR2B = (0<<WGM22) |(1<<CS22)|(0<<CS21)|(1<<CS20); //prescale: 1024
+	while(ASSR & (1<<TCR2BUB)) {}; // check if busy
 }
 
 /**
@@ -109,36 +111,30 @@ void bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){
 
 	temp_last_compare_value = bsp_timer_vars.last_compare_value;
 
-	newCompareValue      =  bsp_timer_vars.last_compare_value + delayTicks;
+	newCompareValue      =  bsp_timer_vars.last_compare_value + delayTicks/1024 - 1;
 	bsp_timer_vars.last_compare_value   =  newCompareValue;
-
-	uint32_t i = 0;
-	uint32_t limit = 500000;
-	while(i<limit){
-		i++;
-	}
 
 	current_value = bsp_timer_get_currentValue();
 
 	printf("\n\n");
-	printf("delayTicks: %u\n", delayTicks);
-	printf("current value: %u\n", current_value);
-	printf("newCompareValue: %u\n", newCompareValue);
-	printf("temp_last_compare_value: %u\n", temp_last_compare_value);
+	printf("delayTicks: %lu\n", delayTicks);
+	printf("current value: %lu\n", current_value);
+	printf("newCompareValue: %lu\n", newCompareValue);
+	printf("temp_last_compare_value: %lu\n", temp_last_compare_value);
 	PORT_TIMER_WIDTH passed_time = current_value - temp_last_compare_value;
-	printf("passed_time: %u\n",passed_time);
+	printf("passed_time: %lu\n",passed_time);
 
-	if (delayTicks < current_value - temp_last_compare_value) {
+	if (current_value > temp_last_compare_value && delayTicks < current_value - temp_last_compare_value) {
 	      // we're already too late, schedule the ISR right now manually
 	      // setting the interrupt flag triggers an interrupt
-		printf("Too late, trigger interrupt \n");
+		printf("Too late, triggered interrupt \n");
 		bsp_timer_isr();
+
 	} else {
-		printf("Set compare, enable interrupt\n");
+		printf("Set compare, enabled interrupt\n");
 		OCR2A  =  newCompareValue;
 		TIMSK2 |= (1 << OCIE2A); // Enable TIMER2 output compare interrupt
 	}
-
 }
 
 /**

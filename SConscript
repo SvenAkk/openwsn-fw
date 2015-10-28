@@ -421,6 +421,11 @@ def jtagUploadFunc(location):
                 suffix      = '.phonyupload',
                 src_suffix  = '.ihex',
             )
+ # LOW: Transceiver osc as CLK (16Mhz when prescaler 0x0), maximum start-up delay
+ # HIGH: JTAG/OCD off, SPI on,  WatchDog override off (can be enabled at runtime), Bootsize 512b,
+ # start bootsector at 0xfe00 (word address!), save EEPROM on reflash, start at addr 0000
+ # EXT: BrownOut at 1.9V
+ # Last fuse fd -> f5 due to immutable bits, otherwise avrdude gives a verification error
     elif env['toolchain']=='avr':
            port = ARGUMENTS.get('jtag', 0)
            return Builder(

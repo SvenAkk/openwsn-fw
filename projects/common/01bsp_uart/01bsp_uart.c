@@ -56,7 +56,7 @@ int mote_main(void) {
    
    // initialize the board
    board_init();
-   
+
    // setup UART
    uart_setCallbacks(cb_uartTxDone,cb_uartRxCb);
    uart_enableInterrupts();
@@ -64,13 +64,13 @@ int mote_main(void) {
    // setup BSP timer
    bsp_timer_set_callback(cb_compare);
    bsp_timer_scheduleIn(BSP_TIMER_PERIOD);
-   
+
    while(1) {
-      
+
       // wait for timer to elapse
       while (app_vars.uartSendNow==0);
       app_vars.uartSendNow = 0;
-      
+
       // send string over UART
       app_vars.uartDone              = 0;
       app_vars.uart_lastTxByteIndex  = 0;

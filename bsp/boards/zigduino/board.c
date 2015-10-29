@@ -9,8 +9,8 @@
 #include <avr/pgmspace.h>
 #include <avr/io.h>
 #include <avr/iom128rfa1.h>
+#include <avr/wdt.h>
 
-#include "watchdog.h"
 
 #include "board.h"
 
@@ -45,29 +45,33 @@ int main(void) {
 //=========================== public ==========================================
 
 void board_init() {
-	  watchdog_init();
-	  watchdog_start(); // Sven: Watchdog is disabled.
 
-	  // Print reboot reason
-	  if(mcusr_backup & (1<<PORF )) printf("Power-on reset.\n");
-	  if(mcusr_backup & (1<<EXTRF)) printf("External reset!\n");
-	  if(mcusr_backup & (1<<BORF )) printf("Brownout reset!\n");
-	  if(mcusr_backup & (1<<WDRF )) printf("Watchdog reset!\n");
-	  if(mcusr_backup & (1<<JTRF )) printf("JTAG reset!\n");
+	// Print reboot reason
+	if(mcusr_backup & (1<<PORF )) printf("Power-on reset.\n");
+	if(mcusr_backup & (1<<EXTRF)) printf("External reset!\n");
+	if(mcusr_backup & (1<<BORF )) printf("Brownout reset!\n");
+	if(mcusr_backup & (1<<WDRF )) printf("Watchdog reset!\n");
+	if(mcusr_backup & (1<<JTRF )) printf("JTAG reset!\n");
 
-	  printf("\n*******Booting Zigduino with OpenWSN*******\n");
+	printf("\n*******Booting Zigduino with OpenWSN*******\n");
 
 	// setup clock speed
 
-//	// initialize pins
-//	// turn off power to all periphrals ( will be enabled specifically later)
-//	PRR0 = 0x00;
-//	PRR1 = 0x00;
+	//	// initialize pins
+	//	// turn off power to all periphrals ( will be enabled specifically later)
+	//	PRR0 = 0x00;
+	//	PRR1 = 0x00;
 	// enable data retention
-//	DRTRAM0 |= 0x10;
-//	DRTRAM1 |= 0x10;
-//	DRTRAM2 |= 0x10;
-//	DRTRAM3 |= 0x10;
+	//	DRTRAM0 |= 0x10;
+	//	DRTRAM1 |= 0x10;
+	//	DRTRAM2 |= 0x10;
+	//	DRTRAM3 |= 0x10;
+
+	//disable interrupts
+	cli();
+
+	wdt_reset();
+	wdt_disable();
 
 	// initialize bsp modules
 	debugpins_init();
@@ -90,7 +94,7 @@ void board_sleep() {
 }
 
 void board_reset() {
-	watchdog_reboot(); //rebooting the wd, resets the board
+	wdt_reset(); //rebooting the wd, resets the board
 }
 
 //=========================== private =========================================
@@ -101,22 +105,23 @@ void board_reset() {
 // is defined elsewhere also, this overrides all
 #ifdef __cplusplus
 #  define ISR(vector, ...)            \
-    extern "C" void vector (void) __attribute__ ((signal,__INTR_ATTRS)) __VA_ARGS__; \
-    void vector (void)
+		extern "C" void vector (void) __attribute__ ((signal,__INTR_ATTRS)) __VA_ARGS__; \
+		void vector (void)
 #else
 #  define ISR(vector, ...)            \
-    void vector (void) __attribute__ ((signal,__INTR_ATTRS)) __VA_ARGS__; \
-    void vector (void)
+		void vector (void) __attribute__ ((signal,__INTR_ATTRS)) __VA_ARGS__; \
+		void vector (void)
 #endif
 
 // UART0 interrupt
 // pass to uart_isr_rx/tx
 ISR(USART0_RX_vect) {
-	uart_tx_isr(); // doing nothing w/ return value
+	uart_rx_isr(); // doing nothing w/ return value
+
 }
 
 ISR(USART0_TX_vect) {
-	uart_rx_isr();
+	uart_tx_isr(); // doing nothing w/ return value
 }
 // radio interrupt(s)
 // pass to radio_isr
@@ -135,16 +140,32 @@ ISR(TRX24_TX_END_vect) {
 // pass to bsp_timer_isr
 //SVEN CHANGED
 ISR(SCNT_CMP1_vect) {
+	printf("SCNT_CMP1_vect ISR raised");
+	bsp_timer_isr();
+
+	//radiotimer_compare_isr();
+}
+
+// MAC symbol counter interrupt compare 1
+// pass to bsp_timer_isr
+//SVEN CHANGED
+ISR(SCNT_CMP2_vect) {
 	bsp_timer_isr();
 
 	//radiotimer_compare_isr();
 
 }
-
 //MAC symbol counter interrupt compare 2/3
 // pass to radiotimer_isr //SVEN Changed
 ISR(TIMER2_COMPA_vect) {
 	printf("TIMER2_COMPA_vect ISR raised");
+	bsp_timer_isr();
+}
+
+//MAC symbol counter interrupt compare 2/3
+// pass to radiotimer_isr //SVEN Changed
+ISR(TIMER0_COMPA_vect) {
+	printf("TIMER0_COMPA_vect ISR raised");
 	bsp_timer_isr();
 }
 
@@ -154,7 +175,11 @@ ISR(SCNT_CMP3_vect) {
 	//radiotimer_overflow_isr();
 }
 
+ISR(WDT_vect) {
+	printf("WDT_vect ISR raised \n");
 
+	bsp_timer_isr();
+}
 // buttons (none)
 
 

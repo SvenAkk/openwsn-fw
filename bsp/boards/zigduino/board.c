@@ -88,6 +88,9 @@ void board_init() {
 
 // Uses high-level functions from avr/sleep.h
 void board_sleep() {
+	loop_until_bit_is_set(UCSR0A, TXC0);
+	UCSR0A |= (1 << TXC0); //Ensure messages are sent before the sleep
+
 	TRXPR = 1 << SLPTR; // sent transceiver to sleep
 	set_sleep_mode(SLEEP_MODE_PWR_SAVE); // Power save mode to allow Timer/counter2 interrupts, see pg 162
 	sleep_mode();
@@ -96,7 +99,6 @@ void board_sleep() {
 void board_reset() {
 	wdt_reset(); //rebooting the wd, resets the board
 }
-
 //=========================== private =========================================
 
 //=========================== interrupt handlers ==============================
@@ -176,9 +178,8 @@ ISR(SCNT_CMP3_vect) {
 }
 
 ISR(WDT_vect) {
-	printf("WDT_vect ISR raised \n");
-
-	bsp_timer_isr();
+	printf("WDT_vect ISR raised. \n");
+	bsp_timer_scheduleIn(bsp_timer_get_currentValue()); // timer will subtract this from set time
 }
 // buttons (none)
 

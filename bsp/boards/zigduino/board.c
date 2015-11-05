@@ -97,7 +97,9 @@ void board_sleep() {
 }
 
 void board_reset() {
-	wdt_reset(); //rebooting the wd, resets the board
+    MCUSR = 0;
+    WDTCSR |= (1 << WDCE) | (1 << WDE);
+    WDTCSR = 0x00;
 }
 //=========================== private =========================================
 

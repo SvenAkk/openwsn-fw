@@ -25,8 +25,8 @@
  * PINs where LEDs are connected
  */
 #define LED_PIN_13                       (PB1)  //A free led, we use it for sync and debug
-#define LED_ERR_1                       (PD5) //first red error led
-#define LED_ERR_2                       (PD6) //second red error led
+#define LED_ERR_1                       (PD5) //first red error led, RFRX
+#define LED_ERR_2                       (PD6) //second red error led, RFTX
 
 #define LED_TX
 
@@ -50,22 +50,16 @@ void    leds_init() {
 void    leds_error_on() {
 	LED_PORT |= (1 << LED_ERR_1);
 	LED_PORT_DIR |= (1 << LED_ERR_1);
-	LED_PORT |= (1 << LED_ERR_2);
-	LED_PORT_DIR |= (1 << LED_ERR_2);
 }
 
 void    leds_error_off() {
 	LED_PORT &= ~(1 << LED_ERR_1);
 	LED_PORT_DIR |= (1 << LED_ERR_1);
-	LED_PORT &= ~(1 << LED_ERR_2);
-	LED_PORT_DIR |= (1 << LED_ERR_2);
 }
 
 void    leds_error_toggle() {
 	LED_PORT ^= (1 << LED_ERR_1);
 	LED_PORT_DIR |= (1 << LED_ERR_1);
-	LED_PORT ^= (1 << LED_ERR_2);
-	LED_PORT_DIR |= (1 << LED_ERR_2);
 }
 
 uint8_t leds_error_isOn() {
@@ -75,10 +69,16 @@ void leds_error_blink() {
 }
 
 void    leds_radio_on() {
+	LED_PORT |= (1 << LED_ERR_2);
+	LED_PORT_DIR |= (1 << LED_ERR_2); //transmission led
 }
 void    leds_radio_off() {
+	LED_PORT &= ~(1 << LED_ERR_2);
+	LED_PORT_DIR |= (1 << LED_ERR_2);
 }
 void    leds_radio_toggle() {
+	LED_PORT ^= (1 << LED_ERR_2);
+	LED_PORT_DIR |= (1 << LED_ERR_2);
 }
 uint8_t leds_radio_isOn() {
 	return 0;

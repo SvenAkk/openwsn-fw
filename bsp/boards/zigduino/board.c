@@ -4,12 +4,12 @@
 \author Sven Akkermans <sven.akkermans@cs.kuleuven.be>, September 2015.
  */
 
-#include <avr/interrupt.h>
 #include <avr/sleep.h>
 #include <avr/pgmspace.h>
 #include <avr/io.h>
 #include <avr/iom128rfa1.h>
 #include <avr/wdt.h>
+#include <avr/interrupt.h>
 
 
 #include "board.h"
@@ -91,8 +91,8 @@ void board_sleep() {
 	loop_until_bit_is_set(UCSR0A, TXC0);
 	UCSR0A |= (1 << TXC0); //Ensure messages are sent before the sleep
 
-	TRXPR = 1 << SLPTR; // sent transceiver to sleep
-	set_sleep_mode(SLEEP_MODE_IDLE); // Power save mode to allow Timer/counter2 interrupts, see pg 162
+	//TRXPR = 1 << SLPTR; // sent transceiver to sleep
+	set_sleep_mode(SLEEP_MODE_PWR_SAVE); // Power save mode to allow Timer/counter2 interrupts, see pg 162
 	sleep_mode();
 }
 
@@ -107,15 +107,9 @@ void board_reset() {
 
 // Based from the derfmega and from avr/interrupt.h because this macro
 // is defined elsewhere also, this overrides all
-#ifdef __cplusplus
-#  define ISR(vector, ...)            \
-		extern "C" void vector (void) __attribute__ ((signal,__INTR_ATTRS)) __VA_ARGS__; \
-		void vector (void)
-#else
-#  define ISR(vector, ...)            \
+#define ISR(vector, ...)            \
 		void vector (void) __attribute__ ((signal,__INTR_ATTRS)) __VA_ARGS__; \
 		void vector (void)
-#endif
 
 // UART0 interrupt
 // pass to uart_isr_rx/tx
@@ -146,8 +140,8 @@ ISR(TRX24_TX_END_vect) {
 }
 
 ISR(SCNT_CMP1_vect) {
-	printf("SCNT_CMP1_vect ISR raised. \n");
-	radiotimer_compare_isr();
+	//printf("SCNT_CMP1_vect ISR raised. \n");
+	bsp_timer_isr();
 }
 
 ISR(SCNT_CMP2_vect) {
@@ -161,20 +155,19 @@ ISR(SCNT_CMP3_vect) {
 }
 
 ISR (TIMER1_COMPA_vect) {
-	printf("TIMER1_COMPA_vect ISR raised. \n");
+	//printf("TIMER1_COMPA_vect ISR raised. \n");
 	//TIMSK1 &= ~((1<<ICIE1)|(1<<OCIE1A)|(1<<OCIE1B)|(1<<TOIE1));
 	radiotimer_overflow_isr();
 }
 
 ISR (TIMER1_COMPB_vect) {
-	printf("TIMER1_COMPB_vect ISR raised. \n");
+	//printf("TIMER1_COMPB_vect ISR raised. \n");
 	//TIMSK1 &= ~((1<<ICIE1)|(1<<OCIE1A)|(1<<OCIE1B)|(1<<TOIE1));
 	radiotimer_compare_isr();
 }
 
 ISR(WDT_vect) {
 	printf("WDT_vect ISR raised. \n");
-	bsp_timer_scheduleIn(bsp_timer_get_currentValue()); // timer will subtract this from set time
 }
 // buttons (none)
 

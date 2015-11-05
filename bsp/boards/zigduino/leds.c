@@ -28,6 +28,8 @@
 #define LED_ERR_1                       (PD5) //first red error led
 #define LED_ERR_2                       (PD6) //second red error led
 
+#define LED_TX
+
 //=========================== variables =======================================
 
 //=========================== prototypes ======================================
@@ -41,6 +43,8 @@ void    leds_init() {
 	LED_PORT_DIR |= (1 << LED_ERR_1);
 	LED_PORT |= (1 << LED_ERR_2);
 	LED_PORT_DIR |= (1 << LED_ERR_2);
+
+	leds_all_off();
 }
 
 void    leds_error_on() {

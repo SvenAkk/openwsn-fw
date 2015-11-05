@@ -92,7 +92,7 @@ void board_sleep() {
 	UCSR0A |= (1 << TXC0); //Ensure messages are sent before the sleep
 
 	TRXPR = 1 << SLPTR; // sent transceiver to sleep
-	set_sleep_mode(SLEEP_MODE_PWR_SAVE); // Power save mode to allow Timer/counter2 interrupts, see pg 162
+	set_sleep_mode(SLEEP_MODE_IDLE); // Power save mode to allow Timer/counter2 interrupts, see pg 162
 	sleep_mode();
 }
 
@@ -118,63 +118,56 @@ void board_reset() {
 // UART0 interrupt
 // pass to uart_isr_rx/tx
 ISR(USART0_RX_vect) {
+	//printf("USART0_RX_vect ISR raised. \n");
 	uart_rx_isr(); // doing nothing w/ return value
 
 }
 
 ISR(USART0_TX_vect) {
+	//printf("USART0_TX_vect ISR raised. \n");
 	uart_tx_isr(); // doing nothing w/ return value
 }
 // radio interrupt(s)
 // pass to radio_isr
 ISR(TRX24_RX_START_vect) {
-	//radio_rx_start_isr(); // doing nothing w/ return value
+	//printf("TRX24_RX_START_vect ISR raised. \n");
+	radio_rx_start_isr(); // doing nothing w/ return value
 }
 
 ISR(TRX24_RX_END_vect) {
-	//radio_trx_end_isr();
+	//printf("TRX24_RX_END_vect ISR raised. \n");
+	radio_trx_end_isr();
 }
 ISR(TRX24_TX_END_vect) {
-	//radio_trx_end_isr();
+	//printf("TRX24_TX_END_vect ISR raised. \n");
+	radio_trx_end_isr();
 }
 
-// MAC symbol counter interrupt compare 1
-// pass to bsp_timer_isr
-//SVEN CHANGED
 ISR(SCNT_CMP1_vect) {
-	printf("SCNT_CMP1_vect ISR raised");
-	bsp_timer_isr();
-
-	//radiotimer_compare_isr();
+	printf("SCNT_CMP1_vect ISR raised. \n");
+	radiotimer_compare_isr();
 }
 
-// MAC symbol counter interrupt compare 1
-// pass to bsp_timer_isr
-//SVEN CHANGED
 ISR(SCNT_CMP2_vect) {
-	bsp_timer_isr();
-
-	//radiotimer_compare_isr();
-
-}
-//MAC symbol counter interrupt compare 2/3
-// pass to radiotimer_isr //SVEN Changed
-ISR(TIMER2_COMPA_vect) {
-	printf("TIMER2_COMPA_vect ISR raised");
-	bsp_timer_isr();
-}
-
-//MAC symbol counter interrupt compare 2/3
-// pass to radiotimer_isr //SVEN Changed
-ISR(TIMER0_COMPA_vect) {
-	printf("TIMER0_COMPA_vect ISR raised");
-	bsp_timer_isr();
+	printf("SCNT_CMP2_vect ISR raised. \n");
+	radiotimer_compare_isr();
 }
 
 ISR(SCNT_CMP3_vect) {
-	printf("SCNT_CMP3_vect ISR raised");
+	printf("SCNT_CMP3_vect ISR raised. \n");
+	radiotimer_overflow_isr();
+}
 
-	//radiotimer_overflow_isr();
+ISR (TIMER1_COMPA_vect) {
+	printf("TIMER1_COMPA_vect ISR raised. \n");
+	//TIMSK1 &= ~((1<<ICIE1)|(1<<OCIE1A)|(1<<OCIE1B)|(1<<TOIE1));
+	radiotimer_overflow_isr();
+}
+
+ISR (TIMER1_COMPB_vect) {
+	printf("TIMER1_COMPB_vect ISR raised. \n");
+	//TIMSK1 &= ~((1<<ICIE1)|(1<<OCIE1A)|(1<<OCIE1B)|(1<<TOIE1));
+	radiotimer_compare_isr();
 }
 
 ISR(WDT_vect) {

@@ -1,5 +1,5 @@
 /**
-\brief Zigduino definition of the "eui64" bsp module.
+\brief Zigduino definition of the "radiotimer" bsp module.
 
 \author Sven Akkermans <sven.akkermans@cs.kuleuven.be>, September 2015.
 */
@@ -8,7 +8,9 @@
 #include <avr/fuse.h>
 #include <avr/eeprom.h>
 
+#include "board_info.h"
 #include "radiotimer.h"
+#include "radio.h"
 #include "leds.h"
 
 //=========================== variables =======================================
@@ -22,15 +24,14 @@ radiotimer_vars_t radiotimer_vars;
 
 //=========================== prototypes ======================================
 
-uint8_t radiotimer_overflow_isr();
-uint8_t radiotimer_compare_isr();
+kick_scheduler_t radiotimer_overflow_isr();
+kick_scheduler_t radiotimer_compare_isr();
 //=========================== public ==========================================
 
 //===== admin
 
 void radiotimer_init() {
-   // clear local variables
-   memset(&radiotimer_vars,0,sizeof(radiotimer_vars_t));
+   memset(&radiotimer_vars,0,sizeof(radiotimer_vars_t));    // clear local variables
 }
 
 void radiotimer_setOverflowCb(radiotimer_compare_cbt cb) {
@@ -50,77 +51,57 @@ void radiotimer_setEndFrameCb(radiotimer_capture_cbt cb) {
 }
 
 void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
-//	   PRR0 &= ~(1<<PRTIM2); // turn on timer 2 for crystal
-//	   SCCR0 = (SCCR0 | 0b00110110) & 0b11111110; // enable symbol counter, 32KHz clock, absolute compare 1,
-//												  // relative compare 2, relative compare 3
-//	   SCCR1 = 0; // no backoff slot counter
-//	   ASSR |= (1<<AS2); // enable 32KHz crystal
-//
-//	   //set compare registers
-//	   *((PORT_RADIOTIMER_WIDTH *)(&SCOCR2LL)) = 0;
-//	   SCOCR2LL = 0;
-//
-//	   // reset timer value
-//	   SCCNTHH = SCCNTHL = SCCNTLH = 0;
-//	   SCCNTLL = 0;
-//
-//	   //set period
-//	   radiotimer_setPeriod(period);
-//	   SCCR0 |= _BV(SCMBTS); // "reset" radiotimer
-//
-//	   // wait for register writes
-//	   while(SCSR & 0x01);
-//	   //enable interrupts
-//	   SCIRQM |= 0x06;
+	  TIMSK1 &= ~((1<<ICIE1)|(1<<OCIE1A)|(1<<OCIE1B)|(1<<TOIE1));
+	  TIFR1 |= (1 << ICF1) | (1 << OCF1A) | (1 << OCF1B) | (1 << TOV1);
+
+	  TCCR1A = 0;
+	  TCCR1B = 0;
+
+	  TCNT1 = 0;
+
+	  TCCR1A =  (0<<WGM11) | (0<<WGM10);
+	  TCCR1B |= (0<<WGM13) | (1<<WGM12) | //CTC, TOP = OCR1A
+			  (1<<CS12) | (0<<CS11) | (1<CS10); //prescaler 1024
+
+	  OCR1A = period;
+
+	  TIFR1 |= (1 << ICF1) | (1 << OCF1A) | (1 << OCF1B) | (1 << TOV1); //clears bits
+	  TIMSK1 |= (1 << OCIE1A); //enable ORCRA1 interrupt
 }
 
 //===== direct access
 
 PORT_RADIOTIMER_WIDTH radiotimer_getValue() {
-	  return radiotimer_getCapturedTime();
+	  return TCNT1;
 }
 
 void radiotimer_setPeriod(PORT_RADIOTIMER_WIDTH period) {
-	SCOCR3HH = (uint8_t)(period>>24);
-	SCOCR3HL = (uint8_t)(period>>16);
-	SCOCR3LH = (uint8_t)(period>>8);
-	SCOCR3LL = (uint8_t)period;
+	OCR1A = period;
 }
 
 PORT_RADIOTIMER_WIDTH radiotimer_getPeriod() {
-	return *((PORT_RADIOTIMER_WIDTH *)(&SCOCR3LL));
+	return OCR1A;
 }
 
 //===== compare
 
 void radiotimer_schedule(PORT_RADIOTIMER_WIDTH offset) {
-	   // offset when to fire
-		SCOCR2HH = (uint8_t)(offset>>24);
-		SCOCR2HL = (uint8_t)(offset>>16);
-		SCOCR2LH = (uint8_t)(offset>>8);
-		SCOCR2LL = (uint8_t)offset;
+	   OCR1B = offset; //offset when to fire
 
-	   // reset pending interrupts
-	   SCIRQS |= _BV(1);
-	   // enable interrupt
-	   SCIRQM |= _BV(1);
+	   TIMSK1 |= (1 << OCIE1B); //enable OCCRB1 interrupt
 
 }
 
 void radiotimer_cancel() {
-	   // reset value
-	   *((PORT_RADIOTIMER_WIDTH *)(&SCOCR2LL)) = 0;
-	   SCOCR2LL = 0;
+	   OCR1B = 0; //offset when to fire
 
-	   // disable interrupt
-	   SCIRQM &= ~_BV(1);
-
+	   TIMSK1 &= ~(1 << OCIE1B); //disable OCCRB1 interrupt
 }
 
-//===== capture
+////===== capture
 
 inline PORT_RADIOTIMER_WIDTH radiotimer_getCapturedTime() {
-	   return *((PORT_RADIOTIMER_WIDTH *)(&SCCNTLL)) - *((PORT_RADIOTIMER_WIDTH *)(&SCBTSRLL));
+	   return TCNT1;
 }
 
 //=========================== private =========================================
@@ -134,23 +115,22 @@ kick_scheduler_t radiotimer_isr() {
 	while(1);
 }
 
-uint8_t radiotimer_compare_isr() {
+kick_scheduler_t radiotimer_compare_isr() {
          if (radiotimer_vars.compare_cb!=NULL) {
 	         // call the callback
 	         radiotimer_vars.compare_cb();
 	         // kick the OS
-	         return 1;
+	         return KICK_SCHEDULER;
          }
-		 return 0;
+		 return DO_NOT_KICK_SCHEDULER;
 }
 
-uint8_t radiotimer_overflow_isr() {
-		SCCR0 |= _BV(SCMBTS);
+kick_scheduler_t radiotimer_overflow_isr() {
          if (radiotimer_vars.overflow_cb!=NULL) {
 	         // call the callback
 	         radiotimer_vars.overflow_cb();
 	         // kick the OS
-	         return 1;
+	         return KICK_SCHEDULER;
          }
-		 return 0;
+		 return DO_NOT_KICK_SCHEDULER;
 }

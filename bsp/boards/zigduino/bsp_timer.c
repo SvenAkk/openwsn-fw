@@ -33,7 +33,10 @@ any compare registers, so no interrupt will fire.
 void bsp_timer_init(){
 	memset(&bsp_timer_vars,0,sizeof(bsp_timer_vars_t));	// clear local variables
 
-	SCCR0 = (1<<SCEN) | (0 << SCCKSEL); // enable symbol counter, 16Khz clock, absolute compare 1
+	SCIRQM &= ~(1<<IRQMCP1);		// disable interrupt
+	SCIRQS |= (1<<IRQMCP1);		   // reset pending interrupt
+
+	SCCR0 |= (1<<SCEN) | (0 << SCCKSEL); // enable symbol counter, 16Khz clock, absolute compare
 
 
 	SCOCR1LL = 0; //set compare1 registers

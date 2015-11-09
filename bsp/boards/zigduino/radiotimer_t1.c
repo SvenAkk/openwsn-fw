@@ -6,6 +6,7 @@
 
 #include "board_info.h"
 #include "radiotimer.h"
+#include "radio.h"
 
 //=========================== variables =======================================
 
@@ -45,72 +46,55 @@ void radiotimer_setEndFrameCb(radiotimer_capture_cbt cb) {
 }
 
 void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
-	SCIRQM &= ~(1<<IRQMCP2) | ~(1<<IRQMCP3);		// disable interrupts
-	SCIRQS |= (1<<IRQMCP2) | (1<<IRQMCP3);		   // reset pending interrupts
+	TIMSK1 &= ~((1<<ICIE1)|(1<<OCIE1A)|(1<<OCIE1B)|(1<<TOIE1));
+	TIFR1 |= (1 << ICF1) | (1 << OCF1A) | (1 << OCF1B) | (1 << TOV1);
 
-	SCCR0 |= (1<<SCEN) | (0 << SCCKSEL); // enable symbol counter, 16MHz clock
-	SCCR0 |= (1 << SCCMP3) | (1 << SCCMP2); // relative compare
-	SCCR0 |= (1 << SCMBTS);
-	SCCR1 = 0; // no backoff slot counter
+	TCCR1A = 0;
+	TCCR1B = 0;
 
-	*((PORT_RADIOTIMER_WIDTH *)(&SCOCR2LL)) = 0;
-	SCOCR2LL = 0;	//set compare registers
+	TCNT1 = 0;
 
+	TCCR1A =  (0<<WGM11) | (0<<WGM10);
+	TCCR1B |= (0<<WGM13) | (1<<WGM12) | //CTC, TOP = OCR1A
+			(1<<CS12) | (0<<CS11) | (1<CS10); //prescaler 1024
 
-	SCCNTHH = SCCNTHL = SCCNTLH = 0;
-	SCCNTLL = 0;	// reset timer value
+	OCR1A = period;
 
-	radiotimer_setPeriod(period);	//set period
-	SCCR0 |= (1 << SCMBTS); // "reset" radiotimer
-
-	while(SCSR & 0x01);	// wait for register writes
-
-
-	SCIRQM |=  (1<<IRQMCP3);		// enable interrupts from 2nd and 3rd compare.
+	TIFR1 |= (1 << ICF1) | (1 << OCF1A) | (1 << OCF1B) | (1 << TOV1); //clears bits
+	TIMSK1 |= (1 << OCIE1A); //enable ORCRA1 interrupt
 }
 
 //===== direct access
 
 PORT_RADIOTIMER_WIDTH radiotimer_getValue() {
-	return radiotimer_getCapturedTime();
+	return TCNT1;
 }
 
 void radiotimer_setPeriod(PORT_RADIOTIMER_WIDTH period) {
-	SCOCR3HH = (uint8_t)(period>>24);
-	SCOCR3HL = (uint8_t)(period>>16);
-	SCOCR3LH = (uint8_t)(period>>8);
-	SCOCR3LL = (uint8_t)period;
+	OCR1A = period;
 }
 
 PORT_RADIOTIMER_WIDTH radiotimer_getPeriod() {
-	return *((PORT_RADIOTIMER_WIDTH *)(&SCOCR3LL));
+	return OCR1A;
 }
 
 //===== compare
 
 void radiotimer_schedule(PORT_RADIOTIMER_WIDTH offset) {
-	SCOCR2HH = (uint8_t)(offset>>24);
-	SCOCR2HL = (uint8_t)(offset>>16);
-	SCOCR2LH = (uint8_t)(offset>>8);
-	SCOCR2LL = (uint8_t)offset;	// offset when to fire
+	OCR1B = offset; //offset when to fire
 
-
-	SCIRQS |= (1 << IRQSCP2);	// reset pending interrupts
-
-	SCIRQM |= (1 << IRQMCP2); //enable 2nd compare interrupt
+	TIMSK1 |= (1 << OCIE1B); //enable OCCRB1 interrupt
 }
 
 void radiotimer_cancel() {
-	*((PORT_RADIOTIMER_WIDTH *)(&SCOCR2LL)) = 0; 	// reset value
-	SCOCR2LL = 0;
-
-	SCIRQM &= ~(1<< IRQMCP2); //disable 2nd compare interrupt
+	OCR1B = 0; //offset when to fire
+	TIMSK1 &= ~(1 << OCIE1B); //disable OCCRB1 interrupt
 }
 
 ////===== capture
 
 inline PORT_RADIOTIMER_WIDTH radiotimer_getCapturedTime() {
-	return *((PORT_RADIOTIMER_WIDTH *)(&SCCNTLL)) - *((PORT_RADIOTIMER_WIDTH *)(&SCBTSRLL));
+	return TCNT1;
 }
 
 //=========================== private =========================================
@@ -125,10 +109,6 @@ kick_scheduler_t radiotimer_isr() {
 }
 
 kick_scheduler_t radiotimer_compare_isr() {
-//	printf("SCCNTHL %lu \n", radiotimer_getValue());
-//	printf("SCOCR2 %lu \n", *((PORT_RADIOTIMER_WIDTH *)(&SCOCR2LL)));
-//	printf("Beacon Timestamp %lu \n",*((PORT_RADIOTIMER_WIDTH *)(&SCBTSRLL)));
-
 	if (radiotimer_vars.compare_cb!=NULL) {
 		// call the callback
 		radiotimer_vars.compare_cb();
@@ -139,12 +119,6 @@ kick_scheduler_t radiotimer_compare_isr() {
 }
 
 kick_scheduler_t radiotimer_overflow_isr() {
-//	printf("SCCNTHL %lu \n", radiotimer_getValue());
-//	printf("SCOCR3 %lu \n", radiotimer_getPeriod());
-//	printf("Beacon Timestamp %lu \n",*((PORT_RADIOTIMER_WIDTH *)(&SCBTSRLL)));
-
-	SCCR0 |= (1 << SCMBTS); // Write 1 to SCMBTS captures the SCCNTH
-							// and stores it in the beacon timestamp register
 	if (radiotimer_vars.overflow_cb!=NULL) {
 		// call the callback
 		radiotimer_vars.overflow_cb();

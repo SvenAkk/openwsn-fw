@@ -45,6 +45,9 @@ int main(void) {
 //=========================== public ==========================================
 
 void board_init() {
+	// disable watchdog timer
+	wdt_reset();
+	wdt_disable();
 
 	// Print reboot reason
 	if(mcusr_backup & (1<<PORF )) printf("Power-on reset.\n");
@@ -70,8 +73,6 @@ void board_init() {
 	//disable interrupts
 	cli();
 
-	wdt_reset();
-	wdt_disable();
 
 	// initialize bsp modules
 	debugpins_init();
@@ -91,7 +92,7 @@ void board_sleep() {
 	loop_until_bit_is_set(UCSR0A, TXC0);
 	UCSR0A |= (1 << TXC0); //Ensure messages are sent before the sleep
 
-	//TRXPR = 1 << SLPTR; // sent transceiver to sleep
+	TRXPR = 0 << SLPTR; // sent transceiver to sleep
 	set_sleep_mode(SLEEP_MODE_PWR_SAVE); // Power save mode to allow Timer/counter2 interrupts, see pg 162
 	sleep_mode();
 }
@@ -114,63 +115,79 @@ void board_reset() {
 // UART0 interrupt
 // pass to uart_isr_rx/tx
 ISR(USART0_RX_vect) {
-	//printf("USART0_RX_vect ISR raised. \n");
+//	printf("USART0_RX_vect ISR raised. \n");
 	uart_rx_isr(); // doing nothing w/ return value
 
 }
 
 ISR(USART0_TX_vect) {
-	//printf("USART0_TX_vect ISR raised. \n");
+//	printf("USART0_TX_vect ISR raised. \n");
 	uart_tx_isr(); // doing nothing w/ return value
 }
 // radio interrupt(s)
 // pass to radio_isr
 ISR(TRX24_RX_START_vect) {
-	//printf("TRX24_RX_START_vect ISR raised. \n");
+//	printf("TRX24_RX_START_vect ISR raised. \n");
 	radio_rx_start_isr(); // doing nothing w/ return value
 }
 
 ISR(TRX24_RX_END_vect) {
-	//printf("TRX24_RX_END_vect ISR raised. \n");
+	printf("TRX24_RX_END_vect ISR raised. \n");
 	radio_trx_end_isr();
 }
 ISR(TRX24_TX_END_vect) {
-	//printf("TRX24_TX_END_vect ISR raised. \n");
+	printf("TRX24_TX_END_vect ISR raised. \n");
 	radio_trx_end_isr();
 }
 
 ISR(SCNT_CMP1_vect) {
-	//printf("SCNT_CMP1_vect ISR raised. \n");
+//	printf("SCNT_CMP1_vect ISR raised. \n");
 	bsp_timer_isr();
 }
 
 ISR(SCNT_CMP2_vect) {
-	printf("SCNT_CMP2_vect ISR raised. \n");
+//	printf("SCNT_CMP2_vect ISR raised. \n");
 	radiotimer_compare_isr();
 }
 
 ISR(SCNT_CMP3_vect) {
-	printf("SCNT_CMP3_vect ISR raised. \n");
+//	printf("SCNT_CMP3_vect ISR raised. \n");
 	radiotimer_overflow_isr();
 }
 
-ISR (TIMER1_COMPA_vect) {
-	//printf("TIMER1_COMPA_vect ISR raised. \n");
-	//TIMSK1 &= ~((1<<ICIE1)|(1<<OCIE1A)|(1<<OCIE1B)|(1<<TOIE1));
-	radiotimer_overflow_isr();
-}
+//ISR (TIMER1_COMPA_vect) {
+//	printf("TIMER1_COMPA_vect ISR raised. \n");
+//	//TIMSK1 &= ~((1<<ICIE1)|(1<<OCIE1A)|(1<<OCIE1B)|(1<<TOIE1));
+//	radiotimer_overflow_isr();
+//}
+//
+//ISR (TIMER1_COMPB_vect) {
+//	printf("TIMER1_COMPB_vect ISR raised. \n");
+//	//TIMSK1 &= ~((1<<ICIE1)|(1<<OCIE1A)|(1<<OCIE1B)|(1<<TOIE1));
+//	radiotimer_compare_isr();
+//}
+//
+//ISR (TIMER2_COMPA_vect) {
+//	printf("TIMER2_COMPA_vect ISR raised. \n");
+//	radiotimer_overflow_isr();
+//}
+//
+//ISR (TIMER2_COMPB_vect) {
+//	printf("TIMER2_COMPB_vect ISR raised. \n");
+//	radiotimer_compare_isr();
+//}
+//
+//ISR (TIMER2_OVF_vect) {
+//	printf("TIMER2_OVF_vect ISR raised. \n");
+//	//TIMSK1 &= ~((1<<ICIE1)|(1<<OCIE1A)|(1<<OCIE1B)|(1<<TOIE1));
+//	radiotimer_compare_isr();
+//}
 
-ISR (TIMER1_COMPB_vect) {
-	//printf("TIMER1_COMPB_vect ISR raised. \n");
-	//TIMSK1 &= ~((1<<ICIE1)|(1<<OCIE1A)|(1<<OCIE1B)|(1<<TOIE1));
-	radiotimer_compare_isr();
-}
 
 ISR(WDT_vect) {
 	printf("WDT_vect ISR raised. \n");
 }
 // buttons (none)
-
 
 // error
 ISR(BADISR_vect) {

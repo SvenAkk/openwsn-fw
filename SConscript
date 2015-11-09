@@ -386,8 +386,11 @@ elif env['toolchain']=='avr':
     
     # convert ELF to iHex
     elf2iHexFunc = Builder(
-       action = 'avr-objcopy -O  ihex $SOURCE $TARGET',
-       #'atmega128rfa1-objcopy --output-target=ihex $SOURCE $TARGET',
+       action = 'avr-objcopy --change-section-lma .eeprom=0 -O ihex $SOURCE $TARGET',
+       # because EEPROM's address 0 begins at the artificial linear address 0x810000
+       # we need to shift it back
+       #action = 'avr-objcopy -j .eeprom --set-section-flags=.eeprom="alloc,load" ' + 
+       # '--change-section-lma .eeprom=0 -O ihex $SOURCE $TARGET',
        suffix = '.ihex',
     )
     env.Append(BUILDERS = {'Elf2iHex' : elf2iHexFunc})
@@ -395,7 +398,6 @@ elif env['toolchain']=='avr':
     # convert ELF to bin
     elf2BinFunc = Builder(
        action = 'avr-objcopy -O binary $SOURCE $TARGET',
-       #'atmega128rfa1-objcopy --output-target=binary $SOURCE $TARGET',
        suffix = '.bin',
     )
     env.Append(BUILDERS = {'Elf2iBin' : elf2BinFunc})

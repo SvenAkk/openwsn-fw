@@ -100,7 +100,7 @@ void uart_putchar(char c, FILE *stream) {
     UDR0 = c;
 
 	int i = 75;
-	while(i-->0){};
+	while(i-->0){}; // delay loop to give trx time.
 }
 
 char uart_getchar(FILE *stream) {

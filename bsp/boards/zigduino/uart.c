@@ -24,8 +24,8 @@ void uart_putchar(char c, FILE *stream);
 
 char uart_getchar(FILE *stream);
 
-FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
-FILE uart_input = FDEV_SETUP_STREAM(NULL, uart_getchar, _FDEV_SETUP_READ);
+extern FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
+extern FILE uart_input = FDEV_SETUP_STREAM(NULL, uart_getchar, _FDEV_SETUP_READ);
 
 
 //=========================== variables =======================================
@@ -47,16 +47,13 @@ void uart_init() {
 	// reset local variables
 	memset(&uart_vars,0,sizeof(uart_vars_t));
 
-	//UBRRnH contains the baud rate
-	UBRR0H =  UBRRH_VALUE;
+	UBRR0H =  UBRRH_VALUE; 	//UBRRnH contains the baud rate
 	UBRR0L = UBRRL_VALUE;
 
-	//use 2x
-    UCSR0A |= (1 << U2X0);
-	// enable async usart, disabled parity, 1-bit stop, 8-bit mode and async
-	UCSR0C = 0b00000110;
-	// Enable rx&tx interrupt, disable empty interrupt, enable rx&tx
-	UCSR0B = 0b11011000;
+    UCSR0A |= (1 << U2X0);	//use 2x
+	UCSR0C = 0b00000110;	// enable async usart, disabled parity, 1-bit stop, 8-bit mode and async
+	UCSR0B = 0b11011000;	// Enable rx&tx interrupt, disable empty interrupt, enable rx&tx
+
 
     stdout = &uart_output;
     stdin  = &uart_input;
@@ -101,6 +98,9 @@ void uart_putchar(char c, FILE *stream) {
     }
     loop_until_bit_is_set(UCSR0A, UDRE0);
     UDR0 = c;
+
+	int i = 75;
+	while(i-->0){};
 }
 
 char uart_getchar(FILE *stream) {

@@ -119,7 +119,7 @@ void radio_setFrequency(uint8_t frequency) {
    // change state
    radio_vars.state = RADIOSTATE_SETTING_FREQUENCY;
 
-   // configure the radio to the right frequecy
+   // configure the radio to the right frequency
    radio_internalWriteReg(PHY_CC_CCA,0x20+frequency);
 
    // change state
@@ -127,10 +127,14 @@ void radio_setFrequency(uint8_t frequency) {
 }
 
 void radio_rfOn() {
+	printf("radio_rfOn. \n");
+
    PRR1 &= ~_BV(PRTRX24);
 }
 
 void radio_rfOff() {
+	printf("radio_rfOff. \n");
+
    // change state
    radio_vars.state = RADIOSTATE_TURNING_OFF;
    // turn radio off
@@ -149,6 +153,8 @@ void radio_rfOff() {
 //===== TX
 
 void radio_loadPacket(uint8_t* packet, uint8_t len) {
+	printf("radio_loadPacket. \n");
+
    // change state
    radio_vars.state = RADIOSTATE_LOADING_PACKET;
 
@@ -160,6 +166,8 @@ void radio_loadPacket(uint8_t* packet, uint8_t len) {
 }
 
 void radio_txEnable() {
+	printf("radio_txEnable. \n");
+
    // change state
    radio_vars.state = RADIOSTATE_ENABLING_TX;
 
@@ -176,6 +184,8 @@ void radio_txEnable() {
 }
 
 void radio_txNow() {
+	printf("radio_txNow. \n");
+
    // change state
    radio_vars.state = RADIOSTATE_TRANSMITTING;
 
@@ -274,7 +284,9 @@ kick_scheduler_t radio_isr() {
 }
 
 uint8_t radio_rx_start_isr() {
-   PORT_TIMER_WIDTH capturedTime;
+	printf("radio_rx_start_isr. \n");
+
+	PORT_TIMER_WIDTH capturedTime;
    // capture the time
    capturedTime = radiotimer_getCapturedTime();
 	radio_vars.state = RADIOSTATE_RECEIVING;
@@ -288,6 +300,8 @@ uint8_t radio_rx_start_isr() {
 }
 
 uint8_t radio_trx_end_isr() {
+   printf("radio_trx_end_isr. \n");
+
    PORT_TIMER_WIDTH capturedTime;
    // capture the time
    capturedTime = radiotimer_getCapturedTime();

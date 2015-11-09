@@ -89,18 +89,15 @@ void board_init() {
 
 // Uses high-level functions from avr/sleep.h
 void board_sleep() {
-	loop_until_bit_is_set(UCSR0A, TXC0);
-	UCSR0A |= (1 << TXC0); //Ensure messages are sent before the sleep
-
-	TRXPR = 0 << SLPTR; // sent transceiver to sleep
+	//	TRXPR = (0 << SLPTR); // sent transceiver to sleep
 	set_sleep_mode(SLEEP_MODE_PWR_SAVE); // Power save mode to allow Timer/counter2 interrupts, see pg 162
 	sleep_mode();
 }
 
 void board_reset() {
-    MCUSR = 0;
-    WDTCSR |= (1 << WDCE) | (1 << WDE);
-    WDTCSR = 0x00;
+	MCUSR = 0;
+	WDTCSR |= (1 << WDCE) | (1 << WDE);
+	WDTCSR = 0x00;
 }
 //=========================== private =========================================
 
@@ -115,19 +112,19 @@ void board_reset() {
 // UART0 interrupt
 // pass to uart_isr_rx/tx
 ISR(USART0_RX_vect) {
-//	printf("USART0_RX_vect ISR raised. \n");
+	//	printf("USART0_RX_vect ISR raised. \n");
 	uart_rx_isr(); // doing nothing w/ return value
 
 }
 
 ISR(USART0_TX_vect) {
-//	printf("USART0_TX_vect ISR raised. \n");
+	//	printf("USART0_TX_vect ISR raised. \n");
 	uart_tx_isr(); // doing nothing w/ return value
 }
 // radio interrupt(s)
 // pass to radio_isr
 ISR(TRX24_RX_START_vect) {
-//	printf("TRX24_RX_START_vect ISR raised. \n");
+	printf("TRX24_RX_START_vect ISR raised. \n");
 	radio_rx_start_isr(); // doing nothing w/ return value
 }
 
@@ -141,17 +138,17 @@ ISR(TRX24_TX_END_vect) {
 }
 
 ISR(SCNT_CMP1_vect) {
-//	printf("SCNT_CMP1_vect ISR raised. \n");
+	//	printf("SCNT_CMP1_vect ISR raised. \n");
 	bsp_timer_isr();
 }
 
 ISR(SCNT_CMP2_vect) {
-//	printf("SCNT_CMP2_vect ISR raised. \n");
+	//	printf("SCNT_CMP2_vect ISR raised. \n");
 	radiotimer_compare_isr();
 }
 
 ISR(SCNT_CMP3_vect) {
-//	printf("SCNT_CMP3_vect ISR raised. \n");
+	//	printf("SCNT_CMP3_vect ISR raised. \n");
 	radiotimer_overflow_isr();
 }
 

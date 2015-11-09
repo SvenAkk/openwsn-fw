@@ -124,16 +124,16 @@ ISR(USART0_TX_vect) {
 // radio interrupt(s)
 // pass to radio_isr
 ISR(TRX24_RX_START_vect) {
-	printf("TRX24_RX_START_vect ISR raised. \n");
+//	printf("TRX24_RX_START_vect ISR raised. \n");
 	radio_rx_start_isr(); // doing nothing w/ return value
 }
 
 ISR(TRX24_RX_END_vect) {
-	printf("TRX24_RX_END_vect ISR raised. \n");
+//	printf("TRX24_RX_END_vect ISR raised. \n");
 	radio_trx_end_isr();
 }
 ISR(TRX24_TX_END_vect) {
-	printf("TRX24_TX_END_vect ISR raised. \n");
+//	printf("TRX24_TX_END_vect ISR raised. \n");
 	radio_trx_end_isr();
 }
 

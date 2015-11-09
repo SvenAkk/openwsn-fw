@@ -72,7 +72,7 @@ len=17  num=84  rssi=-81  lqi=108 crc=1
 //=========================== defines =========================================
 
 #define LENGTH_PACKET        125+LENGTH_CRC ///< maximum length is 127 bytes
-#define CHANNEL              20             ///< 11 = 2.405GHz
+#define CHANNEL              11             ///< 11 = 2.405GHz
 #define LENGTH_SERIAL_FRAME  8              ///< length of the serial frame
 
 //=========================== variables =======================================
@@ -143,7 +143,7 @@ int mote_main(void) {
    
    // switch in RX
    radio_rxEnable();
-   
+
    while (1) {
       
       // sleep while waiting for at least one of the rxpk_done to be set

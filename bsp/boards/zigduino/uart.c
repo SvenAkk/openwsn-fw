@@ -99,7 +99,7 @@ void uart_putchar(char c, FILE *stream) {
     loop_until_bit_is_set(UCSR0A, UDRE0);
     UDR0 = c;
 
-	int i = 75;
+	int i = 200;
 	while(i-->0){}; // delay loop to give trx time.
 }
 

@@ -195,10 +195,10 @@ void radio_getReceivedFrame(uint8_t* pBufRead,
 	*pCrc           = (temp_reg_value & 0x80)>>7;  // msb is whether packet passed CRC
 
 	//===== rssi
-	// as per section 8.4.3 of the AT86RF231, the RSSI is calculate as:
-	// -91 + ED [dBm]
+	// as per section 9.5.4.3 of the ATMEGA128RFA1, the RSSI is calculate as:
+	// -90 + ED [dBm]
 	temp_reg_value  = radio_internalReadReg(PHY_ED_LEVEL);
-	*pRssi          = -91 + temp_reg_value;
+	*pRssi          = -90 + temp_reg_value;
 
 	//===== packet
 	radio_internalReadRxFifo(pBufRead,

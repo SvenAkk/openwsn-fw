@@ -152,6 +152,8 @@ void radio_txNow() {
 
 	// send packet by forcing state to TX_START
 	radio_internalWriteReg(TRX_STATE, CMD_TX_START);
+
+	printf("SEND PACKET PRINT\n");
 	// The AT86RF231 does not generate an interrupt when the radio transmits the
 	// SFD, which messes up the MAC state machine. The danger is that, if we leave
 	// this funtion like this, any radio watchdog timer will expire.
@@ -205,7 +207,7 @@ void radio_getReceivedFrame(uint8_t* pBufRead,
 			pLenRead,
 			maxBufLen,
 			pLqi);
-	printf("PACKET PRINT\n");
+	printf("RECEIVED PACKET PRINT\n");
 	printf("pBufRead %u\n",*pBufRead);
 	printf("pLenRead %u\n",*pLenRead);
 	printf("maxBufLen %u\n",maxBufLen);
@@ -233,7 +235,7 @@ void radio_internalReadRxFifo(uint8_t* pBufRead,
 	*pLenRead = TST_RX_LENGTH;
 	memcpy(pBufRead,&TRXFBST,*pLenRead);
 	//poipoi, see if LQI is included in the length
-	*pLqi = *(TRXFBST + pLenRead);
+	*pLqi = TRXFBEND;
 }
 
 //=========================== callbacks =======================================

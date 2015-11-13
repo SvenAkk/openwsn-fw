@@ -51,22 +51,22 @@ void spi_init() {
 
    // hold USART state machine in reset mode during configuration
 
-   // configure SPI-related pins
-	DDRB |= (1<<PB0)|(1<<PB1)|(1<<PB2);  // SCK, MOSI and SS as outputs
-	DDRB &= ~(1<<PB3);          // MISO as input
-
-	SPCR |= (1<<MSTR);         // Set as Master
-	SPCR |= (1<<SPR0);         // divided clock by 16
-
-	SPCR |= (1<<CPHA)|(1<<CPOL);     //Configures correct clock polarity and data is sampled on rising edge
-	SPCR |= (1<<SPE);                // Enable SPI
-
-	PORTB |= (1<<PB0);
-	PORTB &= ~(1<<PB0);
-	PORTB |= (1<<PB0);
-	PORTB &= ~(1<<PB0);
-	PORTB |= (1<<PB0);
-	PORTB &= ~(1<<PB0);        //Toggles SS high-low 3 times to enable SPI
+//   // configure SPI-related pins
+//	DDRB |= (1<<PB0)|(1<<PB2);  // SCK, MOSI and SS as outputs
+//	DDRB &= ~(1<<PB3);          // MISO as input
+//
+//	SPCR |= (1<<MSTR);         // Set as Master
+//	SPCR |= (1<<SPR0);         // divided clock by 16
+//
+//	SPCR |= (1<<CPHA)|(1<<CPOL);     //Configures correct clock polarity and data is sampled on rising edge
+//	SPCR |= (1<<SPE);                // Enable SPI
+//
+//	PORTB |= (1<<PB0);
+//	PORTB &= ~(1<<PB0);
+//	PORTB |= (1<<PB0);
+//	PORTB &= ~(1<<PB0);
+//	PORTB |= (1<<PB0);
+//	PORTB &= ~(1<<PB0);        //Toggles SS high-low 3 times to enable SPI
 
    // initialize USART registers
 

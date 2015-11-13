@@ -9,6 +9,8 @@
 #include <avr/io.h>
 #include <avr/iom128rfa1.h> //Sven: this is advised against, but works.
 #include <stdio.h>
+#include <util/delay.h>
+
 
 #include "uart.h"
 #include "board.h"
@@ -20,10 +22,11 @@
 
 #include <util/setbaud.h>
 
+// we can not print from within the BSP normally.
+// We did include a printf function to ease debugging.
+// To seperate functionality, we made these 'redundant' functions.
 void uart_putchar(char c, FILE *stream);
-
 char uart_getchar(FILE *stream);
-
 extern FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
 extern FILE uart_input = FDEV_SETUP_STREAM(NULL, uart_getchar, _FDEV_SETUP_READ);
 
@@ -54,7 +57,9 @@ void uart_init() {
 	UCSR0C = 0b00000110;	// enable async usart, disabled parity, 1-bit stop, 8-bit mode and async
 	UCSR0B = 0b11011000;	// Enable rx&tx interrupt, disable empty interrupt, enable rx&tx
 
-
+	// we can not print from within the BSP normally.
+	// We did include a printf function to ease debugging.
+	// To seperate functionality, we made these 'redundant' calls.
     stdout = &uart_output;
     stdin  = &uart_input;
 }
@@ -84,14 +89,19 @@ void    uart_writeByte(uint8_t byteToWrite){
 	//while((UCSR0A & (1 << UDRE0))==0); /* Wait until data register empty. */
 	loop_until_bit_is_set(UCSR0A,UDRE0);
 	UDR0 = byteToWrite;
+
+	loop_until_bit_is_set(UCSR0A, TXC0);
+	UCSR0A |= _BV(TXC0);
 }
 
 uint8_t uart_readByte(){
-	//while((UCSR0A & (1 << RXC0))==0);/* Wait until data exists. */
 	loop_until_bit_is_set(UCSR0A,UDRE0);
 	return UDR0;
 }
 
+// we can not print from within the BSP normally.
+// We did include a printf function to ease debugging.
+// To seperate functionality, we made these 'redundant' functions.
 void uart_putchar(char c, FILE *stream) {
     if (c == '\n') {
         uart_putchar('\r', stream);
@@ -99,10 +109,8 @@ void uart_putchar(char c, FILE *stream) {
     loop_until_bit_is_set(UCSR0A, UDRE0);
     UDR0 = c;
 
-	int i = 200;
-	while(i-->0){}; // delay loop to give trx time.
+    _delay_us(4000); //this is bad but only relevant in debugging.
 }
-
 char uart_getchar(FILE *stream) {
     loop_until_bit_is_set(UCSR0A, RXC0); /* Wait until data exists. */
     return UDR0;

@@ -156,35 +156,6 @@ ISR(SCNT_OVFL_vect) {
 	//radiotimer_overflow_isr();
 }
 
-
-//ISR (TIMER1_COMPA_vect) {
-//	printf("TIMER1_COMPA_vect ISR raised. \n");
-//	//TIMSK1 &= ~((1<<ICIE1)|(1<<OCIE1A)|(1<<OCIE1B)|(1<<TOIE1));
-//	radiotimer_overflow_isr();
-//}
-//
-//ISR (TIMER1_COMPB_vect) {
-//	printf("TIMER1_COMPB_vect ISR raised. \n");
-//	//TIMSK1 &= ~((1<<ICIE1)|(1<<OCIE1A)|(1<<OCIE1B)|(1<<TOIE1));
-//	radiotimer_compare_isr();
-//}
-//
-//ISR (TIMER2_COMPA_vect) {
-//	printf("TIMER2_COMPA_vect ISR raised. \n");
-//	radiotimer_overflow_isr();
-//}
-//
-//ISR (TIMER2_COMPB_vect) {
-//	printf("TIMER2_COMPB_vect ISR raised. \n");
-//	radiotimer_compare_isr();
-//}
-//
-//ISR (TIMER2_OVF_vect) {
-//	printf("TIMER2_OVF_vect ISR raised. \n");
-//	//TIMSK1 &= ~((1<<ICIE1)|(1<<OCIE1A)|(1<<OCIE1B)|(1<<TOIE1));
-//	radiotimer_compare_isr();
-//}
-
 /* Hang on any unsupported interrupt */
 /* Useful for diagnosing unknown interrupts that reset the mcu.
  * Currently set up for 12mega128rfa1.

@@ -10,6 +10,7 @@
 #include <avr/pgmspace.h>
 #include <avr/fuse.h>
 #include <avr/eeprom.h>
+#include <util/delay.h>
 
 //=========================== defines =========================================
 
@@ -19,21 +20,16 @@
 uint8_t
 rng_get_uint8(void) {
 
-	uint8_t temp = TRX_STATE;
 	TRX_STATE = (TRX_STATE & 0xE0) | RX_ON; // Ensure radio can generate rnd values.
 
 	uint8_t j = 0;
-    uint8_t i = 0;
-    for(; i < 4; i ++){
-        j = j * 4;
-        j += ((PHY_RSSI&0x60)>>5);
-       uint32_t delay = 1000;
-        while(delay-->0){}; //introduce short delay to improve randomness.
-    }
+	uint8_t i = 0;
+	for(; i < 4; i ++){
+		j = j * 4;
+		j += ((PHY_RSSI&0x60)>>5);
+		_delay_us(2);
+	}
 	printf("rng issues %u\n",j);
-
-	TRX_STATE = temp; //Restore radio to previous state
-
 	return j;
 }
 //=========================== public ==========================================

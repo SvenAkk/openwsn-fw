@@ -37,8 +37,9 @@ to this board.
 #define ENABLE_INTERRUPTS()					 __asm__ __volatile__ ("sei" ::: "memory")
 #define DISABLE_INTERRUPTS()				 __asm__ __volatile__ ("cli" ::: "memory")
 */
-#define ENABLE_INTERRUPTS()
-#define DISABLE_INTERRUPTS()
+#define INTERRUPT_DECLARATION()          unsigned short s;
+#define ENABLE_INTERRUPTS()					 __asm__ __volatile__ ("sei" ::: "memory")
+#define DISABLE_INTERRUPTS()				 __asm__ __volatile__ ("cli" ::: "memory")
 
 #define SCHEDULER_WAKEUP()                  //do nothing
 #define SCHEDULER_ENABLE_INTERRUPT()        // do nothing

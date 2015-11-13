@@ -11,6 +11,13 @@
 #include "leds.h"
 
 //=========================== defines =========================================
+#define HAL_SPI_TRANSFER_WRITE(to_write) (SPDR = (to_write))
+#define HAL_SPI_TRANSFER_WAIT() ({while ((SPSR & (1 << SPIF)) == 0) {;}}) /* gcc extension, alternative inline function */
+#define HAL_SPI_TRANSFER_READ() (SPDR)
+#define HAL_SPI_TRANSFER(to_write) (	  \
+				    HAL_SPI_TRANSFER_WRITE(to_write),	\
+				    HAL_SPI_TRANSFER_WAIT(),		\
+				    HAL_SPI_TRANSFER_READ() )
 
 //=========================== variables =======================================
 
@@ -45,6 +52,21 @@ void spi_init() {
    // hold USART state machine in reset mode during configuration
 
    // configure SPI-related pins
+	DDRB |= (1<<PB0)|(1<<PB1)|(1<<PB2);  // SCK, MOSI and SS as outputs
+	DDRB &= ~(1<<PB3);          // MISO as input
+
+	SPCR |= (1<<MSTR);         // Set as Master
+	SPCR |= (1<<SPR0);         // divided clock by 16
+
+	SPCR |= (1<<CPHA)|(1<<CPOL);     //Configures correct clock polarity and data is sampled on rising edge
+	SPCR |= (1<<SPE);                // Enable SPI
+
+	PORTB |= (1<<PB0);
+	PORTB &= ~(1<<PB0);
+	PORTB |= (1<<PB0);
+	PORTB &= ~(1<<PB0);
+	PORTB |= (1<<PB0);
+	PORTB &= ~(1<<PB0);        //Toggles SS high-low 3 times to enable SPI
 
    // initialize USART registers
 
@@ -71,7 +93,7 @@ void spi_txrx(uint8_t*     bufTx,
               uint8_t      maxLenBufRx,
               spi_first_t  isFirst,
               spi_last_t   isLast) {
-
+	leds_error_toggle();
 #ifdef SPI_IN_INTERRUPT_MODE
    // disable interrupts
    __disable_interrupt();
@@ -91,7 +113,10 @@ void spi_txrx(uint8_t*     bufTx,
    spi_vars.busy             =  1;
 
    // lower CS signal to have slave listening
-
+   // lower CS signal to have slave listening
+   if (spi_vars.isFirst==SPI_FIRST) {
+		PORTB &= ~(1<<PB0);      //Set SS low
+   }
 #ifdef SPI_IN_INTERRUPT_MODE
    // implementation 1. use a callback function when transaction finishes
 
@@ -105,13 +130,16 @@ void spi_txrx(uint8_t*     bufTx,
    // send all bytes
    while (spi_vars.txBytesLeft>0) {
       // write next byte to TX buffer
-
+	   SPDR = *spi_vars.pNextTxByte;
 	   // busy wait on the interrupt flag
-
+	   while(!(SPSR & (1<<SPIF)))
 	   // clear the interrupt flag
-
+		   	  //UNNEEDED I THINK
       // save the byte just received in the RX buffer
-
+		   while(!(SPSR & (1<<SPIF)))
+		   ;
+		   /* Return Data Register */
+		   return SPDR;
       // one byte less to go
       spi_vars.pNextTxByte++;
       spi_vars.numTxedBytes++;
@@ -119,6 +147,9 @@ void spi_txrx(uint8_t*     bufTx,
    }
 
    // put CS signal high to signal end of transmission to slave
+	PORTB |= (1<<PB0);	       //Set SS high, signals end of transmission
+	PORTB |= (1<<PB5);
+	PORTB &= ~(1<<PB5);
 
    // SPI is not busy anymore
    spi_vars.busy             =  0;

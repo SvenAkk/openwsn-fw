@@ -19,17 +19,21 @@
 //=========================== prototypes ======================================
 uint8_t
 rng_get_uint8(void) {
-
+	uint8_t temp = TRX_STATE;
 	TRX_STATE = (TRX_STATE & 0xE0) | RX_ON; // Ensure radio can generate rnd values.
+    _delay_us(200);
 
 	uint8_t j = 0;
-	uint8_t i = 0;
-	for(; i < 4; i ++){
-		j = j * 4;
-		j += ((PHY_RSSI&0x60)>>5);
-		_delay_us(2);
-	}
+    uint8_t i = 0;
+    for(; i < 4; i ++){
+        _delay_us(2);
+        j = j * 4;
+        j += ((PHY_RSSI&0x60)>>5);
+    }
 	printf("rng issues %u\n",j);
+
+	TRX_STATE = temp; //Restore radio to previous state
+
 	return j;
 }
 //=========================== public ==========================================
@@ -37,6 +41,45 @@ rng_get_uint8(void) {
 void eui64_get(uint8_t* addressToWrite) {
 	uint8_t rng_id1 = rng_get_uint8();
 	uint8_t rng_id2 = rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+	rng_get_uint8();
+
+
+
 
 	addressToWrite[0] = 0x14;   // OpenWSN OUI
 	addressToWrite[1] = 0x15;

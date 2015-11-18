@@ -23,6 +23,8 @@ void consumeTask(uint8_t taskId);
 
 void scheduler_init() {   
    
+	print_debug("scheduler_init\n");
+
    // initialization module variables
    memset(&scheduler_vars,0,sizeof(scheduler_vars_t));
    memset(&scheduler_dbg,0,sizeof(scheduler_dbg_t));

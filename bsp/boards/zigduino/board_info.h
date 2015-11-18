@@ -64,6 +64,8 @@ to this board.
 #define SYNC_ACCURACY                       1     // ticks
 
 
+#define DEBUG_PRINT_ENABLED 1
+//#define DEBUG_PRINT_ENABLED 0
 //=========================== typedef  ========================================
 
 //=========================== variables =======================================

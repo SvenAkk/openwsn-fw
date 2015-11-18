@@ -15,22 +15,23 @@ idmanager_vars_t idmanager_vars;
 //=========================== public ==========================================
 
 void idmanager_init() {
-   
+	print_debug("idmanager_init\n");
+
    // reset local variables
    memset(&idmanager_vars, 0, sizeof(idmanager_vars_t));
-   
+
    // isDAGroot
 #ifdef DAGROOT
    idmanager_vars.isDAGroot            = TRUE;
 #else
    idmanager_vars.isDAGroot            = FALSE;
 #endif
-   
+
    // myPANID
    idmanager_vars.myPANID.type         = ADDR_PANID;
    idmanager_vars.myPANID.panid[0]     = 0xca;
    idmanager_vars.myPANID.panid[1]     = 0xfe;
-   
+
    // myPrefix
    idmanager_vars.myPrefix.type        = ADDR_PREFIX;
 #ifdef DAGROOT
@@ -45,19 +46,28 @@ void idmanager_init() {
 #else
    memset(&idmanager_vars.myPrefix.prefix[0], 0x00, sizeof(idmanager_vars.myPrefix.prefix));
 #endif
-   
+
    // my64bID
    idmanager_vars.my64bID.type         = ADDR_64B;
    eui64_get(idmanager_vars.my64bID.addr_64b);
-   
+
    // my16bID
    packetfunctions_mac64bToMac16b(&idmanager_vars.my64bID,&idmanager_vars.my16bID);
+
+   print_debug("eui64: %x:%x:%x:%x:%x:%x:%x:%x\n",idmanager_vars.my64bID.addr_64b[0]
+   	   	   	   	   	   ,idmanager_vars.my64bID.addr_64b[1]
+					   ,idmanager_vars.my64bID.addr_64b[2]
+					   ,idmanager_vars.my64bID.addr_64b[3]
+					   ,idmanager_vars.my64bID.addr_64b[4]
+					   ,idmanager_vars.my64bID.addr_64b[5]
+					   ,idmanager_vars.my64bID.addr_64b[6]
+   	   	   	   	   	   ,idmanager_vars.my64bID.addr_64b[7]);
 }
 
 bool idmanager_getIsDAGroot() {
    bool res;
    INTERRUPT_DECLARATION();
-   
+
    DISABLE_INTERRUPTS();
    res=idmanager_vars.isDAGroot;
    ENABLE_INTERRUPTS();
@@ -178,7 +188,7 @@ void idmanager_triggerAboutRoot() {
    uint8_t         input_buffer[9];
    open_addr_t     myPrefix;
    uint8_t         dodagid[16];
-   
+
    //=== get command from OpenSerial
    number_bytes_from_input_buffer = openserial_getInputBuffer(input_buffer,sizeof(input_buffer));
    if (number_bytes_from_input_buffer!=sizeof(input_buffer)) {
@@ -187,9 +197,9 @@ void idmanager_triggerAboutRoot() {
             (errorparameter_t)0);
       return;
    };
-   
+
    //=== handle command
-   
+
    // take action (byte 0)
    switch (input_buffer[0]) {
      case ACTION_YES:
@@ -206,7 +216,7 @@ void idmanager_triggerAboutRoot() {
         }
         break;
    }
-   
+
    // store prefix (bytes 1-8)
    myPrefix.type = ADDR_PREFIX;
    memcpy(
@@ -215,12 +225,12 @@ void idmanager_triggerAboutRoot() {
       sizeof(myPrefix.prefix)
    );
    idmanager_setMyID(&myPrefix);
-   
+
    // indicate DODAGid to RPL
    memcpy(&dodagid[0],idmanager_vars.myPrefix.prefix,8);  // prefix
    memcpy(&dodagid[8],idmanager_vars.my64bID.addr_64b,8); // eui64
    icmpv6rpl_writeDODAGid(dodagid);
-   
+
    return;
 }
 
@@ -234,13 +244,13 @@ status information about several modules in the OpenWSN stack.
 */
 bool debugPrint_id() {
    debugIDManagerEntry_t output;
-   
+
    output.isDAGroot = idmanager_vars.isDAGroot;
    memcpy(output.myPANID,idmanager_vars.myPANID.panid,2);
    memcpy(output.my16bID,idmanager_vars.my16bID.addr_16b,2);
    memcpy(output.my64bID,idmanager_vars.my64bID.addr_64b,8);
    memcpy(output.myPrefix,idmanager_vars.myPrefix.prefix,8);
-   
+
    openserial_printStatus(STATUS_ID,(uint8_t*)&output,sizeof(debugIDManagerEntry_t));
    return TRUE;
 }

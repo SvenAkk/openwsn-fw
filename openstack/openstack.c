@@ -46,7 +46,8 @@
 //=========================== private =========================================
 
 void openstack_init(void) {
-   
+	print_debug("openstack_init\n");
+
    //===== drivers
    openserial_init();
    

@@ -24,9 +24,8 @@
 
 extern void print_debug(const char *__fmt, ...);
 
-// we can not print from within the BSP normally.
-// We did include a printf function to ease debugging.
-// To seperate functionality, we made these 'redundant' functions.
+// we can not print from within the BSP normally, but this is now enabled.
+// To separate functionality, we made these 'redundant' functions.
 void uart_putchar(char c, FILE *stream);
 char uart_getchar(FILE *stream);
 extern FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
@@ -58,9 +57,8 @@ void uart_init() {
 	UCSR0C = 0b00000110;	// enable async usart, disabled parity, 1-bit stop, 8-bit mode and async
 	UCSR0B = 0b11011000;	// Enable rx&tx interrupt, disable empty interrupt, enable rx&tx
 
-	// we can not print from within the BSP normally.
-	// We did include a printf function to ease debugging.
-	// To seperate functionality, we made these 'redundant' calls.
+	// we can not print from within the BSP normally, but this is now enabled.
+	// To separate functionality, we made these 'redundant' functions.
     stdout = &uart_output;
     stdin  = &uart_input;
 }
@@ -100,9 +98,8 @@ uint8_t uart_readByte(){
 	return UDR0;
 }
 
-// we can not print from within the BSP normally.
-// We did include a printf function to ease debugging.
-// To seperate functionality, we made these 'redundant' functions.
+// we can not print from within the BSP normally, but this is now enabled.
+// To separate functionality, we made these 'redundant' functions.
 void uart_putchar(char c, FILE *stream) {
     if (c == '\n') {
         uart_putchar('\r', stream);

@@ -24,6 +24,11 @@
 #include "radiotimer.h"
 
 //=========================== variables =======================================
+#if DEBUG_PRINT_ENABLED
+#define print_debug printf
+#else
+#define print_debug
+#endif
 
 //=========================== prototypes ======================================
 extern uint8_t radio_rx_start_isr();
@@ -56,8 +61,6 @@ void board_init() {
 	if(mcusr_backup & (1<<WDRF )) printf("Watchdog reset!\n");
 	if(mcusr_backup & (1<<JTRF )) printf("JTAG reset!\n");
 
-	printf("\n*******Booting Zigduino with OpenWSN*******\n");
-
 	// setup clock speed
 
 	//	// initialize pins
@@ -85,6 +88,9 @@ void board_init() {
 
 	// enable interrupts
 	sei();
+
+	print_debug("\n*******Booted Zigduino with OpenWSN*******\n");
+
 }
 
 // Uses high-level functions from avr/sleep.h
@@ -112,47 +118,47 @@ void board_reset() {
 // UART0 interrupt
 // pass to uart_isr_rx/tx
 ISR(USART0_RX_vect) {
-	//	printf("USART0_RX_vect ISR raised. \n");
+	//	print_debug("USART0_RX_vect ISR raised. \n");
 	uart_rx_isr(); // doing nothing w/ return value
 }
 
 ISR(USART0_TX_vect) {
-	//	printf("USART0_TX_vect ISR raised. \n");
+	//	print_debug("USART0_TX_vect ISR raised. \n");
 	uart_tx_isr(); // doing nothing w/ return value
 }
 // radio interrupt(s)
 // pass to radio_isr
 ISR(TRX24_RX_START_vect) {
-//	printf("TRX24_RX_START_vect ISR raised. \n");
+//	print_debug("TRX24_RX_START_vect ISR raised. \n");
 	radio_rx_start_isr(); // doing nothing w/ return value
 }
 
 ISR(TRX24_RX_END_vect) {
-//	printf("TRX24_RX_END_vect ISR raised. \n");
+//	print_debug("TRX24_RX_END_vect ISR raised. \n");
 	radio_trx_end_isr();
 }
 ISR(TRX24_TX_END_vect) {
-//	printf("TRX24_TX_END_vect ISR raised. \n");
+//	print_debug("TRX24_TX_END_vect ISR raised. \n");
 	radio_trx_end_isr();
 }
 
 ISR(SCNT_CMP1_vect) {
-	//	printf("SCNT_CMP1_vect ISR raised. \n");
+	//	print_debug("SCNT_CMP1_vect ISR raised. \n");
 	bsp_timer_isr();
 }
 
 ISR(SCNT_CMP2_vect) {
-	//	printf("SCNT_CMP2_vect ISR raised. \n");
+	//	print_debug("SCNT_CMP2_vect ISR raised. \n");
 	radiotimer_compare_isr();
 }
 
 ISR(SCNT_CMP3_vect) {
-	//	printf("SCNT_CMP3_vect ISR raised. \n");
+	//	print_debug("SCNT_CMP3_vect ISR raised. \n");
 	radiotimer_overflow_isr();
 }
 
 ISR(SCNT_OVFL_vect) {
-	printf("SCNT_OVFL_vect ISR raised. Should be unused. \n");
+	print_debug("SCNT_OVFL_vect ISR raised. Should be unused. \n");
 	//radiotimer_overflow_isr();
 }
 
@@ -161,86 +167,86 @@ ISR(SCNT_OVFL_vect) {
  * Currently set up for 12mega128rfa1.
  * For other mcus, enable all and then disable the conflicts.
  */
-ISR( _VECTOR(0)) {printf("0 ISR raised. \n");}
-ISR( _VECTOR(1)) {printf("1 ISR raised. \n");}
-ISR( _VECTOR(2)) {printf("2 ISR raised. \n");}
-ISR( _VECTOR(3)) {printf("3 ISR raised. \n");}
-ISR( _VECTOR(4)) {printf("4 ISR raised. \n");}
-ISR( _VECTOR(5)) {printf("5 ISR raised. \n");}
-ISR( _VECTOR(6)) {printf("6 ISR raised. \n");}
-ISR( _VECTOR(7)) {printf("7 ISR raised. \n");}
-ISR( _VECTOR(8)) {printf("8 ISR raised. \n");}
-ISR( _VECTOR(9)) {printf("9 ISR raised. \n");}
-ISR( _VECTOR(10)) {printf("10 ISR raised. \n");}
-ISR( _VECTOR(11)) {printf("11 ISR raised. \n");}
-ISR( _VECTOR(12)) {printf("12 ISR raised. \n");}
-ISR( _VECTOR(13)) {printf("13 ISR raised. \n");}
-ISR( _VECTOR(14)) {printf("14 ISR raised. \n");}
-ISR( _VECTOR(15)) {printf("15 ISR raised. \n");}
-ISR( _VECTOR(16)) {printf("16 ISR raised. \n");}
-ISR( _VECTOR(17)) {printf("17 ISR raised. \n");}
-ISR( _VECTOR(18)) {printf("18 ISR raised. \n");}
-ISR( _VECTOR(19)) {printf("19 ISR raised. \n");}
-ISR( _VECTOR(20)) {printf("20 ISR raised. \n");}
-ISR( _VECTOR(21)) {printf("21 ISR raised. \n");}
-ISR( _VECTOR(22)) {printf("22 ISR raised. \n");}
-ISR( _VECTOR(23)) {printf("23 ISR raised. \n");}
-ISR( _VECTOR(24)) {printf("24 ISR raised. \n");}
-//ISR( _VECTOR(25)) {printf("25 ISR raised. \n");}
-ISR( _VECTOR(26)) {printf("26 ISR raised. \n");}
-//ISR( _VECTOR(27)) {printf("27 ISR raised. \n");}
-ISR( _VECTOR(28)) {printf("28 ISR raised. \n");}
-ISR( _VECTOR(29)) {printf("29 ISR raised. \n");}
-ISR( _VECTOR(30)) {printf("30 ISR raised. \n");}
-ISR( _VECTOR(31)) {printf("31 ISR raised. \n");}
-ISR( _VECTOR(32)) {printf("32 ISR raised. \n");}
-ISR( _VECTOR(33)) {printf("33 ISR raised. \n");}
-ISR( _VECTOR(34)) {printf("34 ISR raised. \n");}
-ISR( _VECTOR(35)) {printf("35 ISR raised. \n");}
-ISR( _VECTOR(36)) {printf("36 ISR raised. \n");}
-ISR( _VECTOR(37)) {printf("37 ISR raised. \n");}
-ISR( _VECTOR(38)) {printf("38 ISR raised. \n");}
-ISR( _VECTOR(39)) {printf("39 ISR raised. \n");}
-ISR( _VECTOR(40)) {printf("40 ISR raised. \n");}
-ISR( _VECTOR(41)) {printf("41 ISR raised. \n");}
-ISR( _VECTOR(42)) {printf("42 ISR raised. \n");}
-ISR( _VECTOR(43)) {printf("43 ISR raised. \n");}
-ISR( _VECTOR(44)) {printf("44 ISR raised. \n");}
-ISR( _VECTOR(45)) {printf("45 ISR raised. \n");}
-ISR( _VECTOR(46)) {printf("46 ISR raised. \n");}
-ISR( _VECTOR(47)) {printf("47 ISR raised. \n");}
-ISR( _VECTOR(48)) {printf("48 ISR raised. \n");}
-ISR( _VECTOR(49)) {printf("49 ISR raised. \n");}
-ISR( _VECTOR(50)) {printf("50 ISR raised. \n");}
-ISR( _VECTOR(51)) {printf("51 ISR raised. \n");}
-ISR( _VECTOR(52)) {printf("52 ISR raised. \n");}
-ISR( _VECTOR(53)) {printf("53 ISR raised. \n");}
-ISR( _VECTOR(54)) {printf("54 ISR raised. \n");}
-ISR( _VECTOR(55)) {printf("55 ISR raised. \n");}
-ISR( _VECTOR(56)) {printf("56 ISR raised. \n");}
-ISR( _VECTOR(57)) {printf("57 ISR raised. \n");}
-ISR( _VECTOR(58)) {printf("58 ISR raised. \n");}
-//ISR( _VECTOR(59)) {printf("59 ISR raised. \n");}
-//ISR( _VECTOR(60)) {printf("60 ISR raised. \n");}
-ISR( _VECTOR(61)) {printf("61 ISR raised. \n");}
-ISR( _VECTOR(62)) {printf("62 ISR raised. \n");}
-//ISR( _VECTOR(63)) {printf("63 ISR raised. \n");}
-ISR( _VECTOR(64)) {printf("64 ISR raised. \n");}
-//ISR( _VECTOR(65)) {printf("65 ISR raised. \n");}
-//ISR( _VECTOR(66)) {printf("66 ISR raised. \n");}
-//ISR( _VECTOR(67)) {printf("67 ISR raised. \n");}
-//ISR( _VECTOR(68)) {printf("68 ISR raised. \n");}
-ISR( _VECTOR(69)) {printf("69 ISR raised. \n");}
-ISR( _VECTOR(70)) {printf("70 ISR raised. \n");}
-ISR( _VECTOR(71)) {printf("71 ISR raised. \n");}
-ISR( _VECTOR(72)) {printf("72 ISR raised. \n");}
-ISR( _VECTOR(73)) {printf("73 ISR raised. \n");}
-ISR( _VECTOR(74)) {printf("74 ISR raised. \n");}
-ISR( _VECTOR(75)) {printf("75 ISR raised. \n");}
-ISR( _VECTOR(76)) {printf("76 ISR raised. \n");}
-ISR( _VECTOR(77)) {printf("77 ISR raised. \n");}
-ISR( _VECTOR(78)) {printf("78 ISR raised. \n");}
-ISR( _VECTOR(79)) {printf("79 ISR raised. \n");}
+ISR( _VECTOR(0)) {print_debug("0 ISR raised. \n");}
+ISR( _VECTOR(1)) {print_debug("1 ISR raised. \n");}
+ISR( _VECTOR(2)) {print_debug("2 ISR raised. \n");}
+ISR( _VECTOR(3)) {print_debug("3 ISR raised. \n");}
+ISR( _VECTOR(4)) {print_debug("4 ISR raised. \n");}
+ISR( _VECTOR(5)) {print_debug("5 ISR raised. \n");}
+ISR( _VECTOR(6)) {print_debug("6 ISR raised. \n");}
+ISR( _VECTOR(7)) {print_debug("7 ISR raised. \n");}
+ISR( _VECTOR(8)) {print_debug("8 ISR raised. \n");}
+ISR( _VECTOR(9)) {print_debug("9 ISR raised. \n");}
+ISR( _VECTOR(10)) {print_debug("10 ISR raised. \n");}
+ISR( _VECTOR(11)) {print_debug("11 ISR raised. \n");}
+ISR( _VECTOR(12)) {print_debug("12 ISR raised. \n");}
+ISR( _VECTOR(13)) {print_debug("13 ISR raised. \n");}
+ISR( _VECTOR(14)) {print_debug("14 ISR raised. \n");}
+ISR( _VECTOR(15)) {print_debug("15 ISR raised. \n");}
+ISR( _VECTOR(16)) {print_debug("16 ISR raised. \n");}
+ISR( _VECTOR(17)) {print_debug("17 ISR raised. \n");}
+ISR( _VECTOR(18)) {print_debug("18 ISR raised. \n");}
+ISR( _VECTOR(19)) {print_debug("19 ISR raised. \n");}
+ISR( _VECTOR(20)) {print_debug("20 ISR raised. \n");}
+ISR( _VECTOR(21)) {print_debug("21 ISR raised. \n");}
+ISR( _VECTOR(22)) {print_debug("22 ISR raised. \n");}
+ISR( _VECTOR(23)) {print_debug("23 ISR raised. \n");}
+ISR( _VECTOR(24)) {print_debug("24 ISR raised. \n");}
+//ISR( _VECTOR(25)) {print_debug("25 ISR raised. \n");}
+ISR( _VECTOR(26)) {print_debug("26 ISR raised. \n");}
+//ISR( _VECTOR(27)) {print_debug("27 ISR raised. \n");}
+ISR( _VECTOR(28)) {print_debug("28 ISR raised. \n");}
+ISR( _VECTOR(29)) {print_debug("29 ISR raised. \n");}
+ISR( _VECTOR(30)) {print_debug("30 ISR raised. \n");}
+ISR( _VECTOR(31)) {print_debug("31 ISR raised. \n");}
+ISR( _VECTOR(32)) {print_debug("32 ISR raised. \n");}
+ISR( _VECTOR(33)) {print_debug("33 ISR raised. \n");}
+ISR( _VECTOR(34)) {print_debug("34 ISR raised. \n");}
+ISR( _VECTOR(35)) {print_debug("35 ISR raised. \n");}
+ISR( _VECTOR(36)) {print_debug("36 ISR raised. \n");}
+ISR( _VECTOR(37)) {print_debug("37 ISR raised. \n");}
+ISR( _VECTOR(38)) {print_debug("38 ISR raised. \n");}
+ISR( _VECTOR(39)) {print_debug("39 ISR raised. \n");}
+ISR( _VECTOR(40)) {print_debug("40 ISR raised. \n");}
+ISR( _VECTOR(41)) {print_debug("41 ISR raised. \n");}
+ISR( _VECTOR(42)) {print_debug("42 ISR raised. \n");}
+ISR( _VECTOR(43)) {print_debug("43 ISR raised. \n");}
+ISR( _VECTOR(44)) {print_debug("44 ISR raised. \n");}
+ISR( _VECTOR(45)) {print_debug("45 ISR raised. \n");}
+ISR( _VECTOR(46)) {print_debug("46 ISR raised. \n");}
+ISR( _VECTOR(47)) {print_debug("47 ISR raised. \n");}
+ISR( _VECTOR(48)) {print_debug("48 ISR raised. \n");}
+ISR( _VECTOR(49)) {print_debug("49 ISR raised. \n");}
+ISR( _VECTOR(50)) {print_debug("50 ISR raised. \n");}
+ISR( _VECTOR(51)) {print_debug("51 ISR raised. \n");}
+ISR( _VECTOR(52)) {print_debug("52 ISR raised. \n");}
+ISR( _VECTOR(53)) {print_debug("53 ISR raised. \n");}
+ISR( _VECTOR(54)) {print_debug("54 ISR raised. \n");}
+ISR( _VECTOR(55)) {print_debug("55 ISR raised. \n");}
+ISR( _VECTOR(56)) {print_debug("56 ISR raised. \n");}
+ISR( _VECTOR(57)) {print_debug("57 ISR raised. \n");}
+ISR( _VECTOR(58)) {print_debug("58 ISR raised. \n");}
+//ISR( _VECTOR(59)) {print_debug("59 ISR raised. \n");}
+//ISR( _VECTOR(60)) {print_debug("60 ISR raised. \n");}
+ISR( _VECTOR(61)) {print_debug("61 ISR raised. \n");}
+ISR( _VECTOR(62)) {print_debug("62 ISR raised. \n");}
+//ISR( _VECTOR(63)) {print_debug("63 ISR raised. \n");}
+ISR( _VECTOR(64)) {print_debug("64 ISR raised. \n");}
+//ISR( _VECTOR(65)) {print_debug("65 ISR raised. \n");}
+//ISR( _VECTOR(66)) {print_debug("66 ISR raised. \n");}
+//ISR( _VECTOR(67)) {print_debug("67 ISR raised. \n");}
+//ISR( _VECTOR(68)) {print_debug("68 ISR raised. \n");}
+ISR( _VECTOR(69)) {print_debug("69 ISR raised. \n");}
+ISR( _VECTOR(70)) {print_debug("70 ISR raised. \n");}
+ISR( _VECTOR(71)) {print_debug("71 ISR raised. \n");}
+ISR( _VECTOR(72)) {print_debug("72 ISR raised. \n");}
+ISR( _VECTOR(73)) {print_debug("73 ISR raised. \n");}
+ISR( _VECTOR(74)) {print_debug("74 ISR raised. \n");}
+ISR( _VECTOR(75)) {print_debug("75 ISR raised. \n");}
+ISR( _VECTOR(76)) {print_debug("76 ISR raised. \n");}
+ISR( _VECTOR(77)) {print_debug("77 ISR raised. \n");}
+ISR( _VECTOR(78)) {print_debug("78 ISR raised. \n");}
+ISR( _VECTOR(79)) {print_debug("79 ISR raised. \n");}
 
 // error
 ISR(BADISR_vect) {

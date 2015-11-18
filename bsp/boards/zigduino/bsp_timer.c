@@ -98,12 +98,12 @@ void bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){
 
 	current_value = bsp_timer_get_currentValue();
 
-//	printf("\n delayTicks: %lu\n", delayTicks);
-//	printf("current value: %lu\n", current_value);
-//	printf("newCompareValue: %lu\n", newCompareValue);
-//	printf("temp_last_compare_value: %lu\n", temp_last_compare_value);
+//	print_debug("\n delayTicks: %lu\n", delayTicks);
+//	print_debug("current value: %lu\n", current_value);
+//	print_debug("newCompareValue: %lu\n", newCompareValue);
+//	print_debug("temp_last_compare_value: %lu\n", temp_last_compare_value);
 //	PORT_TIMER_WIDTH passed_time = current_value - temp_last_compare_value;
-//	printf("passed_time: %lu\n",passed_time);
+//	print_debug("passed_time: %lu\n",passed_time);
 
 	if (current_value > temp_last_compare_value && delayTicks < current_value - temp_last_compare_value) {
 		// we're already too late, schedule the ISR right now manually

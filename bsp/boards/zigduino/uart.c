@@ -22,6 +22,8 @@
 
 #include <util/setbaud.h>
 
+extern void print_debug(const char *__fmt, ...);
+
 // we can not print from within the BSP normally.
 // We did include a printf function to ease debugging.
 // To seperate functionality, we made these 'redundant' functions.
@@ -29,7 +31,6 @@ void uart_putchar(char c, FILE *stream);
 char uart_getchar(FILE *stream);
 extern FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
 extern FILE uart_input = FDEV_SETUP_STREAM(NULL, uart_getchar, _FDEV_SETUP_READ);
-
 
 //=========================== variables =======================================
 
@@ -90,8 +91,8 @@ void    uart_writeByte(uint8_t byteToWrite){
 	loop_until_bit_is_set(UCSR0A,UDRE0);
 	UDR0 = byteToWrite;
 
-//	loop_until_bit_is_set(UCSR0A, TXC0);
-//	UCSR0A |= _BV(TXC0);
+	loop_until_bit_is_set(UCSR0A, TXC0);
+	UCSR0A |= _BV(TXC0);
 }
 
 uint8_t uart_readByte(){
@@ -108,8 +109,7 @@ void uart_putchar(char c, FILE *stream) {
     }
     loop_until_bit_is_set(UCSR0A, UDRE0);
     UDR0 = c;
-
-    //_delay_us(4000); //this is bad but only relevant in debugging.
+    _delay_us(4000); //this is bad but only relevant in debugging.
 }
 char uart_getchar(FILE *stream) {
     loop_until_bit_is_set(UCSR0A, RXC0); /* Wait until data exists. */

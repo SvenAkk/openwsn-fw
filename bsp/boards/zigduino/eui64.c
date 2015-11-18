@@ -31,7 +31,7 @@ rng_get_uint8(void) {
 		j = j * 4;
 		j += ((PHY_RSSI&0x60)>>5);
 	}
-	printf("rng issues %u\n",j);
+	print_debug("rng issues %u\n",j);
 
 	TRX_STATE = temp; //Restore radio to previous state
 

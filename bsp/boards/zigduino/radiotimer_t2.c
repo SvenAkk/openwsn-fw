@@ -68,9 +68,9 @@ void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
 	TIMSK2 |= (1 << OCIE2A); //enable ORCRA2 interrupt
 
 	while(1){
-		printf("TCNT2: %u\n",TCNT2);
-		printf("OCR2A: %u\n",OCR2A);
-		printf("OCR2B: %u\n",OCR2B);
+		print_debug("TCNT2: %u\n",TCNT2);
+		print_debug("OCR2A: %u\n",OCR2A);
+		print_debug("OCR2B: %u\n",OCR2B);
 	}
 }
 

@@ -108,11 +108,11 @@ void bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){
 	if (current_value > temp_last_compare_value && delayTicks < current_value - temp_last_compare_value) {
 		// we're already too late, schedule the ISR right now manually
 		// setting the interrupt flag triggers an interrupt
-//		printf("Too late, triggered interrupt \n");
+//		print_debug("Too late, triggered interrupt \n");
 		bsp_timer_isr();
 
 	} else {
-//		printf("Set compare, enabled interrupt\n");
+//		print_debug("Set compare, enabled interrupt\n");
 		// this is the normal case, have timer expire at newCompareValue
 		SCOCR1HH  =  (uint8_t)(newCompareValue>>24);
 		SCOCR1HL  =  (uint8_t)(newCompareValue>>16);

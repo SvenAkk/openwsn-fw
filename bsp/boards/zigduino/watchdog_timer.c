@@ -97,9 +97,9 @@ propagate to subsequent timers.
                   last compare event.
  */
 void bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){
-//	printf("bsp_timer_vars.time_set: %lu \n", bsp_timer_vars.time_set);
-//	printf("bsp_timer_vars.time_left: %lu \n", bsp_timer_vars.time_left);
-//	printf("delayTicks: %lu \n", delayTicks);
+//	print_debug("bsp_timer_vars.time_set: %lu \n", bsp_timer_vars.time_set);
+//	print_debug("bsp_timer_vars.time_left: %lu \n", bsp_timer_vars.time_left);
+//	print_debug("delayTicks: %lu \n", delayTicks);
 
 	if(bsp_timer_vars.time_set == 0){
 		bsp_timer_vars.time_set = delayTicks;
@@ -107,22 +107,22 @@ void bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){
 		delayTicks = bsp_timer_vars.time_set - delayTicks; //regain remaining delayticks.
 	}
 	if(delayTicks <= 2048){ //wdt can't count this small, trigger immediate
-		printf("Trigger immediate! \n");
+		print_debug("Trigger immediate! \n");
 		bsp_timer_isr();
 	} else{
 		uint32_t countedCycles = 2048; //smallest possible cycles
 		int wdt_count = 0;
 		while(countedCycles*2 <= delayTicks && countedCycles != 1048576){ //1048576 is the max time the wdt can count
-//			printf("countedCycles: %lu \n", countedCycles);
+//			print_debug("countedCycles: %lu \n", countedCycles);
 			wdt_count++;
 			countedCycles = countedCycles*2;
 		}
-//		printf("countedCycles: %lu \n", countedCycles);
-//		printf("delayTicks: %lu \n", delayTicks);
+//		print_debug("countedCycles: %lu \n", countedCycles);
+//		print_debug("delayTicks: %lu \n", delayTicks);
 		bsp_timer_vars.time_left = delayTicks - countedCycles;
 
-//		printf("timeleft: %lu \n", bsp_timer_vars.time_left);
-//		printf("wdt_count:  %d \n", wdt_count);
+//		print_debug("timeleft: %lu \n", bsp_timer_vars.time_left);
+//		print_debug("wdt_count:  %d \n", wdt_count);
 
 		wdt_enable_int_only(wdt_count); //Macro sets things up for a reset
 		WDTCSR |= (1 << WDIE);

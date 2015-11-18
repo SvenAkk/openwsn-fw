@@ -125,9 +125,9 @@ kick_scheduler_t radiotimer_isr() {
 }
 
 kick_scheduler_t radiotimer_compare_isr() {
-//	printf("SCCNTHL %lu \n", radiotimer_getValue());
-//	printf("SCOCR2 %lu \n", *((PORT_RADIOTIMER_WIDTH *)(&SCOCR2LL)));
-//	printf("Beacon Timestamp %lu \n",*((PORT_RADIOTIMER_WIDTH *)(&SCBTSRLL)));
+//	print_debug("SCCNTHL %lu \n", radiotimer_getValue());
+//	print_debug("SCOCR2 %lu \n", *((PORT_RADIOTIMER_WIDTH *)(&SCOCR2LL)));
+//	print_debug("Beacon Timestamp %lu \n",*((PORT_RADIOTIMER_WIDTH *)(&SCBTSRLL)));
 
 	if (radiotimer_vars.compare_cb!=NULL) {
 		// call the callback
@@ -139,9 +139,9 @@ kick_scheduler_t radiotimer_compare_isr() {
 }
 
 kick_scheduler_t radiotimer_overflow_isr() {
-//	printf("SCCNTHL %lu \n", radiotimer_getValue());
-//	printf("SCOCR3 %lu \n", radiotimer_getPeriod());
-//	printf("Beacon Timestamp %lu \n",*((PORT_RADIOTIMER_WIDTH *)(&SCBTSRLL)));
+//	print_debug("SCCNTHL %lu \n", radiotimer_getValue());
+//	print_debug("SCOCR3 %lu \n", radiotimer_getPeriod());
+//	print_debug("Beacon Timestamp %lu \n",*((PORT_RADIOTIMER_WIDTH *)(&SCBTSRLL)));
 
 	SCCR0 |= (1 << SCMBTS); // Write 1 to SCMBTS captures the SCCNTH
 							// and stores it in the beacon timestamp register

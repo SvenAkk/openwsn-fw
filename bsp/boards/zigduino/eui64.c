@@ -6,6 +6,7 @@
 
 #include "string.h"
 #include "eui64.h"
+#include "board_info.h"
 
 #include <avr/pgmspace.h>
 #include <avr/fuse.h>
@@ -45,8 +46,8 @@ void eui64_get(uint8_t* addressToWrite) {
 	addressToWrite[1] = 0x15;
 	addressToWrite[2] = 0x92;
 	addressToWrite[3] = 0xe3;
-	addressToWrite[4] = 0xff; // ffff is zigduino
-	addressToWrite[5] = 0xff;
+	addressToWrite[4] = 0x10; // according to the EUI64 Numbering Convention
+	addressToWrite[5] = 0x00;
 
 	uint8_t rng_id1;
 	uint8_t rng_id2;

@@ -66,6 +66,12 @@ to this board.
 
 #define DEBUG_PRINT_ENABLED 1
 //#define DEBUG_PRINT_ENABLED 0
+
+#if DEBUG_PRINT_ENABLED
+#define print_debug printf
+#else
+#define print_debug
+#endif
 //=========================== typedef  ========================================
 
 //=========================== variables =======================================

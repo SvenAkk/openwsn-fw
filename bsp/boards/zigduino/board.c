@@ -24,11 +24,6 @@
 #include "radiotimer.h"
 
 //=========================== variables =======================================
-#if DEBUG_PRINT_ENABLED
-#define print_debug printf
-#else
-#define print_debug
-#endif
 
 //=========================== prototypes ======================================
 extern uint8_t radio_rx_start_isr();

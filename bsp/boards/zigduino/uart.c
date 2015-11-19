@@ -22,8 +22,6 @@
 
 #include <util/setbaud.h>
 
-extern void print_debug(const char *__fmt, ...);
-
 // we can not print from within the BSP normally, but this is now enabled.
 // To separate functionality, we made these 'redundant' functions.
 void uart_putchar(char c, FILE *stream);

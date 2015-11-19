@@ -54,7 +54,17 @@ void idmanager_init() {
    // my16bID
    packetfunctions_mac64bToMac16b(&idmanager_vars.my64bID,&idmanager_vars.my16bID);
 
-   print_debug("eui64: %x:%x:%x:%x:%x:%x:%x:%x\n",idmanager_vars.my64bID.addr_64b[0]
+   print_debug("myPANID: %x:%x\n",idmanager_vars.myPANID.panid[0]
+   	   	   	   	   	   ,idmanager_vars.myPANID.panid[1]);
+   print_debug("myPrefix: %x:%x:%x:%x:%x:%x:%x:%x\n",idmanager_vars.myPrefix.prefix[0]
+   	   	   	   	   	   ,idmanager_vars.myPrefix.prefix[1]
+					   ,idmanager_vars.myPrefix.prefix[2]
+					   ,idmanager_vars.myPrefix.prefix[3]
+					   ,idmanager_vars.myPrefix.prefix[4]
+					   ,idmanager_vars.myPrefix.prefix[5]
+					   ,idmanager_vars.myPrefix.prefix[6]
+   	   	   	   	   	   ,idmanager_vars.myPrefix.prefix[7]);
+   print_debug("my64bID: %x:%x:%x:%x:%x:%x:%x:%x\n",idmanager_vars.my64bID.addr_64b[0]
    	   	   	   	   	   ,idmanager_vars.my64bID.addr_64b[1]
 					   ,idmanager_vars.my64bID.addr_64b[2]
 					   ,idmanager_vars.my64bID.addr_64b[3]

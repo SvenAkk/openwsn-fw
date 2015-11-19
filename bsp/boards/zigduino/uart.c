@@ -52,8 +52,9 @@ void uart_init() {
 	UBRR0L = UBRRL_VALUE;
 
     UCSR0A |= (1 << U2X0);	//use 2x
-	UCSR0C = 0b00000110;	// enable async usart, disabled parity, 1-bit stop, 8-bit mode and async
-	UCSR0B = 0b11011000;	// Enable rx&tx interrupt, disable empty interrupt, enable rx&tx
+	UCSR0B = (1<<RXCIE0) | (1<<TXCIE0) // Enable rx&tx interrupt,
+			| (1<< RXEN0) | (1<<TXEN0);	// enable rx&tx
+	UCSR0C = (1<<UCSZ01) | (1<<UCSZ00);	// async usart, no parity, 1-bit stop, 8-bit mode
 
 	// we can not print from within the BSP normally, but this is now enabled.
 	// To separate functionality, we made these 'redundant' functions.
@@ -67,19 +68,19 @@ void uart_setCallbacks(uart_tx_cbt txCb, uart_rx_cbt rxCb) {
 }
 
 void    uart_enableInterrupts(){
-	UCSR0B |= 0b11000000; // == 0xC0
+	UCSR0B |= (1<<RXCIE0) | (1<<TXCIE0); // == 0xC0
 }
 
 void    uart_disableInterrupts(){
-	UCSR0B &= ~0b11000000; // == ~0xC0
+	UCSR0B &= ~((1<<RXCIE0) | (1<<TXCIE0)); // == ~0xC0
 }
 
 void    uart_clearRxInterrupts(){
-	UCSR0A |= 0x20;
+	UCSR0A |= (1<<TXC0);
 }
 
 void    uart_clearTxInterrupts(){
-	UCSR0A |= 0x40;
+	UCSR0A |=  (1<<TXC0);
 }
 
 void    uart_writeByte(uint8_t byteToWrite){
@@ -87,8 +88,8 @@ void    uart_writeByte(uint8_t byteToWrite){
 	loop_until_bit_is_set(UCSR0A,UDRE0);
 	UDR0 = byteToWrite;
 
-	loop_until_bit_is_set(UCSR0A, TXC0);
-	UCSR0A |= _BV(TXC0);
+//	loop_until_bit_is_set(UCSR0A, TXC0);
+//	UCSR0A |= (1<<TXC0);
 }
 
 uint8_t uart_readByte(){
@@ -126,6 +127,6 @@ kick_scheduler_t uart_rx_isr() {
 	if (uart_vars.rxCb)
 		uart_vars.rxCb();
 	// make sure buffer was read
-	if (RXC0) {dummy = UDR0;}
+	while (UCSR0A & (1<<RXC0)) {dummy = UDR0;}
 	return 0;
 }

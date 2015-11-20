@@ -51,8 +51,13 @@ void uart_init() {
 	UBRR0H =  UBRRH_VALUE; 	//UBRRnH contains the baud rate
 	UBRR0L = UBRRL_VALUE;
 
-    UCSR0A |= (1 << U2X0);	//use 2x
-	UCSR0B = (1<<RXCIE0) | (1<<TXCIE0) // Enable rx&tx interrupt,
+	if(USE_2X){
+		UCSR0A |= (1 << U2X0);
+	}else{
+		UCSR0A &= ~(1 << U2X0);
+	}
+
+  	UCSR0B = (1<<RXCIE0) | (1<<TXCIE0) // Enable rx&tx interrupt,
 			| (1<< RXEN0) | (1<<TXEN0);	// enable rx&tx
 	UCSR0C = (1<<UCSZ01) | (1<<UCSZ00);	// async usart, no parity, 1-bit stop, 8-bit mode
 

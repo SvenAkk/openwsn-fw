@@ -48,10 +48,12 @@ void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
 	SCIRQM &= ~(1<<IRQMCP2) | ~(1<<IRQMCP3);		// disable interrupts
 	SCIRQS |= (1<<IRQMCP2) | (1<<IRQMCP3);		   // reset pending interrupts
 
-	SCCR0 |= (1<<SCEN) | (0 << SCCKSEL); // enable symbol counter, 16MHz clock
+	SCCR0 |= (1<<SCEN) | (0 << SCCKSEL); // enable symbol counter, 62.5KHz clock
 	SCCR0 |= (1 << SCCMP3) | (1 << SCCMP2); // relative compare
 	SCCR0 |= (1 << SCMBTS);
 	SCCR1 = 0; // no backoff slot counter
+
+	period = period*2; //Because counter at 62.5KHz and we want 32KHz = 1s
 
 	*((PORT_RADIOTIMER_WIDTH *)(&SCOCR2LL)) = 0;
 	SCOCR2LL = 0;	//set compare registers
@@ -89,6 +91,10 @@ PORT_RADIOTIMER_WIDTH radiotimer_getPeriod() {
 //===== compare
 
 void radiotimer_schedule(PORT_RADIOTIMER_WIDTH offset) {
+
+	offset = offset*2; //Because counter at 62.5KHz and we want 32KHz = 1s
+
+
 	SCOCR2HH = (uint8_t)(offset>>24);
 	SCOCR2HL = (uint8_t)(offset>>16);
 	SCOCR2LH = (uint8_t)(offset>>8);

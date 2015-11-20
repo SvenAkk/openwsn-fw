@@ -29,14 +29,15 @@ bsp_timer_vars_t bsp_timer_vars;
 This functions starts the timer, i.e. the counter increments, but doesn't set
 any compare registers, so no interrupt will fire.
  */
-//The watchdog timer can count up to a precision of 16ms and arbitrarily high.
 void bsp_timer_init(){
 	memset(&bsp_timer_vars,0,sizeof(bsp_timer_vars_t));	// clear local variables
 
 	SCIRQM &= ~(1<<IRQMCP1);		// disable interrupt
 	SCIRQS |= (1<<IRQMCP1);		   // reset pending interrupt
 
-	SCCR0 |= (1<<SCEN) | (0 << SCCKSEL); // enable symbol counter, 16Khz clock, absolute compare
+	//Datasheet is vague/wrong: the symbol counter always runs at 62.5KHz
+	SCCR0 = (1<<SCEN) | (0 << SCCKSEL); // enable counter
+	ASSR |= (1<<AS2); // enable RTC
 
 
 	SCOCR1LL = 0; //set compare1 registers
@@ -91,6 +92,8 @@ void bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){
 	PORT_TIMER_WIDTH temp_last_compare_value;
 	PORT_TIMER_WIDTH current_value;
 
+	delayTicks =delayTicks * 2; //Counter runs at 62.5KHz  and we want 32KHz = 1s
+
 	temp_last_compare_value = bsp_timer_vars.last_compare_value;
 
 	newCompareValue      =  bsp_timer_vars.last_compare_value + delayTicks;
@@ -98,21 +101,13 @@ void bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){
 
 	current_value = bsp_timer_get_currentValue();
 
-//	print_debug("\n delayTicks: %lu\n", delayTicks);
-//	print_debug("current value: %lu\n", current_value);
-//	print_debug("newCompareValue: %lu\n", newCompareValue);
-//	print_debug("temp_last_compare_value: %lu\n", temp_last_compare_value);
-//	PORT_TIMER_WIDTH passed_time = current_value - temp_last_compare_value;
-//	print_debug("passed_time: %lu\n",passed_time);
-
 	if (current_value > temp_last_compare_value && delayTicks < current_value - temp_last_compare_value) {
 		// we're already too late, schedule the ISR right now manually
 		// setting the interrupt flag triggers an interrupt
-//		print_debug("Too late, triggered interrupt \n");
+		//print_debug("Too late, triggered interrupt \n");
 		bsp_timer_isr();
 
 	} else {
-//		print_debug("Set compare, enabled interrupt\n");
 		// this is the normal case, have timer expire at newCompareValue
 		SCOCR1HH  =  (uint8_t)(newCompareValue>>24);
 		SCOCR1HL  =  (uint8_t)(newCompareValue>>16);

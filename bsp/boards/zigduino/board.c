@@ -91,7 +91,7 @@ void board_init() {
 // Uses high-level functions from avr/sleep.h
 void board_sleep() {
 	//	TRXPR = (0 << SLPTR); // sent transceiver to sleep
-	set_sleep_mode(SLEEP_MODE_PWR_SAVE); // Power save mode to allow Timer/counter2 interrupts, see pg 162
+	set_sleep_mode(SLEEP_MODE_PWR_SAVE); // Power save mode
 	sleep_mode();
 }
 

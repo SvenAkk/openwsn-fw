@@ -18,7 +18,7 @@
 
 //=========================== defines =========================================
 #define	F_CPU 16000000UL // The clock frequency
-#define BAUD 57600 //The baud rate you want
+#define BAUD 115200 //The baud rate you want
 
 #include <util/setbaud.h>
 

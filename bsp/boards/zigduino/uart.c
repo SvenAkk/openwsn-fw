@@ -18,9 +18,12 @@
 
 //=========================== defines =========================================
 #define	F_CPU 16000000UL // The clock frequency
-#define BAUD 115200 //The baud rate you want
+#define BAUD 115200 //The baud rate you want.
 
-#include <util/setbaud.h>
+//From avr setbaud
+#define UBRR_VALUE (((F_CPU) + 8UL * (BAUD)) / (16UL * (BAUD)) -1UL)
+#define UBRRL_VALUE (UBRR_VALUE & 0xff)
+#define UBRRH_VALUE (UBRR_VALUE >> 8)
 
 // we can not print from within the BSP normally, but this is now enabled.
 // To separate functionality, we made these 'redundant' functions.
@@ -51,11 +54,7 @@ void uart_init() {
 	UBRR0H =  UBRRH_VALUE; 	//UBRRnH contains the baud rate
 	UBRR0L = UBRRL_VALUE;
 
-	if(USE_2X){
-		UCSR0A |= (1 << U2X0);
-	}else{
-		UCSR0A &= ~(1 << U2X0);
-	}
+
 
   	UCSR0B = (1<<RXCIE0) | (1<<TXCIE0) // Enable rx&tx interrupt,
 			| (1<< RXEN0) | (1<<TXEN0);	// enable rx&tx

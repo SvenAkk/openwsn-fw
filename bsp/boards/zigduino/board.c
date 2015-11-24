@@ -114,47 +114,65 @@ void board_reset() {
 // pass to uart_isr_rx/tx
 ISR(USART0_RX_vect) {
 	//	print_debug("USART0_RX_vect ISR raised. \n");
-	uart_rx_isr(); // doing nothing w/ return value
+    debugpins_isr_set();
+    uart_rx_isr(); // doing nothing w/ return value
+    debugpins_isr_clr();
 }
 
 ISR(USART0_TX_vect) {
 	//	print_debug("USART0_TX_vect ISR raised. \n");
+    debugpins_isr_set();
 	uart_tx_isr(); // doing nothing w/ return value
+    debugpins_isr_clr();
 }
 // radio interrupt(s)
 // pass to radio_isr
 ISR(TRX24_RX_START_vect) {
 //	print_debug("TRX24_RX_START_vect ISR raised. \n");
+	debugpins_slot_set();
 	radio_rx_start_isr(); // doing nothing w/ return value
+	debugpins_slot_clr();
 }
 
 ISR(TRX24_RX_END_vect) {
 //	print_debug("TRX24_RX_END_vect ISR raised. \n");
+	debugpins_slot_set();
 	radio_trx_end_isr();
+	debugpins_slot_clr();
 }
 ISR(TRX24_TX_END_vect) {
 //	print_debug("TRX24_TX_END_vect ISR raised. \n");
+	debugpins_slot_set();
 	radio_trx_end_isr();
+	debugpins_slot_clr();
 }
 
 ISR(SCNT_CMP1_vect) {
 	//	print_debug("SCNT_CMP1_vect ISR raised. \n");
+	debugpins_slot_set();
 	bsp_timer_isr();
+	debugpins_slot_clr();
 }
 
 ISR(SCNT_CMP2_vect) {
 	//	print_debug("SCNT_CMP2_vect ISR raised. \n");
+	debugpins_slot_set();
 	radiotimer_compare_isr();
+	debugpins_slot_clr();
 }
 
 ISR(SCNT_CMP3_vect) {
 	//	print_debug("SCNT_CMP3_vect ISR raised. \n");
+	debugpins_slot_set();
 	radiotimer_overflow_isr();
+	debugpins_slot_clr();
 }
 
 ISR(SCNT_OVFL_vect) {
-	print_debug("SCNT_OVFL_vect ISR raised. Should be unused. \n");
+	//print_debug("SCNT_OVFL_vect ISR raised. Should be unused. \n");
+	debugpins_slot_set();
 	//radiotimer_overflow_isr();
+	debugpins_slot_clr();
 }
 
 /* Hang on any unsupported interrupt */
@@ -245,6 +263,7 @@ ISR( _VECTOR(79)) {print_debug("79 ISR raised. \n");}
 
 // error
 ISR(BADISR_vect) {
+	debugpins_slot_set();
 	static const char msg[] = "BADISR\n";
 	char c = 0;
 	while(1) {
@@ -252,4 +271,5 @@ ISR(BADISR_vect) {
 			uart_writeByte(msg[c]);
 		}
 	}
+	debugpins_slot_clr();
 }

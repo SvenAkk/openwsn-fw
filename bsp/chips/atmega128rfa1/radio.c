@@ -1,6 +1,6 @@
 /**
 \brief Zigduino definition of the "radio" bsp module.
-
+		//From derfmega
 \author Sven Akkermans <sven.akkermans@cs.kuleuven.be>, September 2015.
  */
 #include <avr/io.h>
@@ -12,11 +12,9 @@
 #include "debugpins.h"
 #include "leds.h"
 
-#include "atmega128rfa1.h"
-
+#include "at86rf231.h"
 
 //=========================== defines =========================================
-#define RADIO_CHIP_ANTENNA 			0x05
 
 //=========================== variables =======================================
 
@@ -45,9 +43,9 @@ uint8_t radio_trx_end_isr();
 //===== admin
 
 void radio_init() {
-	PRR1 &= ~(1<<PRTRX24); 	// turn on radio power and reset
-	TRXPR |= 0x01;
-	while (TRXPR & 0x01);
+//	PRR1 &= ~(1<<PRTRX24); 	// turn on radio power and reset
+//	TRXPR |= 0x01;
+//	while (TRXPR & 0x01);
 
 	memset(&radio_vars,0,sizeof(radio_vars_t)); // clear variables
 

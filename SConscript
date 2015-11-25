@@ -429,7 +429,6 @@ def jtagUploadFunc(location):
  # EXT: BrownOut at 1.9V
  # Last fuse fd -> f5 due to immutable bits, otherwise avrdude gives a verification error
     elif env['toolchain']=='avr':
-           port = ARGUMENTS.get('jtag', 0)
            return Builder(
                 action      = 'avrdude -c jtag3isp -p m128rfa1  -B 1 -U flash:w:$SOURCE',
                 #+	' -U lfuse:w:0xf7:m -U hfuse:w:0xd7:m -U efuse:w:0xf5:m', #if you need to do fuses

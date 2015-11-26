@@ -129,50 +129,50 @@ ISR(USART0_TX_vect) {
 // pass to radio_isr
 ISR(TRX24_RX_START_vect) {
 //	print_debug("TRX24_RX_START_vect ISR raised. \n");
-	debugpins_slot_set();
+	//debugpins_isr_set();
 	radio_rx_start_isr(); // doing nothing w/ return value
-	debugpins_slot_clr();
+	//debugpins_isr_clr();
 }
 
 ISR(TRX24_RX_END_vect) {
 //	print_debug("TRX24_RX_END_vect ISR raised. \n");
-	debugpins_slot_set();
+	//debugpins_isr_set();
 	radio_trx_end_isr();
-	debugpins_slot_clr();
+	//debugpins_isr_clr();
 }
 ISR(TRX24_TX_END_vect) {
 //	print_debug("TRX24_TX_END_vect ISR raised. \n");
-	debugpins_slot_set();
+	//debugpins_isr_set();
 	radio_trx_end_isr();
-	debugpins_slot_clr();
+	//debugpins_isr_clr();
 }
 
 ISR(SCNT_CMP1_vect) {
 	//	print_debug("SCNT_CMP1_vect ISR raised. \n");
-	debugpins_slot_set();
+	//debugpins_isr_set();
 	bsp_timer_isr();
-	debugpins_slot_clr();
+	//debugpins_isr_clr();
 }
 
 ISR(SCNT_CMP2_vect) {
 	//	print_debug("SCNT_CMP2_vect ISR raised. \n");
-	debugpins_slot_set();
+	//debugpins_isr_set();
 	radiotimer_compare_isr();
-	debugpins_slot_clr();
+	//debugpins_isr_clr();
 }
 
 ISR(SCNT_CMP3_vect) {
 	//	print_debug("SCNT_CMP3_vect ISR raised. \n");
-	debugpins_slot_set();
+	//debugpins_isr_set();
 	radiotimer_overflow_isr();
-	debugpins_slot_clr();
+	//debugpins_isr_clr();
 }
 
 ISR(SCNT_OVFL_vect) {
 	//print_debug("SCNT_OVFL_vect ISR raised. Should be unused. \n");
-	debugpins_slot_set();
+	//debugpins_isr_set();
 	//radiotimer_overflow_isr();
-	debugpins_slot_clr();
+	//debugpins_isr_clr();
 }
 
 /* Hang on any unsupported interrupt */
@@ -263,7 +263,7 @@ ISR( _VECTOR(79)) {print_debug("79 ISR raised. \n");}
 
 // error
 ISR(BADISR_vect) {
-	debugpins_slot_set();
+	//debugpins_isr_set();
 	static const char msg[] = "BADISR\n";
 	char c = 0;
 	while(1) {
@@ -271,5 +271,5 @@ ISR(BADISR_vect) {
 			uart_writeByte(msg[c]);
 		}
 	}
-	debugpins_slot_clr();
+	//debugpins_isr_clr();
 }

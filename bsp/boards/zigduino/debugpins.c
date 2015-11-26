@@ -40,7 +40,6 @@ void debugpins_init() {
 	DEBUG_PORT_DIR |= (1 << ISR_PIN);
 	DEBUG_PORT |= (1 << RADIO_PIN);
 	DEBUG_PORT_DIR |= (1 << RADIO_PIN);
-
 }
 
 void debugpins_frame_toggle() {

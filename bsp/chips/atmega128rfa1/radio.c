@@ -112,7 +112,7 @@ void radio_setFrequency(uint8_t frequency) {
 }
 
 void radio_rfOn() {
-	PRR1 &= ~_BV(PRTRX24);
+	PRR1 &= ~(1<<PRTRX24); //Writing a logic zero to this bit will re-enable the transceiver
 }
 
 void radio_rfOff() {

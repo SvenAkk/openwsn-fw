@@ -36,7 +36,7 @@ void bsp_timer_init(){
 	SCIRQS |= (1<<IRQMCP1);		   // reset pending interrupt
 
 	//Datasheet is vague/wrong: the symbol counter always runs at 62.5KHz
-	SCCR0 = (1<<SCEN) | (0 << SCCKSEL); // enable counter
+	SCCR0 = (1<<SCEN) | (1 << SCCKSEL); // enable RTC counter (used in sleep)
 	ASSR |= (1<<AS2); // enable RTC
 
 
@@ -91,8 +91,8 @@ void bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){
 	PORT_TIMER_WIDTH newCompareValue;
 	PORT_TIMER_WIDTH temp_last_compare_value;
 	PORT_TIMER_WIDTH current_value;
-
-	delayTicks =delayTicks * 2; //Counter runs at 62.5KHz  and we want 32KHz = 1s
+	delayTicks = delayTicks * 62500/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
+											// so roughly double the delay
 
 	temp_last_compare_value = bsp_timer_vars.last_compare_value;
 

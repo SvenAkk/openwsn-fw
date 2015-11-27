@@ -37,23 +37,31 @@ void radiotimer_setCompareCb(radiotimer_compare_cbt cb) {
 }
 
 void radiotimer_setStartFrameCb(radiotimer_capture_cbt cb) {
-	while(1);
+	while(1); //we set this directly in radio
 }
 
 void radiotimer_setEndFrameCb(radiotimer_capture_cbt cb) {
-	while(1);
+	while(1); //we set this directly in radio
 }
 
 void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
+	print_debug("radiotimer_start start\n");
+
+	PRR0 &= ~(1<<PRTIM2); // turn on timer 2 for crystal
+
 	SCIRQM &= ~(1<<IRQMCP2) | ~(1<<IRQMCP3);		// disable interrupts
 	SCIRQS |= (1<<IRQMCP2) | (1<<IRQMCP3);		   // reset pending interrupts
 
-	SCCR0 |= (1<<SCEN) | (0 << SCCKSEL); // enable symbol counter, 62.5KHz clock
+	SCCR0 |= (1<<SCEN) | (1 << SCCKSEL); // enable symbol counter, 62.5KHz clock
 	SCCR0 |= (1 << SCCMP3) | (1 << SCCMP2); // relative compare
 	SCCR0 |= (1 << SCMBTS);
 	SCCR1 = 0; // no backoff slot counter
 
-	period = period*2; //Because counter at 62.5KHz and we want 32KHz = 1s
+	ASSR |= (1<<AS2); // enable RTC
+
+
+	period = period * 62500/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
+	// so roughly double the delay
 
 	*((PORT_RADIOTIMER_WIDTH *)(&SCOCR2LL)) = 0;
 	SCOCR2LL = 0;	//set compare registers
@@ -69,6 +77,7 @@ void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
 
 
 	SCIRQM |=  (1<<IRQMCP3);		// enable interrupts from 2nd and 3rd compare.
+	print_debug("radiotimer_start end\n");
 }
 
 //===== direct access
@@ -92,7 +101,8 @@ PORT_RADIOTIMER_WIDTH radiotimer_getPeriod() {
 
 void radiotimer_schedule(PORT_RADIOTIMER_WIDTH offset) {
 
-	offset = offset*2; //Because counter at 62.5KHz and we want 32KHz = 1s
+	offset = offset * 62500/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
+	// so roughly double the delay
 
 
 	SCOCR2HH = (uint8_t)(offset>>24);

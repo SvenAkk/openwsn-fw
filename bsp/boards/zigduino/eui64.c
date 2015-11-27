@@ -11,7 +11,6 @@
 #include <avr/pgmspace.h>
 #include <avr/fuse.h>
 #include <avr/eeprom.h>
-#include <util/delay.h>
 
 //=========================== defines =========================================
 

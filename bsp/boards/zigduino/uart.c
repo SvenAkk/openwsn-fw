@@ -9,24 +9,35 @@
 #include <avr/io.h>
 #include <avr/iom128rfa1.h> //Sven: this is advised against, but works.
 #include <stdio.h>
-#include <util/delay.h>
 
 #include "uart.h"
 #include "board.h"
 
 
 //=========================== defines =========================================
-#define	F_CPU 16000000UL // The clock frequency
-#define BAUD 115200 //The baud rate you want.
-
-#include <util/setbaud.h>
 
 // we can not print from within the BSP normally, but this is now enabled.
 // To separate functionality, we made these 'redundant' functions.
+#if DEBUG_PRINT_ENABLED
+
 void uart_putchar(char c, FILE *stream);
 char uart_getchar(FILE *stream);
 extern FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
 extern FILE uart_input = FDEV_SETUP_STREAM(NULL, uart_getchar, _FDEV_SETUP_READ);
+
+void uart_putchar(char c, FILE *stream) {
+	if (c == '\n') {
+		uart_putchar('\r', stream);
+	}
+	loop_until_bit_is_set(UCSR0A, UDRE0);
+	UDR0 = c;
+	_delay_us(400); //this is bad but only relevant in debugging.
+}
+char uart_getchar(FILE *stream) {
+	loop_until_bit_is_set(UCSR0A, RXC0); /* Wait until data exists. */
+	return UDR0;
+}
+#endif
 
 //=========================== variables =======================================
 
@@ -54,18 +65,18 @@ void uart_init() {
 		UCSR0A |= (1<<U2X0);
 	}
 
-  	UCSR0B = (1<<RXCIE0) | (1<<TXCIE0) // Enable rx&tx interrupt,
-			| (1<< RXEN0) | (1<<TXEN0);	// enable rx&tx
+	UCSR0B = (1<<RXCIE0) | (1<<TXCIE0) // Enable rx&tx interrupt,
+					| (1<< RXEN0) | (1<<TXEN0);	// enable rx&tx
 	UCSR0C = (1<<UCSZ01) | (1<<UCSZ00);	// async usart, no parity, 1-bit stop, 8-bit mode
 
-	// we can not print from within the BSP normally, but this is now enabled.
-	// To separate functionality, we made these 'redundant' functions.
-    stdout = &uart_output;
-    stdin  = &uart_input;
 
-    if(USE_2X){
+	if(USE_2X){
 		print_debug("USE_2X used");
-    }
+	}
+	#if DEBUG_PRINT_ENABLED
+		stdout  = &uart_output;
+		stdin = &uart_input;
+	#endif
 }
 
 void uart_setCallbacks(uart_tx_cbt txCb, uart_rx_cbt rxCb) {
@@ -94,28 +105,13 @@ void    uart_writeByte(uint8_t byteToWrite){
 	loop_until_bit_is_set(UCSR0A,UDRE0);
 	UDR0 = byteToWrite;
 
-//	loop_until_bit_is_set(UCSR0A, TXC0);
-//	UCSR0A |= (1<<TXC0);
+	//	loop_until_bit_is_set(UCSR0A, TXC0);
+	//	UCSR0A |= (1<<TXC0);
 }
 
 uint8_t uart_readByte(){
 	loop_until_bit_is_set(UCSR0A,UDRE0);
 	return UDR0;
-}
-
-// we can not print from within the BSP normally, but this is now enabled.
-// To separate functionality, we made these 'redundant' functions.
-void uart_putchar(char c, FILE *stream) {
-    if (c == '\n') {
-        uart_putchar('\r', stream);
-    }
-    loop_until_bit_is_set(UCSR0A, UDRE0);
-    UDR0 = c;
-    _delay_us(4000); //this is bad but only relevant in debugging.
-}
-char uart_getchar(FILE *stream) {
-    loop_until_bit_is_set(UCSR0A, RXC0); /* Wait until data exists. */
-    return UDR0;
 }
 
 //=========================== private =========================================

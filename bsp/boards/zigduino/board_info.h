@@ -20,6 +20,11 @@ to this board.
 
 
 //=========================== defines =========================================
+#define	F_CPU 16000000UL // The clock frequency
+#define BAUD 115200 //The baud rate you want.
+
+#include <util/setbaud.h>
+#include <util/delay.h>
 
 #define PORT_SIGNED_INT_WIDTH				int32_t
 

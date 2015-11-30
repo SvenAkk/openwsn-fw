@@ -451,6 +451,7 @@ void openserial_stop() {
 }
 
 void openserial_goldenImageCommands(void){
+	return;
    uint8_t  input_buffer[7];
    uint8_t  numDataBytes;
    uint8_t  version;

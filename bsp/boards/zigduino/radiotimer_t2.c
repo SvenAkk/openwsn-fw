@@ -48,7 +48,8 @@ void radiotimer_setEndFrameCb(radiotimer_capture_cbt cb) {
 void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
 	TIMSK2 &= ~((1<<OCIE2A)|(1<<OCIE2B)|(1<<TOIE2));
 	TIFR2 |=  (1 << OCF2A) | (1 << OCF2B) | (1 << TOV2);
-	ASSR = (0<<EXCLK) | (1<<AS2);
+	ASSR &= ~(1<<EXCLK);
+	ASSR |= (1<<AS2);
 
 	TCCR2A = 0;
 	TCCR2B = 0;

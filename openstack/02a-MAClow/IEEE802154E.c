@@ -107,7 +107,7 @@ Call this function once before any other function in this module, possibly
 during boot-up.
 */
 void ieee154e_init() {
-   
+   print_debug("ieee154e_init start\n");
    // initialize variables
    memset(&ieee154e_vars,0,sizeof(ieee154e_vars_t));
    memset(&ieee154e_dbg,0,sizeof(ieee154e_dbg_t));
@@ -141,6 +141,8 @@ void ieee154e_init() {
    radio_setEndFrameCb(ieee154e_endOfFrame);
    // have the radio start its timer
    radio_startTimer(TsSlotDuration);
+
+   print_debug("ieee154e_init done\n");
 }
 
 //=========================== public ==========================================
@@ -184,6 +186,7 @@ PORT_RADIOTIMER_WIDTH ieee154e_asnDiff(asn_t* someASN) {
 This function executes in ISR mode, when the new slot timer fires.
 */
 void isr_ieee154e_newSlot() {
+print_debug("isr_ieee154e_newSlot\n");
    radio_setTimerPeriod(TsSlotDuration);
    if (ieee154e_vars.isSync==FALSE) {
       if (idmanager_getIsDAGroot()==TRUE) {
@@ -210,6 +213,7 @@ void isr_ieee154e_newSlot() {
 This function executes in ISR mode, when the FSM timer fires.
 */
 void isr_ieee154e_timer() {
+	print_debug("isr_ieee154e_timer\n");
    switch (ieee154e_vars.state) {
       case S_TXDATAOFFSET:
          activity_ti2();
@@ -289,6 +293,7 @@ void isr_ieee154e_timer() {
 This function executes in ISR mode.
 */
 void ieee154e_startOfFrame(PORT_RADIOTIMER_WIDTH capturedTime) {
+	print_debug("ieee154e_startOfFrame\n");
    if (ieee154e_vars.isSync==FALSE) {
      activity_synchronize_startOfFrame(capturedTime);
    } else {
@@ -337,6 +342,7 @@ void ieee154e_startOfFrame(PORT_RADIOTIMER_WIDTH capturedTime) {
 This function executes in ISR mode.
 */
 void ieee154e_endOfFrame(PORT_RADIOTIMER_WIDTH capturedTime) {
+	print_debug("ieee154e_endOfFrame\n");
    if (ieee154e_vars.isSync==FALSE) {
       activity_synchronize_endOfFrame(capturedTime);
    } else {
@@ -482,7 +488,7 @@ port_INLINE void activity_synchronize_newSlot() {
 }
 
 port_INLINE void activity_synchronize_startOfFrame(PORT_RADIOTIMER_WIDTH capturedTime) {
-   
+
    // don't care about packet if I'm not listening
    if (ieee154e_vars.state!=S_SYNCLISTEN) {
       return;
@@ -504,7 +510,7 @@ port_INLINE void activity_synchronize_startOfFrame(PORT_RADIOTIMER_WIDTH capture
 port_INLINE void activity_synchronize_endOfFrame(PORT_RADIOTIMER_WIDTH capturedTime) {
    ieee802154_header_iht ieee802514_header;
    uint16_t              lenIE;
-   
+
    // check state
    if (ieee154e_vars.state!=S_SYNCRX) {
       // log the error
@@ -517,7 +523,7 @@ port_INLINE void activity_synchronize_endOfFrame(PORT_RADIOTIMER_WIDTH capturedT
    
    // change state
    changeState(S_SYNCPROC);
-   
+
    // get a buffer to put the (received) frame in
    ieee154e_vars.dataReceived = openqueue_getFreePacketBuffer(COMPONENT_IEEE802154E);
    if (ieee154e_vars.dataReceived==NULL) {
@@ -533,7 +539,7 @@ port_INLINE void activity_synchronize_endOfFrame(PORT_RADIOTIMER_WIDTH capturedT
    // declare ownership over that packet
    ieee154e_vars.dataReceived->creator = COMPONENT_IEEE802154E;
    ieee154e_vars.dataReceived->owner   = COMPONENT_IEEE802154E;
-   
+
    /*
    The do-while loop that follows is a little parsing trick.
    Because it contains a while(0) condition, it gets executed only once.
@@ -619,7 +625,7 @@ port_INLINE void activity_synchronize_endOfFrame(PORT_RADIOTIMER_WIDTH capturedT
          // break from the do-while loop and execute the clean-up code below
          break;
       }
-    
+
       // turn off the radio
       radio_rfOff();
       
@@ -631,7 +637,7 @@ port_INLINE void activity_synchronize_endOfFrame(PORT_RADIOTIMER_WIDTH capturedT
       
       // synchronize (for the first time) to the sender's EB
       synchronizePacket(ieee154e_vars.syncCapturedTime);
-      
+
       // declare synchronized
       changeIsSync(TRUE);
       
@@ -653,7 +659,7 @@ port_INLINE void activity_synchronize_endOfFrame(PORT_RADIOTIMER_WIDTH capturedT
       return;
       
    } while(0);
-   
+
    // free the (invalid) received data buffer so RAM memory can be recycled
    openqueue_freePacketBuffer(ieee154e_vars.dataReceived);
    

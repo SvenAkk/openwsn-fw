@@ -114,16 +114,16 @@ void board_reset() {
 // pass to uart_isr_rx/tx
 ISR(USART0_RX_vect) {
 	//	print_debug("USART0_RX_vect ISR raised. \n");
-    debugpins_isr_set();
+    //debugpins_isr_set();
     uart_rx_isr(); // doing nothing w/ return value
-    debugpins_isr_clr();
+    //debugpins_isr_clr();
 }
 
 ISR(USART0_TX_vect) {
 	//	print_debug("USART0_TX_vect ISR raised. \n");
-    debugpins_isr_set();
+    //debugpins_isr_set();
 	uart_tx_isr(); // doing nothing w/ return value
-    debugpins_isr_clr();
+    //debugpins_isr_clr();
 }
 // radio interrupt(s)
 // pass to radio_isr
@@ -148,24 +148,24 @@ ISR(TRX24_TX_END_vect) {
 }
 
 ISR(SCNT_CMP1_vect) {
-	//	print_debug("SCNT_CMP1_vect ISR raised. \n");
-	//debugpins_isr_set();
+		print_debug("SCNT_CMP1_vect ISR raised. \n");
+	debugpins_isr_set();
 	bsp_timer_isr();
-	//debugpins_isr_clr();
+	debugpins_isr_clr();
 }
 
 ISR(SCNT_CMP2_vect) {
-	//	print_debug("SCNT_CMP2_vect ISR raised. \n");
-	//debugpins_isr_set();
+		print_debug("SCNT_CMP2_vect ISR raised. \n");
+	debugpins_isr_set();
 	radiotimer_compare_isr();
-	//debugpins_isr_clr();
+	debugpins_isr_clr();
 }
 
 ISR(SCNT_CMP3_vect) {
-	//	print_debug("SCNT_CMP3_vect ISR raised. \n");
-	//debugpins_isr_set();
+		print_debug("SCNT_CMP3_vect ISR raised. \n");
+	debugpins_isr_set();
 	radiotimer_overflow_isr();
-	//debugpins_isr_clr();
+	debugpins_isr_clr();
 }
 
 ISR(SCNT_OVFL_vect) {

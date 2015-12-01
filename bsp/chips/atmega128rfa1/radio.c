@@ -121,7 +121,9 @@ void radio_rfOff() {
 	//radio_spiWriteReg(RG_TRX_STATE, CMD_TRX_OFF);
 	while((radio_internalReadReg(TRX_STATUS) & 0x1F) != TRX_OFF); // busy wait until done
 
-	leds_radio_off();
+	   // wiggle debug pin
+	   debugpins_radio_clr();
+	   leds_radio_off();
 
 	radio_vars.state = RADIOSTATE_RFOFF;   // change state
 }
@@ -137,7 +139,9 @@ void radio_loadPacket(uint8_t* packet, uint8_t len) {
 void radio_txEnable() {
 	radio_vars.state = RADIOSTATE_ENABLING_TX;    // change state
 
-	leds_radio_on();
+	   // wiggle debug pin
+	   debugpins_radio_set();
+	   leds_radio_on();
 
 	radio_internalWriteReg(TRX_STATE, CMD_PLL_ON);   // turn on radio's PLL
 	while((radio_internalReadReg(TRX_STATUS) & 0x1F) != PLL_ON); // busy wait until done
@@ -160,7 +164,9 @@ void radio_txNow() {
 	// a radio glitch by which #radio_txEnable would not be followed by a packet being
 	// transmitted (I've never seen that).
 	if (radio_vars.startFrame_cb!=NULL) {
-		radio_vars.startFrame_cb(radiotimer_getCapturedTime());    // call the callback
+		PORT_TIMER_WIDTH capturedTime;
+		capturedTime = radiotimer_getCapturedTime();
+	    radio_vars.startFrame_cb(capturedTime);
 	}
 }
 
@@ -171,7 +177,9 @@ void radio_rxEnable() {
 
 	radio_internalWriteReg(TRX_STATE, CMD_RX_ON);   // put radio in reception mode
 
-	leds_radio_on();
+	   // wiggle debug pin
+	   debugpins_radio_set();
+	   leds_radio_on();
 
 	while((radio_internalReadReg(TRX_STATUS) & 0x1F) != RX_ON);   // busy wait until radio really listening
 

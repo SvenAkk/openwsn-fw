@@ -27,6 +27,12 @@ source = [
     'uart.c',
 ]
 
+localEnv.Append(
+        CPPPATH =  [
+            os.path.join('#','bsp','chips','atmega128rfa1'),
+        ],
+)
+
 board  = localEnv.Object(source=source) + atmega128rfa1
 
 Return('board')

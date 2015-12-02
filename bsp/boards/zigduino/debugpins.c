@@ -28,17 +28,11 @@
 
 void debugpins_init() {
 	// all pins as output
-	DEBUG_PORT |= (1 << FRAME_PIN);
 	DEBUG_PORT_DIR |= (1 << FRAME_PIN);
-	DEBUG_PORT |= (1 << SLOT_PIN);
 	DEBUG_PORT_DIR |= (1 << SLOT_PIN);
-	DEBUG_PORT |= (1 << FSM_PIN);
 	DEBUG_PORT_DIR |= (1 << FSM_PIN);
-	DEBUG_PORT |= (1 << TASK_PIN);
 	DEBUG_PORT_DIR |= (1 << TASK_PIN);
-	DEBUG_PORT |= (1 << ISR_PIN);
 	DEBUG_PORT_DIR |= (1 << ISR_PIN);
-	DEBUG_PORT |= (1 << RADIO_PIN);
 	DEBUG_PORT_DIR |= (1 << RADIO_PIN);
 }
 
@@ -91,8 +85,8 @@ void debugpins_task_clr() {
 	DEBUG_PORT_DIR |= (1 << TASK_PIN);
 }
 void debugpins_task_set() {
-	DEBUG_PORT |= (1 << FSM_PIN);
-	DEBUG_PORT_DIR |= (1 << FSM_PIN);
+	DEBUG_PORT |= (1 << TASK_PIN);
+	DEBUG_PORT_DIR |= (1 << TASK_PIN);
 }
 
 void debugpins_isr_toggle() {

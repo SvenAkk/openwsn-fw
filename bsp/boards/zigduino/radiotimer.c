@@ -45,9 +45,8 @@ void radiotimer_setEndFrameCb(radiotimer_capture_cbt cb) {
 }
 
 void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
-//	print_debug("radiotimer_start with period %lu or %u\n", period);
+//	print_debug("radiotimer_start with period %lu or %u\n", period,period);
 	//ASSR |= (1<<AS2); // SVEN: RTC DOESNT WORK, SEE AVR
-
 	SCIRQM &= ~(1<<IRQMCP2) | ~(1<<IRQMCP3);		// disable interrupts
 	SCIRQS |= (1<<IRQMCP2) | (1<<IRQMCP3);		   // reset pending interrupts
 
@@ -96,7 +95,6 @@ PORT_RADIOTIMER_WIDTH radiotimer_getPeriod() {
 //===== compare
 
 void radiotimer_schedule(PORT_RADIOTIMER_WIDTH offset) {
-
 	offset = offset * 62500/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
 	// so roughly double the delay
 
@@ -133,11 +131,7 @@ PORT_RADIOTIMER_WIDTH radiotimer_getCapturedTime() {
 
 
 	PORT_RADIOTIMER_WIDTH captured_time = count_time - beacon_time;
-//
-//	print_debug("radiotimer_getCapturedTime count_time %lu or %u\n", count_time);
-//	print_debug("radiotimer_getCapturedTime beacon_time %lu  or %u\n", beacon_time);
-//	print_debug("radiotimer_getCapturedTime captured_time%lu  or %u\n",captured_time);
-//
+
 	return captured_time;
 }
 
@@ -153,10 +147,6 @@ kick_scheduler_t radiotimer_isr() {
 }
 
 kick_scheduler_t radiotimer_compare_isr() {
-//	print_debug("radiotimer_compare_isr timervalue %lu or %u\n", radiotimer_getValue());
-//	print_debug("radiotimer_compare_isr SCOCR2 %lu  or %u\n", *((PORT_RADIOTIMER_WIDTH *)(&SCOCR2LL)));
-//	print_debug("radiotimer_compare_isr Beacon Timestamp %lu  or %u\n",*((PORT_RADIOTIMER_WIDTH *)(&SCBTSRLL)));
-
 	if (radiotimer_vars.compare_cb!=NULL) {
 		// call the callback
 		radiotimer_vars.compare_cb();
@@ -167,14 +157,8 @@ kick_scheduler_t radiotimer_compare_isr() {
 }
 
 kick_scheduler_t radiotimer_overflow_isr() {
-//	print_debug("radiotimer_overflow_isr timervalue %lu  or %u\n", radiotimer_getValue());
-//	print_debug("radiotimer_overflow_isr SCOCR3 %lu  or %u\n", *((PORT_RADIOTIMER_WIDTH *)(&SCOCR2LL)));
-//	print_debug("radiotimer_overflow_isr old Beacon Timestamp %lu  or %u\n",*((PORT_RADIOTIMER_WIDTH *)(&SCBTSRLL)));
-
 	SCCR0 |= (1 << SCMBTS); // Write 1 to SCMBTS captures the SCCNTH
 							// and stores it in the beacon timestamp register
-
-//	print_debug("radiotimer_overflow_isr new Beacon Timestamp %lu \n",*((PORT_RADIOTIMER_WIDTH *)(&SCBTSRLL)));
 
 	if (radiotimer_vars.overflow_cb!=NULL) {
 		// call the callback

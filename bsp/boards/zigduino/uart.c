@@ -8,7 +8,6 @@
 #include <avr/eeprom.h>
 #include <avr/io.h>
 #include <avr/iom128rfa1.h> //Sven: this is advised against, but works.
-#include <stdio.h>
 
 #include "uart.h"
 #include "board.h"
@@ -19,6 +18,8 @@
 // we can not print from within the BSP normally, but this is now enabled.
 // To separate functionality, we made these 'redundant' functions.
 #if DEBUG_PRINT_ENABLED
+
+#include <stdio.h>
 
 void uart_putchar(char c, FILE *stream);
 char uart_getchar(FILE *stream);
@@ -66,17 +67,18 @@ void uart_init() {
 	}
 
 	UCSR0B = (1<<RXCIE0) | (1<<TXCIE0) // Enable rx&tx interrupt,
-					| (1<< RXEN0) | (1<<TXEN0);	// enable rx&tx
+							| (1<< RXEN0) | (1<<TXEN0);	// enable rx&tx
 	UCSR0C = (1<<UCSZ01) | (1<<UCSZ00);	// async usart, no parity, 1-bit stop, 8-bit mode
 
+
+#if DEBUG_PRINT_ENABLED
+	stdout  = &uart_output;
+	stdin = &uart_input;
+#endif
 
 	if(USE_2X){
 		print_debug("USE_2X used");
 	}
-	#if DEBUG_PRINT_ENABLED
-		stdout  = &uart_output;
-		stdin = &uart_input;
-	#endif
 }
 
 void uart_setCallbacks(uart_tx_cbt txCb, uart_rx_cbt rxCb) {
@@ -101,16 +103,11 @@ void    uart_clearTxInterrupts(){
 }
 
 void    uart_writeByte(uint8_t byteToWrite){
-	//while((UCSR0A & (1 << UDRE0))==0); /* Wait until data register empty. */
-	loop_until_bit_is_set(UCSR0A,UDRE0);
 	UDR0 = byteToWrite;
-
-	//	loop_until_bit_is_set(UCSR0A, TXC0);
-	//	UCSR0A |= (1<<TXC0);
 }
 
 uint8_t uart_readByte(){
-	loop_until_bit_is_set(UCSR0A,UDRE0);
+//	loop_until_bit_is_set(UCSR0A,UDRE0);
 	return UDR0;
 }
 

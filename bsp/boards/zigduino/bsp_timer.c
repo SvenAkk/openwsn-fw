@@ -32,6 +32,7 @@ any compare registers, so no interrupt will fire.
 void bsp_timer_init(){
 	memset(&bsp_timer_vars,0,sizeof(bsp_timer_vars_t));	// clear local variables
 	//ASSR |= (1<<AS2); // enable RTC. SVEN: RTC DOESNT WORK, SEE AVR
+	PRR0 &= ~(1<<PRTIM2); // turn on timer 2 for crystal
 
 	SCIRQM &= ~(1<<IRQMCP1);		// disable interrupt
 	SCIRQS |= (1<<IRQMCP1);		   // reset pending interrupt
@@ -39,7 +40,7 @@ void bsp_timer_init(){
 	//Datasheet is vague/wrong: the symbol counter always runs at 62.5KHz
 	SCCR0 |= (1<<SCEN) | (0 << SCCKSEL); // SVEN: RTC DOESNT WORK, SEE AVR
 	SCCR0 &= ~(1<<SCTSE); //no automatic timestamping
-
+	SCCR1 = 0; // no backoff slot counter
 
 	//set compare1 registers
 	SCOCR1HH = SCOCR1HL = SCOCR1LH = 0;
@@ -68,7 +69,8 @@ counter, and cancels a possible pending compare event.
  */
 void bsp_timer_reset(){
 	SCIRQM &= (1<<IRQMCP1);	// disable interrupts
-	SCCNTLL = 0;	// reset timer
+	SCCNTHH = SCCNTHL = SCCNTLH = 0;	   // reset timer
+	SCCNTLL = 0;
 	bsp_timer_vars.last_compare_value =  0;	// record last timer compare value
 }
 
@@ -93,26 +95,20 @@ void bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){
 	PORT_TIMER_WIDTH newCompareValue;
 	PORT_TIMER_WIDTH temp_last_compare_value;
 	PORT_TIMER_WIDTH current_value;
-//	print_debug("delayticks before %lu\n", delayTicks);
-	delayTicks = delayTicks * 62500/32768; //*62500/32768*62500/32768*62500/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
+
+	delayTicks = delayTicks * 62500/32768;  //Counter runs at 62.5KHz  and we want 32KHz = 1s
 											// so roughly double the delay
 
 	temp_last_compare_value = bsp_timer_vars.last_compare_value;
 
 	newCompareValue      =  bsp_timer_vars.last_compare_value + delayTicks;
 	bsp_timer_vars.last_compare_value   =  newCompareValue;
-	//	print_debug("temp_last_compare_value  %lu\n", temp_last_compare_value);
 
 	current_value = bsp_timer_get_currentValue();
-	//	print_debug("temp_last_compare_value  %lu\n", temp_last_compare_value);
-	//	print_debug("temp_last_compare_value  %lu\n", temp_last_compare_value);
-//	print_debug("current_value  %lu\n", current_value);
-	//	print_debug("delayticks after %lu\n", delayTicks);
 
 	if (current_value > temp_last_compare_value && delayTicks < current_value - temp_last_compare_value) {
 		// we're already too late, schedule the ISR right now manually
 		// setting the interrupt flag triggers an interrupt
-		//print_debug("Too late, triggered interrupt \n");
 		bsp_timer_isr();
 
 	} else {

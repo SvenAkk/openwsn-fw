@@ -47,6 +47,8 @@ void radiotimer_setEndFrameCb(radiotimer_capture_cbt cb) {
 void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
 //	print_debug("radiotimer_start with period %lu or %u\n", period,period);
 	//ASSR |= (1<<AS2); // SVEN: RTC DOESNT WORK, SEE AVR
+	PRR0 &= ~(1<<PRTIM2); // turn on timer 2 for crystal
+
 	SCIRQM &= ~(1<<IRQMCP2) | ~(1<<IRQMCP3);		// disable interrupts
 	SCIRQS |= (1<<IRQMCP2) | (1<<IRQMCP3);		   // reset pending interrupts
 
@@ -57,7 +59,7 @@ void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
 
 	// so roughly double the delay
 
-	*((PORT_RADIOTIMER_WIDTH *)(&SCOCR2LL)) = 0;
+	SCOCR2HH = SCOCR2HL = SCOCR2LH = 0;
 	SCOCR2LL = 0;	//set compare registers
 
 	SCCNTHH = SCCNTHL = SCCNTLH = 0;
@@ -65,12 +67,11 @@ void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
 
 	radiotimer_setPeriod(period);	//set period
 
-
 	SCCR0 |= (1 << SCMBTS); // "reset" radiotimer
 
 	while(SCSR & 0x01);	// wait for register writes
 
-	SCIRQM |=  (1<<IRQMCP3);		// enable interrupts from 2nd and 3rd compare.
+	SCIRQM |=  (1<<IRQMCP3);  // enable interrupts from 2nd and 3rd compare.
 }
 
 //===== direct access
@@ -96,22 +97,20 @@ PORT_RADIOTIMER_WIDTH radiotimer_getPeriod() {
 
 void radiotimer_schedule(PORT_RADIOTIMER_WIDTH offset) {
 	offset = offset * 62500/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
-	// so roughly double the delay
+									// so roughly double the delay
 
 	SCOCR2HH = (uint8_t)(offset>>24);
 	SCOCR2HL = (uint8_t)(offset>>16);
 	SCOCR2LH = (uint8_t)(offset>>8);
 	SCOCR2LL = (uint8_t)offset;	// offset when to fire
 
-
 	SCIRQS |= (1 << IRQSCP2);	// reset pending interrupts
-
 	SCIRQM |= (1 << IRQMCP2); //enable 2nd compare interrupt
 }
 
 void radiotimer_cancel() {
-	*((PORT_RADIOTIMER_WIDTH *)(&SCOCR2LL)) = 0; 	// reset value
-	SCOCR2LL = 0;
+	SCOCR2HH = SCOCR2HL = SCOCR2LH = 0;
+	SCOCR2LL = 0;	//set compare registers
 
 	SCIRQM &= ~(1<< IRQMCP2); //disable 2nd compare interrupt
 }
@@ -129,9 +128,10 @@ PORT_RADIOTIMER_WIDTH radiotimer_getCapturedTime() {
 	beacon_time |= ((PORT_RADIOTIMER_WIDTH)SCBTSRHL) << 16;
 	beacon_time |= ((PORT_RADIOTIMER_WIDTH)SCBTSRHH) << 24;
 
-
 	PORT_RADIOTIMER_WIDTH captured_time = count_time - beacon_time;
 
+//	print_debug("rt3. count %lu, beacon %lu, time %lu\n",
+//				count_time,beacon_time,captured_time);
 	return captured_time;
 }
 
@@ -157,8 +157,38 @@ kick_scheduler_t radiotimer_compare_isr() {
 }
 
 kick_scheduler_t radiotimer_overflow_isr() {
-	SCCR0 |= (1 << SCMBTS); // Write 1 to SCMBTS captures the SCCNTH
+//	PORT_RADIOTIMER_WIDTH count_time = ((PORT_RADIOTIMER_WIDTH)SCCNTLL);
+//	count_time |= ((PORT_RADIOTIMER_WIDTH)SCCNTLH) << 8;
+//	count_time |= ((PORT_RADIOTIMER_WIDTH)SCCNTHL) << 16;
+//	count_time |= ((PORT_RADIOTIMER_WIDTH)SCCNTHH) << 24;
+//
+//	PORT_RADIOTIMER_WIDTH beacon_time = ((PORT_RADIOTIMER_WIDTH)SCBTSRLL);
+//	beacon_time |= ((PORT_RADIOTIMER_WIDTH)SCBTSRLH) << 8;
+//	beacon_time |= ((PORT_RADIOTIMER_WIDTH)SCBTSRHL) << 16;
+//	beacon_time |= ((PORT_RADIOTIMER_WIDTH)SCBTSRHH) << 24;
+//
+//	PORT_RADIOTIMER_WIDTH captured_time = count_time - beacon_time;
+//
+//	print_debug2("rt1. count %lu, beacon %lu, time %lu\n",
+//			count_time,beacon_time,captured_time);
+
+	SCCR0 |= (1 << SCMBTS); // Write 1 to SCMBTS captures the SCCNT
 							// and stores it in the beacon timestamp register
+
+//	PORT_RADIOTIMER_WIDTH count_time2 = ((PORT_RADIOTIMER_WIDTH)SCCNTLL);
+//	count_time2 |= ((PORT_RADIOTIMER_WIDTH)SCCNTLH) << 8;
+//	count_time2 |= ((PORT_RADIOTIMER_WIDTH)SCCNTHL) << 16;
+//	count_time2 |= ((PORT_RADIOTIMER_WIDTH)SCCNTHH) << 24;
+//
+//	PORT_RADIOTIMER_WIDTH beacon_time2 = ((PORT_RADIOTIMER_WIDTH)SCBTSRLL);
+//	beacon_time2 |= ((PORT_RADIOTIMER_WIDTH)SCBTSRLH) << 8;
+//	beacon_time2 |= ((PORT_RADIOTIMER_WIDTH)SCBTSRHL) << 16;
+//	beacon_time2 |= ((PORT_RADIOTIMER_WIDTH)SCBTSRHH) << 24;
+//
+//	PORT_RADIOTIMER_WIDTH captured_time2 = count_time2 - beacon_time2;
+//
+//	print_debug2("rt2. count %lu, beacon %lu, time %lu\n",
+//			count_time2,beacon_time2,captured_time2);
 
 	if (radiotimer_vars.overflow_cb!=NULL) {
 		// call the callback

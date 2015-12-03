@@ -54,13 +54,15 @@ uart_vars_t uart_vars;
 //=========================== public ==========================================
 
 void uart_init() {
-	//PRR0 &= ~(1<<PRUSART0); //enable usart0, according to pg 343
+	PRR0 &= ~(1<<PRUSART0); //enable usart0, according to pg 343
 
 	// reset local variables
 	memset(&uart_vars,0,sizeof(uart_vars_t));
 
 	UBRR0H =  UBRRH_VALUE; 	//UBRRnH contains the baud rate
 	UBRR0L = UBRRL_VALUE;
+
+	UCSR0A |= (1<<TXC0) | (1<<RXC0); //Clear tx/rx complete bits
 
 	if(USE_2X){
 		UCSR0A |= (1<<U2X0);
@@ -95,7 +97,7 @@ void    uart_disableInterrupts(){
 }
 
 void    uart_clearRxInterrupts(){
-	UCSR0A |= (1<<TXC0);
+	UCSR0A |= (1<<RXC0);
 }
 
 void    uart_clearTxInterrupts(){
@@ -107,7 +109,6 @@ void    uart_writeByte(uint8_t byteToWrite){
 }
 
 uint8_t uart_readByte(){
-//	loop_until_bit_is_set(UCSR0A,UDRE0);
 	return UDR0;
 }
 

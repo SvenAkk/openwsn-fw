@@ -42,9 +42,9 @@ to this board.
 #define ENABLE_INTERRUPTS()					 __asm__ __volatile__ ("sei" ::: "memory")
 #define DISABLE_INTERRUPTS()				 __asm__ __volatile__ ("cli" ::: "memory")
 */
-#define INTERRUPT_DECLARATION()          unsigned short s;
-#define ENABLE_INTERRUPTS()					 __asm__ __volatile__ ("sei" ::: "memory")
-#define DISABLE_INTERRUPTS()				 __asm__ __volatile__ ("cli" ::: "memory")
+#define INTERRUPT_DECLARATION()          //unsigned short s;
+#define ENABLE_INTERRUPTS()					// __asm__ __volatile__ ("sei" ::: "memory")
+#define DISABLE_INTERRUPTS()				 //__asm__ __volatile__ ("cli" ::: "memory")
 
 #define SCHEDULER_WAKEUP()                  //do nothing
 #define SCHEDULER_ENABLE_INTERRUPT()        // do nothing
@@ -69,13 +69,18 @@ to this board.
 #define SYNC_ACCURACY                       1     // ticks
 
 
-#define DEBUG_PRINT_ENABLED 1
-//#define DEBUG_PRINT_ENABLED 0
+#define DEBUG_PRINT_ENABLED 2
 
-#if DEBUG_PRINT_ENABLED
+#if DEBUG_PRINT_ENABLED == 1
 #define print_debug printf
+#define print_debug2 printf
+
+#elif DEBUG_PRINT_ENABLED == 2
+#define print_debug
+#define print_debug2 printf
 #else
 #define print_debug
+#define print_debug2
 #endif
 //=========================== typedef  ========================================
 

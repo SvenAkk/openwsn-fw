@@ -43,9 +43,9 @@ uint8_t radio_trx_end_isr();
 //===== admin
 
 void radio_init() {
-//	PRR1 &= ~(1<<PRTRX24); 	// turn on radio power and reset
-//	TRXPR |= 0x01;
-//	while (TRXPR & 0x01);
+	PRR1 &= ~(1<<PRTRX24); 	// turn on radio power and reset
+	TRXPR |= 0x01;
+	while (TRXPR & 0x01);
 
 	memset(&radio_vars,0,sizeof(radio_vars_t)); // clear variables
 
@@ -121,9 +121,9 @@ void radio_rfOff() {
 	//radio_spiWriteReg(RG_TRX_STATE, CMD_TRX_OFF);
 	while((radio_internalReadReg(TRX_STATUS) & 0x1F) != TRX_OFF); // busy wait until done
 
-	   // wiggle debug pin
-	   debugpins_radio_clr();
-	   leds_radio_off();
+	// wiggle debug pin
+	debugpins_radio_clr();
+	leds_radio_off();
 
 	radio_vars.state = RADIOSTATE_RFOFF;   // change state
 }
@@ -139,9 +139,9 @@ void radio_loadPacket(uint8_t* packet, uint8_t len) {
 void radio_txEnable() {
 	radio_vars.state = RADIOSTATE_ENABLING_TX;    // change state
 
-	   // wiggle debug pin
-	   debugpins_radio_set();
-	   leds_radio_on();
+	// wiggle debug pin
+	debugpins_radio_set();
+	leds_radio_on();
 
 	radio_internalWriteReg(TRX_STATE, CMD_PLL_ON);   // turn on radio's PLL
 	while((radio_internalReadReg(TRX_STATUS) & 0x1F) != PLL_ON); // busy wait until done
@@ -166,7 +166,7 @@ void radio_txNow() {
 	if (radio_vars.startFrame_cb!=NULL) {
 		PORT_TIMER_WIDTH capturedTime;
 		capturedTime = radiotimer_getCapturedTime();
-	    radio_vars.startFrame_cb(capturedTime);
+		radio_vars.startFrame_cb(capturedTime);
 	}
 }
 
@@ -177,9 +177,9 @@ void radio_rxEnable() {
 
 	radio_internalWriteReg(TRX_STATE, CMD_RX_ON);   // put radio in reception mode
 
-	   // wiggle debug pin
-	   debugpins_radio_set();
-	   leds_radio_on();
+	// wiggle debug pin
+	debugpins_radio_set();
+	leds_radio_on();
 
 	while((radio_internalReadReg(TRX_STATUS) & 0x1F) != RX_ON);   // busy wait until radio really listening
 

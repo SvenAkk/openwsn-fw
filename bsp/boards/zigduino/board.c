@@ -49,6 +49,9 @@ void board_init() {
 	wdt_reset();
 	wdt_disable();
 
+	// turn off power to all periphrals ( will be enabled specifically later)
+	PRR0 = 0x00;
+	PRR1 = 0x00;
 	// Print reboot reason
 	if(mcusr_backup & (1<<PORF )) printf("Power-on reset.\n");
 	if(mcusr_backup & (1<<EXTRF)) printf("External reset!\n");
@@ -58,19 +61,8 @@ void board_init() {
 
 	// setup clock speed
 
-	//	// initialize pins
-	//	// turn off power to all periphrals ( will be enabled specifically later)
-	//	PRR0 = 0x00;
-	//	PRR1 = 0x00;
-	// enable data retention
-	//	DRTRAM0 |= 0x10;
-	//	DRTRAM1 |= 0x10;
-	//	DRTRAM2 |= 0x10;
-	//	DRTRAM3 |= 0x10;
-
 	//disable interrupts
 	cli();
-
 
 	// initialize bsp modules
 	debugpins_init();
@@ -90,7 +82,7 @@ void board_init() {
 
 // Uses high-level functions from avr/sleep.h
 void board_sleep() {
-	//	TRXPR = (0 << SLPTR); // sent transceiver to sleep
+	//TRXPR = (0 << SLPTR); // sent transceiver to sleep
 	set_sleep_mode(SLEEP_MODE_PWR_SAVE); // Power save mode
 	sleep_mode();
 }
@@ -114,58 +106,58 @@ void board_reset() {
 // pass to uart_isr_rx/tx
 ISR(USART0_RX_vect) {
 	//	print_debug("USART0_RX_vect ISR raised. \n");
-    //debugpins_isr_set();
-    uart_rx_isr(); // doing nothing w/ return value
-    //debugpins_isr_clr();
+//	debugpins_isr_set();
+	uart_rx_isr(); // doing nothing w/ return value
+//	debugpins_isr_clr();
 }
 
 ISR(USART0_TX_vect) {
 	//	print_debug("USART0_TX_vect ISR raised. \n");
-    //debugpins_isr_set();
+//	debugpins_isr_set();
 	uart_tx_isr(); // doing nothing w/ return value
-    //debugpins_isr_clr();
+//	debugpins_isr_clr();
 }
 // radio interrupt(s)
 // pass to radio_isr
 ISR(TRX24_RX_START_vect) {
-//	print_debug("TRX24_RX_START_vect ISR raised. \n");
+	//	print_debug("TRX24_RX_START_vect ISR raised. \n");
 	//debugpins_isr_set();
 	radio_rx_start_isr(); // doing nothing w/ return value
 	//debugpins_isr_clr();
 }
 
 ISR(TRX24_RX_END_vect) {
-//	print_debug("TRX24_RX_END_vect ISR raised. \n");
+	//	print_debug("TRX24_RX_END_vect ISR raised. \n");
 	//debugpins_isr_set();
 	radio_trx_end_isr();
 	//debugpins_isr_clr();
 }
 ISR(TRX24_TX_END_vect) {
-//	print_debug("TRX24_TX_END_vect ISR raised. \n");
+	//	print_debug("TRX24_TX_END_vect ISR raised. \n");
 	//debugpins_isr_set();
 	radio_trx_end_isr();
 	//debugpins_isr_clr();
 }
 
 ISR(SCNT_CMP1_vect) {
-		print_debug("SCNT_CMP1_vect ISR raised. \n");
-	debugpins_isr_set();
+	print_debug("SCNT_CMP1_vect ISR raised. \n");
+	//	debugpins_isr_set();
 	bsp_timer_isr();
-	debugpins_isr_clr();
+	//	debugpins_isr_clr();
 }
 
 ISR(SCNT_CMP2_vect) {
-		print_debug("SCNT_CMP2_vect ISR raised. \n");
-	debugpins_isr_set();
+	print_debug("SCNT_CMP2_vect ISR raised. \n");
+	//	debugpins_isr_set();
 	radiotimer_compare_isr();
-	debugpins_isr_clr();
+	//	debugpins_isr_clr();
 }
 
 ISR(SCNT_CMP3_vect) {
-		print_debug("SCNT_CMP3_vect ISR raised. \n");
-	debugpins_isr_set();
+			print_debug("SCNT_CMP3_vect ISR raised. \n");
+		debugpins_isr_set();
 	radiotimer_overflow_isr();
-	debugpins_isr_clr();
+		debugpins_isr_clr();
 }
 
 ISR(SCNT_OVFL_vect) {

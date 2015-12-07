@@ -19,6 +19,7 @@ typedef struct {
 
 bsp_timer_vars_t bsp_timer_vars;
 
+PORT_TIMER_WIDTH radiotimer_getSchedule();
 //=========================== prototypes ======================================
 
 //=========================== public ==========================================
@@ -31,16 +32,19 @@ any compare registers, so no interrupt will fire.
  */
 void bsp_timer_init(){
 	memset(&bsp_timer_vars,0,sizeof(bsp_timer_vars_t));	// clear local variables
-	//ASSR |= (1<<AS2); // enable RTC. SVEN: RTC DOESNT WORK, SEE AVR
-	PRR0 &= ~(1<<PRTIM2); // turn on timer 2 for crystal
 
 	SCIRQM &= ~(1<<IRQMCP1);		// disable interrupt
 	SCIRQS |= (1<<IRQMCP1);		   // reset pending interrupt
 
 	//Datasheet is vague/wrong: the symbol counter always runs at 62.5KHz
-	SCCR0 |= (1<<SCEN) | (0 << SCCKSEL); // SVEN: RTC DOESNT WORK, SEE AVR
+	SCCR0 |= (1<<SCEN); // enable symbol counter
+	SCCR0 &= ~(1 << SCCKSEL); // 62.5KHz clock from 16MHz clock
+//	SCCR0 |= (1<<SCCKSEL);
+	SCCR0 &= ~(1 << SCCMP1); //Absolute compare
 	SCCR0 &= ~(1<<SCTSE); //no automatic timestamping
 	SCCR1 = 0; // no backoff slot counter
+
+//	ASSR |= (1<<AS2);
 
 	//set compare1 registers
 	SCOCR1HH = SCOCR1HL = SCOCR1LH = 0;
@@ -49,7 +53,7 @@ void bsp_timer_init(){
 	// don't enable interrupts until first compare is set
 
 	// wait for register writes
-	while(SCSR & 0x01);
+	while(SCSR & (1<<SCBSY));
 }
 
 /**
@@ -68,7 +72,9 @@ This function does not stop the timer, it rather resets the value of the
 counter, and cancels a possible pending compare event.
  */
 void bsp_timer_reset(){
-	SCIRQM &= (1<<IRQMCP1);	// disable interrupts
+	SCIRQM &= ~(1<<IRQMCP1); // disable interrupt
+	SCIRQS |= (1<<IRQSCP1);	//Clear compare match IRQ
+
 	SCCNTHH = SCCNTHL = SCCNTLH = 0;	   // reset timer
 	SCCNTLL = 0;
 	bsp_timer_vars.last_compare_value =  0;	// record last timer compare value
@@ -96,8 +102,8 @@ void bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){
 	PORT_TIMER_WIDTH temp_last_compare_value;
 	PORT_TIMER_WIDTH current_value;
 
+//	delayTicks = delayTicks * 118510/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
 	delayTicks = delayTicks * 62500/32768;  //Counter runs at 62.5KHz  and we want 32KHz = 1s
-											// so roughly double the delay
 
 	temp_last_compare_value = bsp_timer_vars.last_compare_value;
 
@@ -126,8 +132,14 @@ void bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){
 \brief Cancel a running compare.
  */
 void bsp_timer_cancel_schedule(){
-	SCIRQM &= (1<<IRQMCP1);
+	SCIRQM &= ~(1<<IRQMCP1); // disable interrupt
+	SCIRQS |= (1<<IRQSCP1);	//Clear compare match IRQ
 }
+
+PORT_TIMER_WIDTH radiotimer_getSchedule() {
+	return *((PORT_RADIOTIMER_WIDTH *)(&SCOCR1LL));
+}
+
 
 /**
 \brief Return the current value of the timer's counter.

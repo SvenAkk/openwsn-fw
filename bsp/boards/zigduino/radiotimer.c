@@ -46,32 +46,35 @@ void radiotimer_setEndFrameCb(radiotimer_capture_cbt cb) {
 
 void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
 //	print_debug("radiotimer_start with period %lu or %u\n", period,period);
-	//ASSR |= (1<<AS2); // SVEN: RTC DOESNT WORK, SEE AVR
-	PRR0 &= ~(1<<PRTIM2); // turn on timer 2 for crystal
 
-	SCIRQM &= ~(1<<IRQMCP2) | ~(1<<IRQMCP3);		// disable interrupts
-	SCIRQS |= (1<<IRQMCP2) | (1<<IRQMCP3);		   // reset pending interrupts
+	SCIRQM &= ~(1<<IRQMCP2);		// disable interrupts
+	SCIRQM &= ~(1<<IRQMCP3);		// disable interrupts
+	SCIRQS |= (1<<IRQSCP2) | (1<<IRQSCP3);		   // reset pending interrupts
 
-	SCCR0 |= (1<<SCEN) | (0 << SCCKSEL); // enable symbol counter, 62.5KHz clock
+	SCCR0 |= (1<<SCEN); // enable symbol counter
+	SCCR0 &= ~(1 << SCCKSEL); // 62.5KHz clock from 16MHz clock
+//	SCCR0 |= (1<<SCCKSEL);
+
 	SCCR0 |= (1 << SCCMP3) | (1 << SCCMP2); // relative compare
 	SCCR0 &= ~(1<<SCTSE); //no automatic timestamping
 	SCCR1 = 0; // no backoff slot counter
 
-	// so roughly double the delay
+	//	ASSR |= (1<<AS2);
+
+	SCCNTHH = SCCNTHL = SCCNTLH = 0;
+	SCCNTLL = 0;
 
 	SCOCR2HH = SCOCR2HL = SCOCR2LH = 0;
 	SCOCR2LL = 0;	//set compare registers
 
-	SCCNTHH = SCCNTHL = SCCNTLH = 0;
-	SCCNTLL = 0;	// reset timer value
 
 	radiotimer_setPeriod(period);	//set period
 
 	SCCR0 |= (1 << SCMBTS); // "reset" radiotimer
 
-	while(SCSR & 0x01);	// wait for register writes
+	while(SCSR & (1<<SCBSY));	// wait for register writes
 
-	SCIRQM |=  (1<<IRQMCP3);  // enable interrupts from 2nd and 3rd compare.
+	SCIRQM |=  (1<<IRQMCP3) | (1<<IRQMCP2);  // enable interrupts from 2nd and 3rd compare.
 }
 
 //===== direct access
@@ -81,12 +84,29 @@ PORT_RADIOTIMER_WIDTH radiotimer_getValue() {
 }
 
 void radiotimer_setPeriod(PORT_RADIOTIMER_WIDTH period) {
-	period = period * 62500/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
+//	period = period * 118510/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
+	period = period *62500/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
 
 	SCOCR3HH = (uint8_t)(period>>24);
 	SCOCR3HL = (uint8_t)(period>>16);
 	SCOCR3LH = (uint8_t)(period>>8);
 	SCOCR3LL = (uint8_t)period;
+
+//	PORT_RADIOTIMER_WIDTH count_time = ((PORT_RADIOTIMER_WIDTH)SCCNTLL);
+//	count_time |= ((PORT_RADIOTIMER_WIDTH)SCCNTLH) << 8;
+//	count_time |= ((PORT_RADIOTIMER_WIDTH)SCCNTHL) << 16;
+//	count_time |= ((PORT_RADIOTIMER_WIDTH)SCCNTHH) << 24;
+//
+//	PORT_RADIOTIMER_WIDTH beacon_time = ((PORT_RADIOTIMER_WIDTH)SCBTSRLL);
+//	beacon_time |= ((PORT_RADIOTIMER_WIDTH)SCBTSRLH) << 8;
+//	beacon_time |= ((PORT_RADIOTIMER_WIDTH)SCBTSRHL) << 16;
+//	beacon_time |= ((PORT_RADIOTIMER_WIDTH)SCBTSRHH) << 24;
+//
+//	PORT_RADIOTIMER_WIDTH captured_time = count_time - beacon_time;
+//
+//	print_debug2("rt4. count %lu, beacon %lu, time %lu, period %lu\n",
+//				count_time,beacon_time,captured_time,period);
+
 }
 
 PORT_RADIOTIMER_WIDTH radiotimer_getPeriod() {
@@ -96,16 +116,17 @@ PORT_RADIOTIMER_WIDTH radiotimer_getPeriod() {
 //===== compare
 
 void radiotimer_schedule(PORT_RADIOTIMER_WIDTH offset) {
-	offset = offset * 62500/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
+	offset = offset * 118510/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
 									// so roughly double the delay
+	//offset = offset *62500/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
 
 	SCOCR2HH = (uint8_t)(offset>>24);
 	SCOCR2HL = (uint8_t)(offset>>16);
 	SCOCR2LH = (uint8_t)(offset>>8);
 	SCOCR2LL = (uint8_t)offset;	// offset when to fire
 
-	SCIRQS |= (1 << IRQSCP2);	// reset pending interrupts
 	SCIRQM |= (1 << IRQMCP2); //enable 2nd compare interrupt
+	SCIRQS |= (1 << IRQSCP2);	// reset pending interrupts
 }
 
 void radiotimer_cancel() {
@@ -129,8 +150,8 @@ PORT_RADIOTIMER_WIDTH radiotimer_getCapturedTime() {
 	beacon_time |= ((PORT_RADIOTIMER_WIDTH)SCBTSRHH) << 24;
 
 	PORT_RADIOTIMER_WIDTH captured_time = count_time - beacon_time;
-
-//	print_debug("rt3. count %lu, beacon %lu, time %lu\n",
+//
+//	print_debug2("rt3. count %lu, beacon %lu, time %lu\n",
 //				count_time,beacon_time,captured_time);
 	return captured_time;
 }

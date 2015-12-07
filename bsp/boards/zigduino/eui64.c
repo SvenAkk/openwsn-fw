@@ -50,7 +50,8 @@ void eui64_get(uint8_t* addressToWrite) {
 	uint8_t rng_id1;
 	uint8_t rng_id2;
 
-	if(eeprom_read_byte(EUI64_RANDOM_NB_ADDRESS) == 0){
+	if(eeprom_read_byte(EUI64_RANDOM_NB_ADDRESS) == 0x00
+			|| eeprom_read_byte(EUI64_RANDOM_NB_ADDRESS) == 0xff ){
 		rng_id1 = rng_get_uint8();
 		rng_id2 = rng_get_uint8();
 

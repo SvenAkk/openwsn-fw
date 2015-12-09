@@ -105,6 +105,7 @@ void    uart_clearTxInterrupts(){
 }
 
 void    uart_writeByte(uint8_t byteToWrite){
+	while((UCSR0A & _BV(UDRE0))==0);
 	UDR0 = byteToWrite;
 }
 
@@ -119,7 +120,7 @@ uint8_t uart_readByte(){
 kick_scheduler_t uart_tx_isr() {
 	if(uart_vars.txCb)
 		uart_vars.txCb();
-	return 0;
+	return DO_NOT_KICK_SCHEDULER;
 }
 
 kick_scheduler_t uart_rx_isr() {
@@ -128,5 +129,5 @@ kick_scheduler_t uart_rx_isr() {
 		uart_vars.rxCb();
 	// make sure buffer was read
 	while (UCSR0A & (1<<RXC0)) {dummy = UDR0;}
-	return 0;
+	return DO_NOT_KICK_SCHEDULER;
 }

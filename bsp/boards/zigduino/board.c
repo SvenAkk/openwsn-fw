@@ -76,14 +76,17 @@ void board_init() {
 	// enable interrupts
 	sei();
 
-	print_debug("\n*******Booted Zigduino with OpenWSN*******\n");
+	print_debug2("\n*******Booted Zigduino with OpenWSN*******\n");
 
 }
 
 // Uses high-level functions from avr/sleep.h
 void board_sleep() {
 //	TRXPR &= ~(1 << SLPTR);
+	cli();
 	set_sleep_mode(SLEEP_MODE_IDLE); // select power down mode
+	sei();
+
 	sleep_mode();
 }
 
@@ -140,21 +143,21 @@ ISR(TRX24_TX_END_vect) {
 }
 
 ISR(SCNT_CMP1_vect) {
-//	print_debug2("SCNT_CMP1_vect ISR raised. \n");
+//	print_debug("SCNT_CMP1_vect ISR raised. \n");
 	debugpins_isr_set();
 	bsp_timer_isr();
 	debugpins_isr_clr();
 }
 
 ISR(SCNT_CMP2_vect) {
-//	print_debug2("SCNT_CMP2_vect ISR raised. \n");
+//	print_debug("SCNT_CMP2_vect ISR raised. \n");
 	debugpins_isr_set();
 	radiotimer_compare_isr();
 	debugpins_isr_clr();
 }
 
 ISR(SCNT_CMP3_vect) {
-//	print_debug2("SCNT_CMP3_vect ISR raised. \n");
+//	print_debug("SCNT_CMP3_vect ISR raised. \n");
 	debugpins_isr_set();
 	radiotimer_overflow_isr();
 	debugpins_isr_clr();

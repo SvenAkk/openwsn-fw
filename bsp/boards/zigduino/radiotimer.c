@@ -104,7 +104,7 @@ void radiotimer_setPeriod(PORT_RADIOTIMER_WIDTH period) {
 //
 //	PORT_RADIOTIMER_WIDTH captured_time = count_time - beacon_time;
 //
-//	print_debug2("rt4. count %lu, beacon %lu, time %lu, period %lu\n",
+//	print_debug("rt4. count %lu, beacon %lu, time %lu, period %lu\n",
 //				count_time,beacon_time,captured_time,period);
 
 }
@@ -151,7 +151,7 @@ PORT_RADIOTIMER_WIDTH radiotimer_getCapturedTime() {
 
 	PORT_RADIOTIMER_WIDTH captured_time = count_time - beacon_time;
 //
-//	print_debug2("rt3. count %lu, beacon %lu, time %lu\n",
+//	print_debug("rt3. count %lu, beacon %lu, time %lu\n",
 //				count_time,beacon_time,captured_time);
 	return captured_time;
 }
@@ -190,7 +190,7 @@ kick_scheduler_t radiotimer_overflow_isr() {
 //
 //	PORT_RADIOTIMER_WIDTH captured_time = count_time - beacon_time;
 //
-//	print_debug2("rt1. count %lu, beacon %lu, time %lu\n",
+//	print_debug("rt1. count %lu, beacon %lu, time %lu\n",
 //			count_time,beacon_time,captured_time);
 
 	SCCR0 |= (1 << SCMBTS); // Write 1 to SCMBTS captures the SCCNT
@@ -208,7 +208,7 @@ kick_scheduler_t radiotimer_overflow_isr() {
 //
 //	PORT_RADIOTIMER_WIDTH captured_time2 = count_time2 - beacon_time2;
 //
-//	print_debug2("rt2. count %lu, beacon %lu, time %lu\n",
+//	print_debug("rt2. count %lu, beacon %lu, time %lu\n",
 //			count_time2,beacon_time2,captured_time2);
 
 	if (radiotimer_vars.overflow_cb!=NULL) {

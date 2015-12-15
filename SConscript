@@ -427,12 +427,20 @@ def jtagUploadFunc(location):
  # EXT: BrownOut at 1.9V
  # Last fuse fd -> f5 due to immutable bits, otherwise avrdude gives a verification error
     elif env['toolchain']=='avr':
-           return Builder(
+            if env['jtag']=='jtag':
+                return Builder(
+                action      = 'avrdude -c jtag3 -p m128rfa1  -B 1 -U flash:w:$SOURCE',
+                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0xd7:m -U efuse:w:0xf5:m', #if you need to do fuses
+                suffix      = '.phonyupload',
+                src_suffix  = '.ihex',
+                )
+            else:
+                return Builder(
                 action      = 'avrdude -c jtag3isp -p m128rfa1  -B 1 -U flash:w:$SOURCE',
                 #+	' -U lfuse:w:0xf7:m -U hfuse:w:0xd7:m -U efuse:w:0xf5:m', #if you need to do fuses
                 suffix      = '.phonyupload',
                 src_suffix  = '.ihex',
-           )   	
+                )	
     else:
         if env['fet_version']==2:
             # MSP-FET430uif is running v2 Firmware

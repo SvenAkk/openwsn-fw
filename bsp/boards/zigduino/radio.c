@@ -254,7 +254,7 @@ kick_scheduler_t radio_isr() {
 
 uint8_t radio_rx_start_isr() {
 	PORT_TIMER_WIDTH capturedTime;
-	capturedTime = radiotimer_getCapturedTime();   // capture the time
+	capturedTime = radio_getTimerValue();   // capture the time
 
 	radio_vars.state = RADIOSTATE_RECEIVING;
 	if (radio_vars.startFrame_cb!=NULL) {
@@ -266,7 +266,7 @@ uint8_t radio_rx_start_isr() {
 
 uint8_t radio_trx_end_isr() {
 	PORT_TIMER_WIDTH capturedTime;
-	capturedTime = radiotimer_getCapturedTime();   // capture the time
+	capturedTime = radio_getTimerValue();   // capture the time
 
 	radio_vars.state = RADIOSTATE_TXRX_DONE;
 	if (radio_vars.endFrame_cb!=NULL) {

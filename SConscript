@@ -369,11 +369,11 @@ elif env['toolchain']=='avr':
 	    # compiler
 	    env.Replace(CC           = 'avr-gcc')
 	    env.Append(CCFLAGS       = '-mmcu=atmega128rfa1')
-	    env.Append(CCFLAGS       = '')
+	    env.Append(CCFLAGS       = '-ggdb')
 	    # assembler
 	    env.Replace(AS           = 'avr-as')
 	    env.Append(ASFLAGS       = '-mmcu=atmega128rfa1')
-	    env.Append(ASFLAGS       = '')
+	    env.Append(ASFLAGS       = '-ggdb')
 	    # archiver
 	    env.Replace(AR           = 'avr-ar')
 	    #env.Append(ARFLAGS       = '-mmcu=atmega128rfa1')
@@ -381,7 +381,7 @@ elif env['toolchain']=='avr':
 	    # linker
 	    env.Replace(LINK         = 'avr-gcc')        
 	    env.Append(LINKFLAGS     = '-mmcu=atmega128rfa1')
-	    env.Append(LINKFLAGS     = '')
+	    env.Append(LINKFLAGS     = '-ggdb')
 	    env.Append(LINKFLAGS     = '')
     
     # convert ELF to iHex

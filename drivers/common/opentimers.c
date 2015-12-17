@@ -83,7 +83,7 @@ opentimer_id_t opentimers_start(uint32_t duration, timer_type_t type, time_type_
       // register the timer
       if (timetype==TIME_MS) {
          opentimers_vars.timersBuf[id].period_ticks      = duration*PORT_TICS_PER_MS;
-         opentimers_vars.timersBuf[id].wraps_remaining   = (duration*PORT_TICS_PER_MS/MAX_TICKS_IN_SINGLE_CLOCK);//65535=maxValue of uint16_t
+         opentimers_vars.timersBuf[id].wraps_remaining   = (duration*PORT_TICS_PER_MS/MAX_TICKS_IN_SINGLE_CLOCK);//65535=maxValue of uint16_t //Sven_32
       } else if (timetype==TIME_TICS) {
          opentimers_vars.timersBuf[id].period_ticks      = duration;
          opentimers_vars.timersBuf[id].wraps_remaining   = (duration/MAX_TICKS_IN_SINGLE_CLOCK);//65535=maxValue of uint16_t  

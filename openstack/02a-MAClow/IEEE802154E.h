@@ -25,8 +25,8 @@ static const uint8_t chTemplate_default[] = {
 #define SYNCHRONIZING_CHANNEL       20 // channel the mote listens on to synchronize
 #define TXRETRIES                    3 // number of MAC retries before declaring failed
 #define TX_POWER                    31 // 1=-25dBm, 31=0dBm (max value)
-#define RESYNCHRONIZATIONGUARD       5 // in 32kHz ticks. min distance to the end of the slot to successfully synchronize
-#define US_PER_TICK                 30 // number of us per 32kHz clock tick
+#define RESYNCHRONIZATIONGUARD       5 // in 32kHz ticks. min distance to the end of the slot to successfully synchronize //Sven_32
+#define US_PER_TICK                 30 // number of us per 32kHz clock tick  //Sven_32
 #define EBPERIOD                    30 // in seconds: sending EB every 30 seconds
 #define MAXKAPERIOD               2000 // in slots: @15ms per slot -> ~30 seconds. Max value used by adaptive synchronization.
 #define DESYNCTIMEOUT             2333 // in slots: @15ms per slot -> ~35 seconds. A larger DESYNCTIMEOUT is needed if using a larger KATIMEOUT.
@@ -132,7 +132,7 @@ typedef enum {
 #define  TIMESLOT_TEMPLATE_ID         0x00
 #define  CHANNELHOPPING_TEMPLATE_ID   0x00
 
-// Atomic durations
+// Atomic durations	//Sven_32
 // expressed in 32kHz ticks:
 //    - ticks = duration_in_seconds * 32768
 //    - duration_in_seconds = ticks / 32768

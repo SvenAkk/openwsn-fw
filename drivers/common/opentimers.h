@@ -45,7 +45,7 @@ typedef enum {
 typedef struct {
    uint32_t             period_ticks;       // total number of clock ticks
    PORT_TIMER_WIDTH     ticks_remaining;    // ticks remaining before elapses
-   uint16_t             wraps_remaining;    // the clock register is 16 bit, and can't count beyond 32k...
+   uint16_t             wraps_remaining;    // the clock register is 16 bit, and can't count beyond 32k... //Sven_32
                                             // so period_ticks = wraps_remaining*(32k or uint16_t)
    timer_type_t         type;               // periodic or one-shot
    bool                 isrunning;          // is running?

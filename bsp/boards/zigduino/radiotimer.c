@@ -116,9 +116,9 @@ PORT_RADIOTIMER_WIDTH radiotimer_getPeriod() {
 //===== compare
 
 void radiotimer_schedule(PORT_RADIOTIMER_WIDTH offset) {
-	offset = offset * 118510/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
+	//offset = offset * 118510/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
 									// so roughly double the delay
-	//offset = offset *62500/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
+	offset = offset *62500/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
 
 	SCOCR2HH = (uint8_t)(offset>>24);
 	SCOCR2HL = (uint8_t)(offset>>16);

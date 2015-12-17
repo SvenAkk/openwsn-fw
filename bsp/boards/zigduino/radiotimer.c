@@ -85,7 +85,7 @@ PORT_RADIOTIMER_WIDTH radiotimer_getValue() {
 
 void radiotimer_setPeriod(PORT_RADIOTIMER_WIDTH period) {
 //	period = period * 118510/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
-	period = period *62500/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
+	period = period * 62500.0/32768.0; //Counter runs at 62.5KHz  and we want 32KHz = 1s
 
 	SCOCR3HH = (uint8_t)(period>>24);
 	SCOCR3HL = (uint8_t)(period>>16);
@@ -118,7 +118,7 @@ PORT_RADIOTIMER_WIDTH radiotimer_getPeriod() {
 void radiotimer_schedule(PORT_RADIOTIMER_WIDTH offset) {
 	//offset = offset * 118510/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
 									// so roughly double the delay
-	offset = offset *62500/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
+	offset = offset * 62500.0/32768.0; //Counter runs at 62.5KHz  and we want 32KHz = 1s
 
 	SCOCR2HH = (uint8_t)(offset>>24);
 	SCOCR2HL = (uint8_t)(offset>>16);
@@ -149,7 +149,8 @@ PORT_RADIOTIMER_WIDTH radiotimer_getCapturedTime() {
 	beacon_time |= ((PORT_RADIOTIMER_WIDTH)SCBTSRHL) << 16;
 	beacon_time |= ((PORT_RADIOTIMER_WIDTH)SCBTSRHH) << 24;
 
-	PORT_RADIOTIMER_WIDTH captured_time = count_time - beacon_time;
+	PORT_RADIOTIMER_WIDTH captured_time = (count_time - beacon_time);
+	captured_time = captured_time * (32768.0/62500.0); //need to scale to present uniform view
 //
 //	print_debug("rt3. count %lu, beacon %lu, time %lu\n",
 //				count_time,beacon_time,captured_time);

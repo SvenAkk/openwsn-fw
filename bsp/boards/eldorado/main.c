@@ -5,7 +5,7 @@
 
 
 
-void main(void, int MCUSR) {
+void main(void) {
    
   /* include your code here */
 

@@ -24,7 +24,7 @@
 
 extern int mote_main();
 
-int main(int MCUSR) {
+int main() {
    return mote_main();
 }
 

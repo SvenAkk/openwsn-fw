@@ -56,7 +56,7 @@
         (*((volatile unsigned long *)(x)))
 #endif
 
-extern int main(void, int MCUSR);
+extern int main (void);
 
 void ResetISR(void);
 void NmiSR(void);

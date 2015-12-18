@@ -24,7 +24,7 @@ The digital inputs are:
 /**
 \brief The program starts executing here.
 */
-int main(void, int MCUSR) {
+int main(void) {
    WDTCTL     =  WDTPW + WDTHOLD;                // disable watchdog timer
    
    DCOCTL     =  DCO0 | DCO1 | DCO2;             // MCLK at 8MHz

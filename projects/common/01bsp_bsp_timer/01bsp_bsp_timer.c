@@ -22,7 +22,7 @@ it elapses:
 
 //=========================== defines =========================================
 
-#define BSP_TIMER_PERIOD     32768  // @32kHz = 1s
+#define BSP_TIMER_PERIOD     32768 // @32kHz = 1s
 
 //=========================== variables =======================================
 
@@ -44,9 +44,10 @@ void cb_compare(void);
 int mote_main(void) {  
    // initialize board
    board_init();
+   
    bsp_timer_set_callback(cb_compare);
    bsp_timer_scheduleIn(BSP_TIMER_PERIOD);
-
+   
    while (1) {
       board_sleep();
    }
@@ -61,6 +62,7 @@ void cb_compare(void) {
    
    // toggle error led
    leds_error_toggle();
+   
    // increment counter
    app_vars.num_compare++;
    

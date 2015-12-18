@@ -26,7 +26,7 @@ __CRP const unsigned int CRP_WORD = CRP_NO_CRP ;
 unsigned long f_cpu_awake = 100000000L;
 
 
-int main(void, int MCUSR) {
+int main(void) {
 	
 	// TODO: insert code here
 

@@ -31,7 +31,7 @@ Extra lines:
 #include "msp430f1611.h"
 #include "stdint.h"
 
-void main(void, int MCUSR)
+void main(void)
 {  
    uint16_t   delay;
    

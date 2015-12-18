@@ -30,7 +30,7 @@ volatile uint8_t reset_source;
 
 extern int mote_main();
 
-int main(int MCUSR) {
+int main() {
    reset_source = MCUSR;
    MCUSR = 0;   
    return mote_main();

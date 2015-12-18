@@ -25,7 +25,7 @@ kick_scheduler_t radiotimer_isr_sfd(void);
 
 extern int mote_main(void);
 
-int main(void, int MCUSR) {
+int main(void) {
    return mote_main();
 }
 

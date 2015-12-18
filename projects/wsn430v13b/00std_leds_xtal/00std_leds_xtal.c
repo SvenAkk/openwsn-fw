@@ -27,7 +27,7 @@ The debug pins are:
 /**
 \brief The program starts executing here.
 */
-int main(void, int MCUSR)
+int main(void)
 {
    WDTCTL     =  WDTPW + WDTHOLD;                // disable watchdog timer
    

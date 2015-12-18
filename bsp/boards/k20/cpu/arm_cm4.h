@@ -83,7 +83,7 @@ typedef volatile uint32		vuint32; /* 32 bits */
 typedef uint8_t             bool;    /*boolean*/        
 
 // function prototype for main function
-int main(void, int MCUSR);
+int main(void);
 
 /***********************************************************************/
 #endif	/* _CPU_ARM_CM4_H */

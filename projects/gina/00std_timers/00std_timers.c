@@ -30,7 +30,7 @@ The debug pins are:
 #define TIMERB5_PERIOD 0x0538
 #define TIMERB6_PERIOD 0x0612
 
-int main(void, int MCUSR) {
+int main(void) {
    WDTCTL  = WDTPW + WDTHOLD;                    // disable watchdog timer
    BCSCTL1 = CALBC1_16MHZ;                       // MCLK at 16MHz
    DCOCTL  = CALDCO_16MHZ;

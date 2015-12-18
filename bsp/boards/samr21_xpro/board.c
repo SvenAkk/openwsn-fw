@@ -84,8 +84,7 @@ static void button_init(void);
  * @param returns the value of returns by mote_main
  *
  */ 
-
-int main(void, int MCUSR)
+int main(void)
 {
 	SystemInit();
 	return mote_main();

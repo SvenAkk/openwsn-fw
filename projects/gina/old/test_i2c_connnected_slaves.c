@@ -37,7 +37,7 @@ Speed:
 
 uint8_t  connected[128];
 
-void main(void, int MCUSR)
+void main(void)
 {
    uint8_t current_address;
    WDTCTL  = WDTPW + WDTHOLD;                    // disable watchdog timer

@@ -28,7 +28,7 @@ uart_vars_t uart_vars;
 void uart_init() {
 	//turn on power
 	PRR0 &= ~(1<<PRUSART0);
-
+	
    // reset local variables
    memset(&uart_vars,0,sizeof(uart_vars_t));
    
@@ -59,7 +59,6 @@ void    uart_disableInterrupts(){
 }
 
 void    uart_clearRxInterrupts(){
-	  UCSR0A |= 0x40;
 }
 
 void    uart_clearTxInterrupts(){

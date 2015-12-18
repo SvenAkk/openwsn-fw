@@ -97,7 +97,7 @@ void radio_cfg()
   return;
 }
 
-int main(void, int MCUSR)
+int main(void)
 {
 // power up the mote and use an oscilloscope to probe the pins 2,4,6,8 and 10 on connector J1
 // and pins 5 and 7 on connector J2  

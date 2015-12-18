@@ -49,7 +49,7 @@ OpenQueueEntry_t* testImuRadiopacketToSend;
 uint8_t counter;
 void task_application_imu_radio(uint16_t input);
 
-void main(void, int MCUSR) {
+void main(void) {
    //configuring
    P1OUT |=  0x04;                               // set P1.2 for debug
    P4DIR  |= 0x20;                               // P4.5 as output (for debug)

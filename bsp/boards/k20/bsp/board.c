@@ -22,7 +22,7 @@ extern int mcg_clk_hz;
 
 extern int mote_main(vod);
 
-int main(void, int MCUSR) {
+int main(void) {
    return mote_main();
 }
 

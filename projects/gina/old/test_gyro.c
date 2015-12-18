@@ -37,7 +37,7 @@ uint16_t gyro_x;
 uint16_t gyro_y;
 uint16_t gyro_z;
 
-void main(void, int MCUSR)
+void main(void)
 {
    WDTCTL  = WDTPW + WDTHOLD;                    // disable watchdog timer
    BCSCTL1 = CALBC1_16MHZ;                       // MCLK at 16MHz

@@ -132,7 +132,7 @@ extern void vEMAC_ISR( void );
 #if defined (__REDLIB__)
 extern void __main(void);
 #endif
-extern int main(void, int MCUSR);
+extern int main(void);
 //*****************************************************************************
 //
 // External declaration for the pointer to the stack top from the Linker Script

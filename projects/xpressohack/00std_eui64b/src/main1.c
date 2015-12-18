@@ -14,7 +14,7 @@
 #include "iap.h"
 #include "eui64.h"
 
-int main(void, int MCUSR) {
+int main(void) {
 	uint8_t* eui;
 	uint8_t addr_64b[8];
 	eui=&addr_64b;

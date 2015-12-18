@@ -80,7 +80,7 @@ __no_init volatile uint8_t segment_C @ 0x1040;
 __no_init volatile uint8_t segment_B @ 0x1080;
 __no_init volatile uint8_t segment_A @ 0x10c0;
 
-int main(void, int MCUSR)
+int main(void)
 {
    uint8_t i;
    uint8_t default_config[64] = BOARD_CALIBRATION;

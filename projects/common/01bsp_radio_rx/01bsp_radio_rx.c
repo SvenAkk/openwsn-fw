@@ -143,7 +143,7 @@ int mote_main(void) {
    
    // switch in RX
    radio_rxEnable();
-
+   
    while (1) {
       
       // sleep while waiting for at least one of the rxpk_done to be set

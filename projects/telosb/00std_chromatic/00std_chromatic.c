@@ -15,6 +15,6 @@
 #include "msp430f1611.h"
 #include "stdint.h"
 
-int main(void, int MCUSR) {
+int main(void) {
    // TODO
 }

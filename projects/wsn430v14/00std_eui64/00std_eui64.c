@@ -65,7 +65,7 @@ uint8_t owpin_read(void);
 /**
 \brief The program starts executing here.
 */
-int main(void, int MCUSR) {
+int main(void) {
    uint8_t eui[8];
    
    WDTCTL     =  WDTPW + WDTHOLD;           // disable watchdog timer

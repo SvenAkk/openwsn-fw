@@ -55,7 +55,7 @@ extern uint32_t _sstack;
 extern uint32_t _estack;
 
 /** \cond DOXYGEN_SHOULD_SKIP_THIS */
-int main(void, int MCUSR);
+int main(void);
 /** \endcond */
 
 void __libc_init_array(void);

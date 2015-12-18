@@ -37,7 +37,7 @@ The digital UART interface is:
 /**
 \brief The program starts executing here.
 */
-void main(void, int MCUSR)
+void main(void)
 {
    WDTCTL     =  WDTPW + WDTHOLD;                // disable watchdog timer
    

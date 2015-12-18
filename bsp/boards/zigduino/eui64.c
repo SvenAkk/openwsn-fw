@@ -22,12 +22,15 @@ uint8_t
 rng_get_uint8(void) {
 	uint8_t temp = TRX_STATE;
 	TRX_STATE = (TRX_STATE & 0xE0) | RX_ON; // Ensure radio can generate rnd values.
-	_delay_us(200);
+
+	uint32_t delay = 99999;
+	while(delay-->0){};
 
 	uint8_t j = 0;
 	uint8_t i = 0;
 	for(; i < 4; i ++){
-		_delay_us(2);
+		uint32_t delay = 999;
+		while(delay-->0){};
 		j = j * 4;
 		j += ((PHY_RSSI&0x60)>>5);
 	}

@@ -13,18 +13,13 @@ to this board.
 #define __BOARD_INFO_H
 
 #include <avr/io.h>
-#include <avr/iom128rfa1.h>
-
-#include <stdint.h>
 #include <string.h>
-
 
 //=========================== defines =========================================
 #define	F_CPU 16000000UL // The clock frequency
 #define BAUD 115200 //The baud rate you want.
 
 #include <util/setbaud.h>
-#include <util/delay.h>
 
 #define PORT_SIGNED_INT_WIDTH				int32_t
 
@@ -34,14 +29,7 @@ to this board.
 #define PORT_RADIOTIMER_WIDTH               uint32_t
 
 #define PORT_TICS_PER_MS                    33
-/*
-#define SCHEDULER_WAKEUP()                  radiotimer_isr()
-#define SCHEDULER_ENABLE_INTERRUPT()        TIMSK2 |= (1<<OCIE2A)
-*/
-/*
-#define ENABLE_INTERRUPTS()					 __asm__ __volatile__ ("sei" ::: "memory")
-#define DISABLE_INTERRUPTS()				 __asm__ __volatile__ ("cli" ::: "memory")
-*/
+
 #define INTERRUPT_DECLARATION()          unsigned short s;
 #define ENABLE_INTERRUPTS()					 __asm__ __volatile__ ("sei" ::: "memory")
 #define DISABLE_INTERRUPTS()				 __asm__ __volatile__ ("cli" ::: "memory")
@@ -50,8 +38,8 @@ to this board.
 #define SCHEDULER_ENABLE_INTERRUPT()        // do nothing
 
 //===== IEEE802154E timing
-//Sven: based on derfmega
 
+// based on derfmega
 // time-slot related
 #define PORT_TsSlotDuration                 491   // counter counts one extra count, see datasheet
 // execution speed related
@@ -67,7 +55,6 @@ to this board.
 //===== adaptive_sync accuracy
 
 #define SYNC_ACCURACY                       1     // ticks
-
 
 //The timer runs off a 62.5KHZ clock. Define a prescale to make it seem like it is a 32.768KHz clock.
 #define TIMER_PRESCALE 1.90734863f // = 62500/32768

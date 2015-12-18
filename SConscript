@@ -427,20 +427,14 @@ def jtagUploadFunc(location):
  # EXT: BrownOut at 1.9V
  # Last fuse fd -> f5 due to immutable bits, otherwise avrdude gives a verification error
     elif env['toolchain']=='avr':
-            if env['jtag']=='jtag':
-                return Builder(
+        if env['board'] in ['zigduino']:
+            return Builder(
                 action      = 'avrdude -c jtag3 -p m128rfa1  -B 1 -U flash:w:$SOURCE',
-                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0xd7:m -U efuse:w:0xf5:m', #if you need to do fuses
+                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0xd7:m -U efuse:w:0xf5:m', #if you need to do non-debug fuses
+                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0x17:m -U efuse:w:0xf5:m', #if you need to do debug fuses
                 suffix      = '.phonyupload',
                 src_suffix  = '.ihex',
-                )
-            else:
-                return Builder(
-                action      = 'avrdude -c jtag3isp -p m128rfa1  -B 1 -U flash:w:$SOURCE',
-                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0xd7:m -U efuse:w:0xf5:m', #if you need to do fuses
-                suffix      = '.phonyupload',
-                src_suffix  = '.ihex',
-                )	
+            )
     else:
         if env['fet_version']==2:
             # MSP-FET430uif is running v2 Firmware
@@ -467,6 +461,28 @@ def jtagUploadFunc(location):
             raise SystemError('fet_version={0} unsupported.'.format(fet_version))
 if env['jtag']:
     env.Append(BUILDERS = {'JtagUpload' : jtagUploadFunc(env['jtag'])})
+
+#============================ upload over ISP ================================
+def ispUploadFunc(location):
+ # LOW: Transceiver osc as CLK (16Mhz when prescaler 0x0), maximum start-up delay
+ # HIGH: JTAG/OCD off, SPI on,  WatchDog override off (can be enabled at runtime), Bootsize 512b,
+ # start bootsector at 0xfe00 (word address!), save EEPROM on reflash, start at addr 0000
+ # EXT: BrownOut at 1.9V
+ # Last fuse fd -> f5 due to immutable bits, otherwise avrdude gives a verification error
+    if env['toolchain']=='avr':
+        if env['board'] in ['zigduino']:
+            return Builder(
+                action      = 'avrdude -c jtag3isp -p m128rfa1  -B 1 -U flash:w:$SOURCE',
+                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0xd7:m -U efuse:w:0xf5:m', #if you need to do non-debug fuses
+                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0x17:m -U efuse:w:0xf5:m', #if you need to do debug fuses
+                suffix      = '.phonyupload',
+                src_suffix  = '.ihex',
+            )
+        else:
+            raise SystemError('board={0} unsupported.'.format(board))
+
+if env['isp']:
+    env.Append(BUILDERS = {'IspUpload' : ispUploadFunc(env['isp'])})
 
 #============================ bootload ========================================
 
@@ -636,6 +652,8 @@ def extras(env, source):
     returnVal += [env.Elf2iBin(source=source)]
     if   env['jtag']:
         returnVal += [env.JtagUpload(env.Elf2iHex(source))]
+    elif env['isp']:
+        returnVal += [env.IspUpload(env.Elf2iHex(source))]
     elif env['bootload']:
         returnVal += [env.Bootload(env.Elf2iHex(source))]
     return returnVal

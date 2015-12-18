@@ -50,6 +50,8 @@ project:
                    for example 'COM5,COM6,COM7'.
     jtag           Location of the board to JTAG the binary to.
                    COMx for Windows, /dev entry for Linux
+    isp            Will upload binary over ISP.
+                   Location is irrelevant, just to what the uploader is connected to.
     fet_version    Firmware version running on the MSP-FET430uif for jtag.
                    2, 3
     
@@ -195,6 +197,13 @@ command_line_vars.AddVariables(
     ),
     (
         'jtag',                                            # key
+        '',                                                # help
+        '',                                                # default
+        None,                                              # validator
+        None,                                              # converter
+    ),
+    (
+        'isp',                                            # key
         '',                                                # help
         '',                                                # default
         None,                                              # validator

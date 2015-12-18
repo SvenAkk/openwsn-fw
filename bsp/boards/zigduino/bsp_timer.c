@@ -6,7 +6,6 @@
 
 #include "bsp_timer.h"
 #include "board.h"
-#include "board_info.h"
 
 //=========================== define ==========================================
 
@@ -40,21 +39,18 @@ void bsp_timer_init(){
 	//Datasheet is vague/wrong: the symbol counter always runs at 62.5KHz
 	SCCR0 |= (1<<SCEN); // enable symbol counter
 	SCCR0 &= ~(1 << SCCKSEL); // 62.5KHz clock from 16MHz clock
-//	SCCR0 |= (1<<SCCKSEL);
+//	SCCR0 |= (1<<SCCKSEL); 	// 62.5KHz clock from RTC clock
+
 	SCCR0 &= ~(1 << SCCMP1); //Absolute compare
 	SCCR0 &= ~(1<<SCTSE); //no automatic timestamping
 	SCCR1 = 0; // no backoff slot counter
 
-//	ASSR |= (1<<AS2);
+//	ASSR |= (1<<AS2); //For RTC clock
 
-	//set compare1 registers
-	SCOCR1HH = SCOCR1HL = SCOCR1LH = 0;
+	SCOCR1HH = SCOCR1HL = SCOCR1LH = 0; //Set compare registers
 	SCOCR1LL = 0;
 
-	// don't enable interrupts until first compare is set
-
-	// wait for register writes
-	while(SCSR & (1<<SCBSY));
+	while(SCSR & (1<<SCBSY)); 	// wait for register writes
 }
 
 /**
@@ -103,11 +99,9 @@ void bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){
 	PORT_TIMER_WIDTH temp_last_compare_value;
 	PORT_TIMER_WIDTH current_value;
 
-//	delayTicks = delayTicks * 118510/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
 	delayTicks = delayTicks * TIMER_PRESCALE;  //Counter runs at 62.5KHz  and we want 32KHz = 1s
 
 	temp_last_compare_value = bsp_timer_vars.last_compare_value;
-
 	newCompareValue      =  bsp_timer_vars.last_compare_value + delayTicks;
 	bsp_timer_vars.last_compare_value   =  newCompareValue;
 
@@ -119,8 +113,7 @@ void bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){
 		bsp_timer_isr();
 
 	} else {
-		// this is the normal case, have timer expire at newCompareValue
-		SCOCR1HH  =  (uint8_t)(newCompareValue>>24);
+		SCOCR1HH  =  (uint8_t)(newCompareValue>>24); 		//  normal case, have timer expire at newCompareValue
 		SCOCR1HL  =  (uint8_t)(newCompareValue>>16);
 		SCOCR1LH  =  (uint8_t)(newCompareValue>>8);
 		SCOCR1LL  =  (uint8_t)(newCompareValue);
@@ -135,6 +128,9 @@ void bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){
 void bsp_timer_cancel_schedule(){
 	SCIRQM &= ~(1<<IRQMCP1); // disable interrupt
 	SCIRQS |= (1<<IRQSCP1);	//Clear compare match IRQ
+
+	SCOCR1HH = SCOCR1HL = SCOCR1LH = 0; 	//reset compare registers
+	SCOCR1LL = 0;
 }
 
 PORT_TIMER_WIDTH radiotimer_getSchedule() {
@@ -152,6 +148,7 @@ PORT_TIMER_WIDTH   bsp_timer_get_currentValue(){
 	retval |= (PORT_TIMER_WIDTH)SCCNTLH << 8;
 	retval |= (PORT_TIMER_WIDTH)SCCNTHL << 16;
 	retval |= (PORT_TIMER_WIDTH)SCCNTHH << 24;
+
 	retval = retval * 1/TIMER_PRESCALE; //62.5 KHz clock prescale to 32KHz
 	return retval;
 }
@@ -165,5 +162,3 @@ kick_scheduler_t   bsp_timer_isr(){
 	// kick the OS
 	return 1;
 }
-
-

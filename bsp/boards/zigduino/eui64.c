@@ -4,12 +4,9 @@
 \author Sven Akkermans <sven.akkermans@cs.kuleuven.be>, September 2015.
  */
 
-#include "string.h"
 #include "eui64.h"
 #include "board_info.h"
 
-#include <avr/pgmspace.h>
-#include <avr/fuse.h>
 #include <avr/eeprom.h>
 
 //=========================== defines =========================================

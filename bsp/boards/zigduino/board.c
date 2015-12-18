@@ -105,57 +105,57 @@ void board_reset() {
 // UART0 interrupt
 // pass to uart_isr_rx/tx
 ISR(USART0_RX_vect) {
-	//	debugpins_isr_set();
+	debugpins_isr_set();
 	uart_rx_isr(); // doing nothing w/ return value
-	//	debugpins_isr_clr();
+	debugpins_isr_clr();
 }
 
 ISR(USART0_TX_vect) {
-	//	debugpins_isr_set();
+	debugpins_isr_set();
 	uart_tx_isr(); // doing nothing w/ return value
-	//	debugpins_isr_clr();
+	debugpins_isr_clr();
 }
 // radio interrupt(s)
 // pass to radio_isr
 ISR(TRX24_RX_START_vect) {
-	//debugpins_isr_set();
+	debugpins_isr_set();
 	radio_rx_start_isr(); // doing nothing w/ return value
-	//debugpins_isr_clr();
+	debugpins_isr_clr();
 }
 
 ISR(TRX24_RX_END_vect) {
-	//debugpins_isr_set();
+	debugpins_isr_set();
 	radio_trx_end_isr();
-	//debugpins_isr_clr();
+	debugpins_isr_clr();
 }
 ISR(TRX24_TX_END_vect) {
-	//debugpins_isr_set();
+	debugpins_isr_set();
 	radio_trx_end_isr();
-	//debugpins_isr_clr();
+	debugpins_isr_clr();
 }
 
 ISR(SCNT_CMP1_vect) {
-//	debugpins_isr_set();
+	debugpins_isr_set();
 	bsp_timer_isr();
-//	debugpins_isr_clr();
+	debugpins_isr_clr();
 }
 
 ISR(SCNT_CMP2_vect) {
-//	debugpins_isr_set();
+	debugpins_isr_set();
 	radiotimer_compare_isr();
-//	debugpins_isr_clr();
+	debugpins_isr_clr();
 }
 
 ISR(SCNT_CMP3_vect) {
-//	debugpins_isr_set();
+	debugpins_isr_set();
 	radiotimer_overflow_isr();
-//	debugpins_isr_clr();
+	debugpins_isr_clr();
 }
 
-ISR(SCNT_OVFL_vect) {
-	//debugpins_isr_set();
-	//radiotimer_overflow_isr();
-	//debugpins_isr_clr();
+ISR(SCNT_OVFL_vect) { //TODO counter overflow case?
+	debugpins_isr_set();
+	radiotimer_overflow_isr();
+	debugpins_isr_clr();
 }
 
 /* Hang on any unsupported interrupt */
@@ -246,9 +246,7 @@ ISR( _VECTOR(79)) {print_msg("79 ISR raised. \n");}
 
 // error
 ISR(BADISR_vect) {
-	//debugpins_isr_set();
 	print_msg("BADISR\n");
-	//debugpins_isr_clr();
 }
 
 void print_msg(char msg[]){

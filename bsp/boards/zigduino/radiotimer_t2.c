@@ -67,12 +67,6 @@ void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
 
 	TIFR2 |= (1 << OCF2A) | (1 << OCF2B) | (1 << TOV2); //clears bits
 	TIMSK2 |= (1 << OCIE2A); //enable ORCRA2 interrupt
-
-	while(1){
-		print_debug("TCNT2: %u\n",TCNT2);
-		print_debug("OCR2A: %u\n",OCR2A);
-		print_debug("OCR2B: %u\n",OCR2B);
-	}
 }
 
 //===== direct access

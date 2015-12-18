@@ -57,7 +57,6 @@ void inputHdlcClose(void);
 //=========================== public ==========================================
 
 void openserial_init() {
-	print_debug("openserial_init\n");
    uint16_t crc;
    
    // reset variable

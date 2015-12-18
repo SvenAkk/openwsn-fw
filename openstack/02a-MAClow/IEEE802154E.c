@@ -107,7 +107,6 @@ Call this function once before any other function in this module, possibly
 during boot-up.
 */
 void ieee154e_init() {
-   print_debug("ieee154e_init start\n");
    // initialize variables
    memset(&ieee154e_vars,0,sizeof(ieee154e_vars_t));
    memset(&ieee154e_dbg,0,sizeof(ieee154e_dbg_t));
@@ -141,8 +140,6 @@ void ieee154e_init() {
    radio_setEndFrameCb(ieee154e_endOfFrame);
    // have the radio start its timer
    radio_startTimer(TsSlotDuration);
-
-   print_debug("ieee154e_init done\n");
 }
 
 //=========================== public ==========================================
@@ -186,7 +183,6 @@ PORT_RADIOTIMER_WIDTH ieee154e_asnDiff(asn_t* someASN) {
 This function executes in ISR mode, when the new slot timer fires.
 */
 void isr_ieee154e_newSlot() {
-print_debug("isr_ieee154e_newSlot\n");
    radio_setTimerPeriod(TsSlotDuration);
    if (ieee154e_vars.isSync==FALSE) {
       if (idmanager_getIsDAGroot()==TRUE) {
@@ -213,7 +209,6 @@ print_debug("isr_ieee154e_newSlot\n");
 This function executes in ISR mode, when the FSM timer fires.
 */
 void isr_ieee154e_timer() {
-	print_debug("isr_ieee154e_timer\n");
    switch (ieee154e_vars.state) {
       case S_TXDATAOFFSET:
          activity_ti2();
@@ -293,7 +288,6 @@ void isr_ieee154e_timer() {
 This function executes in ISR mode.
 */
 void ieee154e_startOfFrame(PORT_RADIOTIMER_WIDTH capturedTime) {
-	print_debug("ieee154e_startOfFrame\n");
    if (ieee154e_vars.isSync==FALSE) {
      activity_synchronize_startOfFrame(capturedTime);
    } else {
@@ -342,8 +336,8 @@ void ieee154e_startOfFrame(PORT_RADIOTIMER_WIDTH capturedTime) {
 This function executes in ISR mode.
 */
 void ieee154e_endOfFrame(PORT_RADIOTIMER_WIDTH capturedTime) {
-	print_debug("ieee154e_endOfFrame\n");
-   if (ieee154e_vars.isSync==FALSE) {
+
+	if (ieee154e_vars.isSync==FALSE) {
       activity_synchronize_endOfFrame(capturedTime);
    } else {
       switch (ieee154e_vars.state) {

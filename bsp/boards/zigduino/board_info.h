@@ -72,19 +72,6 @@ to this board.
 //The timer runs off a 62.5KHZ clock. Define a prescale to make it seem like it is a 32.768KHz clock.
 #define TIMER_PRESCALE 1.90734863f // = 62500/32768
 
-#define DEBUG_PRINT_ENABLED 0
-
-#if DEBUG_PRINT_ENABLED == 1
-#define print_debug printf
-#define print_debug2 printf
-
-#elif DEBUG_PRINT_ENABLED == 2
-#define print_debug
-#define print_debug2 printf
-#else
-#define print_debug
-#define print_debug2
-#endif
 //=========================== typedef  ========================================
 
 //=========================== variables =======================================

@@ -4,7 +4,6 @@
 \author Sven Akkermans <sven.akkermans@cs.kuleuven.be>, September 2015.
  */
 
-#include "board_info.h"
 #include "radiotimer.h"
 
 //=========================== variables =======================================
@@ -51,20 +50,19 @@ void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
 
 	SCCR0 |= (1<<SCEN); // enable symbol counter
 	SCCR0 &= ~(1 << SCCKSEL); // 62.5KHz clock from 16MHz clock
-//	SCCR0 |= (1<<SCCKSEL);
+//	SCCR0 |= (1<<SCCKSEL); // 62.5KHz clock from RTC clock
 
 	SCCR0 |= (1 << SCCMP3) | (1 << SCCMP2); // relative compare
 	SCCR0 &= ~(1<<SCTSE); //no automatic timestamping
 	SCCR1 = 0; // no backoff slot counter
 
-	//	ASSR |= (1<<AS2);
+	//	ASSR |= (1<<AS2); // for RTC clock
 
 	SCCNTHH = SCCNTHL = SCCNTLH = 0;
 	SCCNTLL = 0;
 
 	SCOCR2HH = SCOCR2HL = SCOCR2LH = 0;
 	SCOCR2LL = 0;	//set compare registers
-
 
 	radiotimer_setPeriod(period);	//set period
 
@@ -147,23 +145,18 @@ kick_scheduler_t radiotimer_isr() {
 
 kick_scheduler_t radiotimer_compare_isr() {
 	if (radiotimer_vars.compare_cb!=NULL) {
-		// call the callback
-		radiotimer_vars.compare_cb();
-		// kick the OS
-		return KICK_SCHEDULER;
+		radiotimer_vars.compare_cb();		// call the callback
+		return KICK_SCHEDULER;		// kick the OS
 	}
 	return DO_NOT_KICK_SCHEDULER;
 }
 
 kick_scheduler_t radiotimer_overflow_isr() {
-	SCCR0 |= (1 << SCMBTS); // Write 1 to SCMBTS captures the SCCNT
-							// and stores it in the beacon timestamp register
+	SCCR0 |= (1 << SCMBTS); // Write 1 to SCMBTS, stores the SCCNT in the beacon timestamp register
 
 	if (radiotimer_vars.overflow_cb!=NULL) {
-		// call the callback
-		radiotimer_vars.overflow_cb();
-		// kick the OS
-		return KICK_SCHEDULER;
+		radiotimer_vars.overflow_cb();		// call the callback
+		return KICK_SCHEDULER;		// kick the OS
 	}
 	return DO_NOT_KICK_SCHEDULER;
 }

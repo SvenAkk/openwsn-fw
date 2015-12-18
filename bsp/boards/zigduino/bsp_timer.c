@@ -20,6 +20,7 @@ typedef struct {
 bsp_timer_vars_t bsp_timer_vars;
 
 PORT_TIMER_WIDTH radiotimer_getSchedule();
+
 //=========================== prototypes ======================================
 
 //=========================== public ==========================================
@@ -103,7 +104,7 @@ void bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){
 	PORT_TIMER_WIDTH current_value;
 
 //	delayTicks = delayTicks * 118510/32768; //Counter runs at 62.5KHz  and we want 32KHz = 1s
-	delayTicks = delayTicks * 62500.0/32768.0;  //Counter runs at 62.5KHz  and we want 32KHz = 1s
+	delayTicks = delayTicks * TIMER_PRESCALE;  //Counter runs at 62.5KHz  and we want 32KHz = 1s
 
 	temp_last_compare_value = bsp_timer_vars.last_compare_value;
 
@@ -151,7 +152,7 @@ PORT_TIMER_WIDTH   bsp_timer_get_currentValue(){
 	retval |= (PORT_TIMER_WIDTH)SCCNTLH << 8;
 	retval |= (PORT_TIMER_WIDTH)SCCNTHL << 16;
 	retval |= (PORT_TIMER_WIDTH)SCCNTHH << 24;
-	retval = retval * (32768.0/62500.0); //need to scale to present uniform view
+	retval = retval * 1/TIMER_PRESCALE; //62.5 KHz clock prescale to 32KHz
 	return retval;
 }
 

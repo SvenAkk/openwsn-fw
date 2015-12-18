@@ -69,6 +69,9 @@ to this board.
 #define SYNC_ACCURACY                       1     // ticks
 
 
+//The timer runs off a 62.5KHZ clock. Define a prescale to make it seem like it is a 32.768KHz clock.
+#define TIMER_PRESCALE 1.90734863f // = 62500/32768
+
 #define DEBUG_PRINT_ENABLED 0
 
 #if DEBUG_PRINT_ENABLED == 1

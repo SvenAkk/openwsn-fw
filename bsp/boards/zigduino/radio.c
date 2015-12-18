@@ -4,15 +4,9 @@
 \author Sven Akkermans <sven.akkermans@cs.kuleuven.be>, September 2015.
  */
 #include <avr/io.h>
-#include "stdint.h"
-#include "string.h"
-#include "board.h"
-#include "radio.h"
-#include "radiotimer.h"
-#include "debugpins.h"
-#include "leds.h"
 
 #include "at86rf231.h"
+#include "radio.h"
 
 //=========================== defines =========================================
 
@@ -44,8 +38,8 @@ uint8_t radio_trx_end_isr();
 
 void radio_init() {
 	PRR1 &= ~(1<<PRTRX24); 	// turn on radio power and reset
-	TRXPR |= 0x01;
-	while (TRXPR & 0x01);
+	TRXPR |= (1<<TRXRST);
+	while (TRXPR & (1<<TRXRST));
 
 	memset(&radio_vars,0,sizeof(radio_vars_t)); // clear variables
 
@@ -82,7 +76,7 @@ void radio_setEndFrameCb(radiotimer_capture_cbt cb) {
 //===== reset
 
 void radio_reset() {
-	TRXPR |= 0x01; // force tranceiver reset
+	TRXPR |= (1<<TRXRST); // force tranceiver reset
 }
 
 //===== timer
@@ -121,8 +115,7 @@ void radio_rfOff() {
 	//radio_spiWriteReg(RG_TRX_STATE, CMD_TRX_OFF);
 	while((radio_internalReadReg(TRX_STATUS) & 0x1F) != TRX_OFF); // busy wait until done
 
-	// wiggle debug pin
-	debugpins_radio_clr();
+	debugpins_radio_clr();	// wiggle debug pin
 	leds_radio_off();
 
 	radio_vars.state = RADIOSTATE_RFOFF;   // change state
@@ -139,8 +132,7 @@ void radio_loadPacket(uint8_t* packet, uint8_t len) {
 void radio_txEnable() {
 	radio_vars.state = RADIOSTATE_ENABLING_TX;    // change state
 
-	// wiggle debug pin
-	debugpins_radio_set();
+	debugpins_radio_set();	// wiggle debug pin
 	leds_radio_on();
 
 	radio_internalWriteReg(TRX_STATE, CMD_PLL_ON);   // turn on radio's PLL
@@ -151,9 +143,7 @@ void radio_txEnable() {
 
 void radio_txNow() {
 	radio_vars.state = RADIOSTATE_TRANSMITTING;   // change state
-
-	// send packet by forcing state to TX_START
-	radio_internalWriteReg(TRX_STATE, CMD_TX_START);
+	radio_internalWriteReg(TRX_STATE, CMD_TX_START);	// send packet by forcing state to TX_START
 
 	// The AT86RF231 does not generate an interrupt when the radio transmits the
 	// SFD, which messes up the MAC state machine. The danger is that, if we leave
@@ -176,8 +166,7 @@ void radio_rxEnable() {
 
 	radio_internalWriteReg(TRX_STATE, CMD_RX_ON);   // put radio in reception mode
 
-	// wiggle debug pin
-	debugpins_radio_set();
+	debugpins_radio_set();	// wiggle debug pin
 	leds_radio_on();
 
 	while((radio_internalReadReg(TRX_STATUS) & 0x1F) != RX_ON);   // busy wait until radio really listening
@@ -223,8 +212,6 @@ void radio_internalWriteTxFifo(uint8_t* bufToWrite, uint8_t  lenToWrite) {
 	memcpy(&TRXFBST + 1,bufToWrite,lenToWrite);
 }
 
-
-
 void radio_internalReadRxFifo(uint8_t* pBufRead,
 		uint8_t* pLenRead,
 		uint8_t  maxBufLen,
@@ -263,9 +250,7 @@ uint8_t radio_trx_end_isr() {
 	radio_vars.state = RADIOSTATE_TXRX_DONE;
 	if (radio_vars.endFrame_cb!=NULL) {
 		radio_vars.endFrame_cb(capturedTime);	    // call the callback
-
 		return KICK_SCHEDULER;	    // kick the OS
-
 	}
 	return DO_NOT_KICK_SCHEDULER;
 }

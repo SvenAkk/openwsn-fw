@@ -4,12 +4,10 @@
 \author Sven Akkermans <sven.akkermans@cs.kuleuven.be>, September 2015.
  */
 
-#include <avr/sleep.h>
-#include <avr/pgmspace.h>
 #include <avr/io.h>
-#include <avr/iom128rfa1.h>
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
+#include <avr/sleep.h>
 
 
 #include "board.h"
@@ -52,14 +50,6 @@ void board_init() {
 	// turn off power to all periphrals ( will be enabled specifically later)
 	PRR0 = 0x00;
 	PRR1 = 0x00;
-	// Print reboot reason
-	if(mcusr_backup & (1<<PORF )) printf("Power-on reset.\n");
-	if(mcusr_backup & (1<<EXTRF)) printf("External reset!\n");
-	if(mcusr_backup & (1<<BORF )) printf("Brownout reset!\n");
-	if(mcusr_backup & (1<<WDRF )) printf("Watchdog reset!\n");
-	if(mcusr_backup & (1<<JTRF )) printf("JTAG reset!\n");
-
-	// setup clock speed
 
 	//disable interrupts
 	cli();
@@ -79,7 +69,7 @@ void board_init() {
 
 // Uses high-level functions from avr/sleep.h
 void board_sleep() {
-//	TRXPR &= ~(1 << SLPTR);
+	//Todo work with a more aggressive power mode?
 	cli();
 	set_sleep_mode(SLEEP_MODE_IDLE); // select power down mode
 	sei();
@@ -88,9 +78,10 @@ void board_sleep() {
 }
 
 void board_reset() {
-	MCUSR = 0;
-	WDTCSR |= (1 << WDCE) | (1 << WDE);
-	WDTCSR = 0x00;
+	  wdt_reset();
+	  WDTCSR = (1 << WDCE) | (1 << WDE);
+	  WDTCSR = (1 << WDE);
+	  while (1);
 }
 //=========================== private =========================================
 

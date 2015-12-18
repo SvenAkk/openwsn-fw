@@ -3,14 +3,8 @@
 
 \author Sven Akkermans <sven.akkermans@cs.kuleuven.be>, September 2015.
  */
-#include <avr/pgmspace.h>
-#include <avr/fuse.h>
-#include <avr/eeprom.h>
-#include <avr/io.h>
-#include <avr/iom128rfa1.h> //Sven: this is advised against, but works.
 
 #include "uart.h"
-#include "board.h"
 
 //=========================== defines =========================================
 
@@ -30,8 +24,7 @@ uart_vars_t uart_vars;
 void uart_init() {
 	PRR0 &= ~(1<<PRUSART0); //enable usart0, according to pg 343
 
-	// reset local variables
-	memset(&uart_vars,0,sizeof(uart_vars_t));
+	memset(&uart_vars,0,sizeof(uart_vars_t));	// reset local variables
 
 	UBRR0H =  UBRRH_VALUE; 	//UBRRnH contains the baud rate
 	UBRR0L = UBRRL_VALUE;
@@ -53,11 +46,12 @@ void uart_setCallbacks(uart_tx_cbt txCb, uart_rx_cbt rxCb) {
 }
 
 void    uart_enableInterrupts(){
-	UCSR0B |= (1<<RXCIE0) | (1<<TXCIE0); // == 0xC0
+	UCSR0B |= (1<<RXCIE0) | (1<<TXCIE0);
 }
 
 void    uart_disableInterrupts(){
-	UCSR0B &= ~((1<<RXCIE0) | (1<<TXCIE0)); // == ~0xC0
+	UCSR0B &= ~(1<<RXCIE0);
+	UCSR0B &= ~(1<<TXCIE0);
 }
 
 void    uart_clearRxInterrupts(){
@@ -91,7 +85,6 @@ kick_scheduler_t uart_rx_isr() {
 	char dummy;
 	if (uart_vars.rxCb)
 		uart_vars.rxCb();
-	// make sure buffer was read
-	while (UCSR0A & (1<<RXC0)) {dummy = UDR0;}
+	while (UCSR0A & (1<<RXC0)) {dummy = UDR0;} 	// make sure buffer was read
 	return DO_NOT_KICK_SCHEDULER;
 }

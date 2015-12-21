@@ -70,7 +70,7 @@ void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
 
 	while(SCSR & (1<<SCBSY));	// wait for register writes
 
-	SCIRQM |=  (1<<IRQMCP3) | (1<<IRQMCP2);  // enable interrupts from 2nd and 3rd compare.
+	SCIRQM |=  (1<<IRQMCP3); // enable interrupts from 3rd compare.
 }
 
 //===== direct access

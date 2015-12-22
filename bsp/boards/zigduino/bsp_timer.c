@@ -18,8 +18,6 @@ typedef struct {
 
 bsp_timer_vars_t bsp_timer_vars;
 
-PORT_TIMER_WIDTH radiotimer_getSchedule();
-
 //=========================== prototypes ======================================
 
 //=========================== public ==========================================
@@ -132,11 +130,6 @@ void bsp_timer_cancel_schedule(){
 	SCOCR1HH = SCOCR1HL = SCOCR1LH = 0; 	//reset compare registers
 	SCOCR1LL = 0;
 }
-
-PORT_TIMER_WIDTH radiotimer_getSchedule() {
-	return *((PORT_RADIOTIMER_WIDTH *)(&SCOCR1LL));
-}
-
 
 /**
 \brief Return the current value of the timer's counter.

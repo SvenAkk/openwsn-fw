@@ -67,11 +67,15 @@ This function does not stop the timer, it rather resets the value of the
 counter, and cancels a possible pending compare event.
  */
 void bsp_timer_reset(){
+	SCOCR1HH = SCOCR1HL = SCOCR1LH = 0;	//Reset Compare
+	SCOCR1LL = 0;
+
 	SCIRQM &= ~(1<<IRQMCP1); // disable interrupt
 	SCIRQS |= (1<<IRQSCP1);	//Clear compare match IRQ
 
 	SCCNTHH = SCCNTHL = SCCNTLH = 0;	   // reset timer
 	SCCNTLL = 0;
+
 	bsp_timer_vars.last_compare_value =  0;	// record last timer compare value
 }
 
@@ -108,16 +112,15 @@ void bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){
 	if (current_value > temp_last_compare_value && delayTicks < current_value - temp_last_compare_value) {
 		// we're already too late, schedule the ISR right now manually
 		// setting the interrupt flag triggers an interrupt
-		bsp_timer_isr();
+		SCIRQS |= (1<<IRQSCP1);
 
 	} else {
 		SCOCR1HH  =  (uint8_t)(newCompareValue>>24); 		//  normal case, have timer expire at newCompareValue
 		SCOCR1HL  =  (uint8_t)(newCompareValue>>16);
 		SCOCR1LH  =  (uint8_t)(newCompareValue>>8);
 		SCOCR1LL  =  (uint8_t)(newCompareValue);
-
-		SCIRQM |= (1<<IRQMCP1);		// enable interrupts
 	}
+	SCIRQM |= (1<<IRQMCP1);		// enable interrupts
 }
 
 /**
@@ -153,5 +156,5 @@ kick_scheduler_t   bsp_timer_isr(){
 	// call the callback
 	bsp_timer_vars.cb();
 	// kick the OS
-	return 1;
+	return KICK_SCHEDULER;
 }

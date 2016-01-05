@@ -46,7 +46,8 @@ void radiotimer_setEndFrameCb(radiotimer_capture_cbt cb) {
 void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
 	SCIRQM &= ~(1<<IRQMCP2);		// disable interrupts
 	SCIRQM &= ~(1<<IRQMCP3);		// disable interrupts
-	SCIRQS |= (1<<IRQSCP2) | (1<<IRQSCP3);		   // reset pending interrupts
+	SCIRQS |=  (1<<IRQSCP2); // reset pending interrupt
+
 
 	SCCR0 |= (1<<SCEN); // enable symbol counter
 	SCCR0 &= ~(1 << SCCKSEL); // 62.5KHz clock from 16MHz clock
@@ -58,11 +59,14 @@ void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
 
 	//	ASSR |= (1<<AS2); // for RTC clock
 
-	SCCNTHH = SCCNTHL = SCCNTLH = 0;
-	SCCNTLL = 0;
+	SCOCR2HH = SCOCR2HL = SCOCR2LH = 0; //set compare registers
+	SCOCR2LL = 0;
 
-	SCOCR2HH = SCOCR2HL = SCOCR2LH = 0;
-	SCOCR2LL = 0;	//set compare registers
+	SCOCR3HH = SCOCR3HL = SCOCR3LH = 0; //set compare registers
+	SCOCR3LL = 0;
+
+	SCCNTHH = SCCNTHL = SCCNTLH = 0; //reset timer
+	SCCNTLL = 0;
 
 	radiotimer_setPeriod(period);	//set period
 
@@ -70,6 +74,7 @@ void radiotimer_start(PORT_RADIOTIMER_WIDTH period) {
 
 	while(SCSR & (1<<SCBSY));	// wait for register writes
 
+	SCIRQS |=  (1<<IRQSCP3); // reset pending interrupt
 	SCIRQM |=  (1<<IRQMCP3); // enable interrupts from 3rd compare.
 }
 
@@ -95,6 +100,8 @@ PORT_RADIOTIMER_WIDTH radiotimer_getPeriod() {
 //===== compare
 
 void radiotimer_schedule(PORT_RADIOTIMER_WIDTH offset) {
+	SCIRQM &= ~(1<<IRQMCP2); // disable interrupt
+
 	offset = offset * TIMER_PRESCALE; //Counter runs at 62.5KHz  and we want 32KHz = 1s
 
 	SCOCR2HH = (uint8_t)(offset>>24);
@@ -102,8 +109,8 @@ void radiotimer_schedule(PORT_RADIOTIMER_WIDTH offset) {
 	SCOCR2LH = (uint8_t)(offset>>8);
 	SCOCR2LL = (uint8_t)offset;	// offset when to fire
 
-	SCIRQM |= (1 << IRQMCP2); //enable 2nd compare interrupt
 	SCIRQS |= (1 << IRQSCP2);	// reset pending interrupts
+	SCIRQM |= (1 << IRQMCP2); //enable 2nd compare interrupt
 }
 
 void radiotimer_cancel() {
@@ -111,6 +118,7 @@ void radiotimer_cancel() {
 	SCOCR2LL = 0;	//set compare registers
 
 	SCIRQM &= ~(1<< IRQMCP2); //disable 2nd compare interrupt
+	SCIRQS |= (1 << IRQSCP2);	// reset pending interrupts
 }
 
 ////===== capture

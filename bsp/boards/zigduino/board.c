@@ -145,7 +145,7 @@ ISR(SCNT_CMP3_vect) {
 
 ISR(SCNT_OVFL_vect) { //TODO counter overflow case?
 	debugpins_isr_set();
-	radiotimer_overflow_isr();
+//	radiotimer_overflow_isr();
 	debugpins_isr_clr();
 }
 

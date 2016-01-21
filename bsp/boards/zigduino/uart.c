@@ -85,6 +85,6 @@ kick_scheduler_t uart_rx_isr() {
 	char dummy;
 	if (uart_vars.rxCb)
 		uart_vars.rxCb();
-	while (UCSR0A & (1<<RXC0)) {dummy = UDR0;} 	// make sure buffer was read
+	if (RXC0) {dummy = UDR0;} 	// make sure buffer was read
 	return DO_NOT_KICK_SCHEDULER;
 }

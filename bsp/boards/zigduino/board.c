@@ -69,12 +69,15 @@ void board_init() {
 
 // Uses high-level functions from avr/sleep.h
 void board_sleep() {
+	//  Symbol Counter can wakeup if the Transceiver
+	// Oscillator is enabled (Transceiver not in SLEEP).
 	//Todo work with a more aggressive power mode?
 	cli();
 	set_sleep_mode(SLEEP_MODE_IDLE); // select power down mode
 	sei();
 
-	sleep_mode();
+	sleep_enable();
+	sleep_cpu();
 }
 
 void board_reset() {
@@ -97,49 +100,73 @@ void board_reset() {
 // pass to uart_isr_rx/tx
 ISR(USART0_RX_vect) {
 	debugpins_isr_set();
-	uart_rx_isr(); // doing nothing w/ return value
+	if(uart_rx_isr()==KICK_SCHEDULER){
+		sleep_disable();
+	}
 	debugpins_isr_clr();
 }
 
 ISR(USART0_TX_vect) {
 	debugpins_isr_set();
-	uart_tx_isr(); // doing nothing w/ return value
+	if(uart_tx_isr()==KICK_SCHEDULER){
+		sleep_disable();
+	}
+
 	debugpins_isr_clr();
 }
 // radio interrupt(s)
 // pass to radio_isr
 ISR(TRX24_RX_START_vect) {
 	debugpins_isr_set();
-	radio_rx_start_isr(); // doing nothing w/ return value
+	if(radio_rx_start_isr()==KICK_SCHEDULER){
+		sleep_disable();
+	}
+
 	debugpins_isr_clr();
 }
 
 ISR(TRX24_RX_END_vect) {
 	debugpins_isr_set();
-	radio_trx_end_isr();
+	if(radio_trx_end_isr()==KICK_SCHEDULER){
+		sleep_disable();
+	}
+
 	debugpins_isr_clr();
 }
+
 ISR(TRX24_TX_END_vect) {
 	debugpins_isr_set();
-	radio_trx_end_isr();
+	if(radio_trx_end_isr()==KICK_SCHEDULER){
+		sleep_disable();
+	}
+
 	debugpins_isr_clr();
 }
 
 ISR(SCNT_CMP1_vect) {
 	debugpins_isr_set();
-	bsp_timer_isr();
+	if(bsp_timer_isr()==KICK_SCHEDULER){
+		sleep_disable();
+	}
+
 	debugpins_isr_clr();
 }
 
 ISR(SCNT_CMP2_vect) {
 	debugpins_isr_set();
-	radiotimer_compare_isr();
+	if(radiotimer_compare_isr()==KICK_SCHEDULER){
+		sleep_disable();
+	}
+
 	debugpins_isr_clr();
 }
 
 ISR(SCNT_CMP3_vect) {
 	debugpins_isr_set();
-	radiotimer_overflow_isr();
+	if(radiotimer_overflow_isr()==KICK_SCHEDULER){
+		sleep_disable();
+	}
+
 	debugpins_isr_clr();
 }
 

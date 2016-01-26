@@ -23,6 +23,8 @@
 
 //=========================== variables =======================================
 
+volatile int return_to_sleep = 1;
+
 //=========================== prototypes ======================================
 extern uint8_t radio_rx_start_isr();
 extern uint8_t radio_trx_end_isr();
@@ -78,6 +80,18 @@ void board_sleep() {
 
 	sleep_enable();
 	sleep_cpu();
+	sleep_disable();
+
+	while(1){
+		if(return_to_sleep){
+			sleep_enable();
+			sleep_cpu();
+			sleep_disable();
+		} else {
+			return_to_sleep = 1;
+			return;
+		}
+	}
 }
 
 void board_reset() {
@@ -101,7 +115,7 @@ void board_reset() {
 ISR(USART0_RX_vect) {
 	debugpins_isr_set();
 	if(uart_rx_isr()==KICK_SCHEDULER){
-		sleep_disable();
+		return_to_sleep=0;
 	}
 	debugpins_isr_clr();
 }
@@ -109,7 +123,7 @@ ISR(USART0_RX_vect) {
 ISR(USART0_TX_vect) {
 	debugpins_isr_set();
 	if(uart_tx_isr()==KICK_SCHEDULER){
-		sleep_disable();
+		return_to_sleep=0;
 	}
 
 	debugpins_isr_clr();
@@ -119,7 +133,7 @@ ISR(USART0_TX_vect) {
 ISR(TRX24_RX_START_vect) {
 	debugpins_isr_set();
 	if(radio_rx_start_isr()==KICK_SCHEDULER){
-		sleep_disable();
+		return_to_sleep=0;
 	}
 
 	debugpins_isr_clr();
@@ -128,7 +142,7 @@ ISR(TRX24_RX_START_vect) {
 ISR(TRX24_RX_END_vect) {
 	debugpins_isr_set();
 	if(radio_trx_end_isr()==KICK_SCHEDULER){
-		sleep_disable();
+		return_to_sleep=0;
 	}
 
 	debugpins_isr_clr();
@@ -137,7 +151,7 @@ ISR(TRX24_RX_END_vect) {
 ISR(TRX24_TX_END_vect) {
 	debugpins_isr_set();
 	if(radio_trx_end_isr()==KICK_SCHEDULER){
-		sleep_disable();
+		return_to_sleep=0;
 	}
 
 	debugpins_isr_clr();
@@ -146,7 +160,7 @@ ISR(TRX24_TX_END_vect) {
 ISR(SCNT_CMP1_vect) {
 	debugpins_isr_set();
 	if(bsp_timer_isr()==KICK_SCHEDULER){
-		sleep_disable();
+		return_to_sleep=0;
 	}
 
 	debugpins_isr_clr();
@@ -155,7 +169,7 @@ ISR(SCNT_CMP1_vect) {
 ISR(SCNT_CMP2_vect) {
 	debugpins_isr_set();
 	if(radiotimer_compare_isr()==KICK_SCHEDULER){
-		sleep_disable();
+		return_to_sleep=0;
 	}
 
 	debugpins_isr_clr();
@@ -164,7 +178,7 @@ ISR(SCNT_CMP2_vect) {
 ISR(SCNT_CMP3_vect) {
 	debugpins_isr_set();
 	if(radiotimer_overflow_isr()==KICK_SCHEDULER){
-		sleep_disable();
+		return_to_sleep=0;
 	}
 
 	debugpins_isr_clr();

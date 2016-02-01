@@ -57,6 +57,7 @@ void board_init() {
 	//disable interrupts
 	cli();
 
+
 	// initialize bsp modules
 	debugpins_init();
 	leds_init();

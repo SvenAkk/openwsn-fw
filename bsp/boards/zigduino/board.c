@@ -37,17 +37,18 @@ uint8_t mcusr_backup;
 extern int mote_main(void);
 
 int main(void) {
-	mcusr_backup = MCUSR;
+	mcusr_backup = MCUSR; // Read reset-source
 	MCUSR = 0;
+
+	wdt_reset(); 	//disable watchdog timer as quickly as possible
+	wdt_disable();
 	return mote_main();
 }
 
 //=========================== public ==========================================
 
 void board_init() {
-	// disable watchdog timer
-	wdt_reset();
-	wdt_disable();
+
 
 	// turn off power to all periphrals ( will be enabled specifically later)
 	PRR0 = 0x00;

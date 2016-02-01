@@ -38,8 +38,7 @@ void otf_addCell_task(void) {
    
    sixtop_setHandler(SIX_HANDLER_OTF);
    // call sixtop
-   sixtop_request(
-      IANA_6TOP_CMD_ADD,
+   sixtop_addCells(
       &neighbor,
       1
    );
@@ -57,9 +56,7 @@ void otf_removeCell_task(void) {
    
    sixtop_setHandler(SIX_HANDLER_OTF);
    // call sixtop
-   sixtop_request(
-      IANA_6TOP_CMD_DELETE,
-      &neighbor,
-      1
+   sixtop_removeCell(
+      &neighbor
    );
 }

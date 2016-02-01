@@ -91,8 +91,7 @@ owerror_t c6t_receive(
          
          sixtop_setHandler(SIX_HANDLER_OTF);
          // call sixtop
-         sixtop_request(
-            IANA_6TOP_CMD_ADD,
+         sixtop_addCells(
             &neighbor,
             1
          );
@@ -120,10 +119,8 @@ owerror_t c6t_receive(
          
          sixtop_setHandler(SIX_HANDLER_OTF);
          // call sixtop
-         sixtop_request(
-            IANA_6TOP_CMD_DELETE,
-            &neighbor,
-            1
+         sixtop_removeCell(
+            &neighbor
          );
          
          // set the CoAP header

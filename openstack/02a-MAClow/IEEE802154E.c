@@ -114,7 +114,6 @@ void ieee154e_init() {
    ieee154e_vars.singleChannel     = SYNCHRONIZING_CHANNEL;
    ieee154e_vars.isAckEnabled      = TRUE;
    ieee154e_vars.isSecurityEnabled = FALSE;
-   ieee154e_vars.slotDuration      = TsSlotDuration;
    // default hopping template
    memcpy(
        &(ieee154e_vars.chTemplate[0]),
@@ -140,7 +139,7 @@ void ieee154e_init() {
    radio_setStartFrameCb(ieee154e_startOfFrame);
    radio_setEndFrameCb(ieee154e_endOfFrame);
    // have the radio start its timer
-   radio_startTimer(ieee154e_vars.slotDuration);
+   radio_startTimer(TsSlotDuration);
 }
 
 //=========================== public ==========================================
@@ -184,7 +183,7 @@ PORT_RADIOTIMER_WIDTH ieee154e_asnDiff(asn_t* someASN) {
 This function executes in ISR mode, when the new slot timer fires.
 */
 void isr_ieee154e_newSlot() {
-   radio_setTimerPeriod(ieee154e_vars.slotDuration);
+   radio_setTimerPeriod(TsSlotDuration);
    if (ieee154e_vars.isSync==FALSE) {
       if (idmanager_getIsDAGroot()==TRUE) {
          changeIsSync(TRUE);
@@ -762,12 +761,6 @@ port_INLINE bool ieee154e_processIEs(OpenQueueEntry_t* pkt, uint16_t* lenIE) {
                       // timelsot template ID
                       timeslotTemplateIDStoreFromEB(*((uint8_t*)(pkt->payload)+ptr));
                       ptr = ptr + 1;
-                      if (ieee154e_vars.tsTemplateId != TIMESLOT_TEMPLATE_ID){
-                          ieee154e_vars.slotDuration = *((uint8_t*)(pkt->payload)+ptr);
-                          ptr = ptr + 1;
-                          ieee154e_vars.slotDuration |= ((*((uint8_t*)(pkt->payload)+ptr))<<8) & 0xff00;
-                          ptr = ptr + 1;
-                      }
                   }
                   break;
                   
@@ -955,7 +948,7 @@ port_INLINE void activity_ti1ORri1() {
          openserial_startInput();
          //this is to emulate a set of serial input slots without having the slotted structure.
 
-         radio_setTimerPeriod(ieee154e_vars.slotDuration*(NUMSERIALRX));
+         radio_setTimerPeriod(TsSlotDuration*(NUMSERIALRX));
          
          //increase ASN by NUMSERIALRX-1 slots as at this slot is already incremented by 1
          for (i=0;i<NUMSERIALRX-1;i++){
@@ -1919,14 +1912,6 @@ void ieee154e_setIsSecurityEnabled(bool isEnabled){
     ieee154e_vars.isSecurityEnabled = isEnabled;
 }
 
-void ieee154e_setSlotDuration(uint16_t duration){
-    ieee154e_vars.slotDuration = duration;
-}
-
-uint16_t ieee154e_getSlotDuration(){
-    return ieee154e_vars.slotDuration;
-}
-
 // timeslot template handling
 port_INLINE void timeslotTemplateIDStoreFromEB(uint8_t id){
     ieee154e_vars.tsTemplateId = id;
@@ -1951,12 +1936,12 @@ void synchronizePacket(PORT_RADIOTIMER_WIDTH timeReceived) {
    // calculate new period
    timeCorrection                 =  (PORT_SIGNED_INT_WIDTH)((PORT_SIGNED_INT_WIDTH)timeReceived-(PORT_SIGNED_INT_WIDTH)TsTxOffset);
 
-   newPeriod                      =  ieee154e_vars.slotDuration;
+   newPeriod                      =  TsSlotDuration;
    
    // detect whether I'm too close to the edge of the slot, in that case,
    // skip a slot and increase the temporary slot length to be 2 slots long
    if (currentValue<timeReceived || currentPeriod-currentValue<RESYNCHRONIZATIONGUARD) {
-      newPeriod                  +=  ieee154e_vars.slotDuration;
+      newPeriod                  +=  TsSlotDuration;
       incrementAsnOffset();
    }
    newPeriod                      =  (PORT_RADIOTIMER_WIDTH)((PORT_SIGNED_INT_WIDTH)newPeriod+timeCorrection);
@@ -2070,9 +2055,9 @@ void notif_receive(OpenQueueEntry_t* packetReceived) {
    // COMPONENT_IEEE802154E_TO_SIXTOP so sixtop can knows it's for it
    packetReceived->owner          = COMPONENT_IEEE802154E_TO_SIXTOP;
 #ifdef GOLDEN_IMAGE_ROOT
-//   openserial_printInfo(COMPONENT_IEEE802154E,ERR_PACKET_SYNC,
-//                   (errorparameter_t)packetReceived->l2_asn.bytes0and1,
-//                   (errorparameter_t)packetReceived->l2_timeCorrection);
+   openserial_printInfo(COMPONENT_IEEE802154E,ERR_PACKET_SYNC,
+                   (errorparameter_t)packetReceived->l2_asn.bytes0and1,
+                   (errorparameter_t)packetReceived->l2_timeCorrection);
 #endif
    // post RES's Receive task
    scheduler_push_task(task_sixtopNotifReceive,TASKPRIO_SIXTOP_NOTIF_RX);

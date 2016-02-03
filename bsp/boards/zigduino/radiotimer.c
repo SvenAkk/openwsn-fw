@@ -94,7 +94,9 @@ void radiotimer_setPeriod(PORT_RADIOTIMER_WIDTH period) {
 }
 
 PORT_RADIOTIMER_WIDTH radiotimer_getPeriod() {
-	return *((PORT_RADIOTIMER_WIDTH *)(&SCOCR3LL));
+	PORT_RADIOTIMER_WIDTH period = *((PORT_RADIOTIMER_WIDTH *)(&SCOCR3LL));
+	period = (period + (TIMER_PRESCALE/2))/ TIMER_PRESCALE; //Make the period seem as if it was for a 32Khz, round to nearest whole number
+	return period;
 }
 
 //===== compare

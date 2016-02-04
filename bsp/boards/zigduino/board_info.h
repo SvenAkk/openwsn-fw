@@ -48,14 +48,13 @@ to this board.
 #define PORT_maxRxDataPrepare               33    // 1007us (measured  84us)
 #define PORT_maxTxAckPrepare                22    //  305us (measured 219us)
 // radio speed related
-#define PORT_delayTx                        7     // 214us (measured 219us) // We are here, try this out
+#define PORT_delayTx                        7     //was 7  214us (measured 219us)
 #define PORT_delayRx                        0     //    0us (can not measure)
 // radio watchdog
 
 //===== adaptive_sync accuracy
 
 #define SYNC_ACCURACY                       1     // ticks
-#define ADAPTIVE_SYNC				 1
 
 //The timer runs off a 62.5KHZ clock. Define a prescale to make it seem like it is a 32.768KHz clock.
 #define TIMER_PRESCALE 1.90734863f // = 62500/32768

@@ -85,7 +85,7 @@ PORT_RADIOTIMER_WIDTH radiotimer_getValue() {
 }
 
 void radiotimer_setPeriod(PORT_RADIOTIMER_WIDTH period) {
-	period = (period + (TIMER_PRESCALE/2)) * TIMER_PRESCALE; //Counter runs at 62.5KHz  and we want 32KHz = 1s
+	period = period * TIMER_PRESCALE; //Counter runs at 62.5KHz  and we want 32KHz = 1s
 
 	SCOCR3HH = (uint8_t)(period>>24);
 	SCOCR3HL = (uint8_t)(period>>16);

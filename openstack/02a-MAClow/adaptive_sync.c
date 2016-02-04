@@ -19,7 +19,7 @@
 
 //=========================== define ==========================================
 
-#define BASIC_COMPENSATION_THRESHOLD  20
+#define BASIC_COMPENSATION_THRESHOLD  58
 
 //=========================== type ============================================
 

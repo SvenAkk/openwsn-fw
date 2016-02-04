@@ -98,7 +98,6 @@ inside OpenQueueEntry_t->packet buffer, we start writing the received packet a
 bit after the start of the packet.
 */
 #define FIRST_FRAME_BYTE             1
-
 // the different states of the IEEE802.15.4e state machine
 typedef enum {
    S_SLEEP                   = 0x00,   // ready for next slot

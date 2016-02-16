@@ -85,6 +85,7 @@ PORT_RADIOTIMER_WIDTH radiotimer_getValue() {
 }
 
 void radiotimer_setPeriod(PORT_RADIOTIMER_WIDTH period) {
+	//By default, c will floor a float to an int
 	period = (period + (TIMER_PRESCALE/2)) * TIMER_PRESCALE; //Counter runs at 62.5KHz  and we want 32KHz = 1s
 
 	SCOCR3HH = (uint8_t)(period>>24);
@@ -104,7 +105,7 @@ PORT_RADIOTIMER_WIDTH radiotimer_getPeriod() {
 void radiotimer_schedule(PORT_RADIOTIMER_WIDTH offset) {
 	SCIRQM &= ~(1<<IRQMCP2); // disable interrupt
 
-	offset = offset * TIMER_PRESCALE; //Counter runs at 62.5KHz  and we want 32KHz = 1s
+	offset = (offset + (TIMER_PRESCALE/2)) * TIMER_PRESCALE; //Counter runs at 62.5KHz  and we want 32KHz = 1s
 
 	SCOCR2HH = (uint8_t)(offset>>24);
 	SCOCR2HL = (uint8_t)(offset>>16);
@@ -137,7 +138,7 @@ PORT_RADIOTIMER_WIDTH radiotimer_getCapturedTime() {
 	beacon_time |= ((PORT_RADIOTIMER_WIDTH)SCBTSRHH) << 24;
 
 	PORT_RADIOTIMER_WIDTH captured_time = (count_time - beacon_time);
-	captured_time = captured_time * 1/TIMER_PRESCALE; //need to scale to present uniform view
+	captured_time = (captured_time + (TIMER_PRESCALE/2))/ TIMER_PRESCALE; //need to scale to present uniform view
 
 	return captured_time;
 }

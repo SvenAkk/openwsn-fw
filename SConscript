@@ -370,7 +370,6 @@ elif env['toolchain']=='avr':
 	    env.Replace(CC           = 'avr-gcc')
 	    env.Append(CCFLAGS       = '-mmcu=atmega128rfa1')
 	    env.Append(CCFLAGS       = '-x c') #specifies language
-	    env.Append(CCFLAGS		 = '-s')
 	    env.Append(CCFLAGS       = '-Wall') #turn on all warning flags
 	    env.Append(CCFLAGS       = '-Wextra') #turn on extra warning flags
 	    env.Append(CCFLAGS       = '-ggdb') #turn on debugging
@@ -382,7 +381,6 @@ elif env['toolchain']=='avr':
 	    # assembler
 	    env.Replace(AS           = 'avr-as')
 	    env.Append(ASFLAGS       = '-mmcu=atmega128rfa1')
-	    env.Append(ASFLAGS       = '-s')
 	    env.Append(ASFLAGS       = '')
 	    # archiver
 	    env.Replace(AR           = 'avr-ar')
@@ -391,7 +389,6 @@ elif env['toolchain']=='avr':
 	    # linker
 	    env.Replace(LINK         = 'avr-gcc')        
 	    env.Append(LINKFLAGS     = '-mmcu=atmega128rfa1')
-	    env.Append(LINKFLAGS     = '-s')	    
 	    env.Append(LINKFLAGS       = '-ffunction-sections -fdata-sections')
 	    env.Append(LINKFLAGS       = '-Wl,--gc-sections')	    
 	    env.Append(LINKFLAGS     = '')

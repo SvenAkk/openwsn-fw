@@ -369,11 +369,19 @@ elif env['toolchain']=='avr':
 	    # compiler
 	    env.Replace(CC           = 'avr-gcc')
 	    env.Append(CCFLAGS       = '-mmcu=atmega128rfa1')
-	    env.Append(CCFLAGS       = '-ggdb')
+	    env.Append(CCFLAGS       = '-x c') #specifies language
+	    env.Append(CCFLAGS       = '-Wall') #turn on all warning flags
+	    env.Append(CCFLAGS       = '-Wextra') #turn on extra warning flags
+	    env.Append(CCFLAGS       = '-ggdb') #turn on debugging
+	    env.Append(CCFLAGS       = '-g3') #debugging with all extra info
+	    env.Append(CCFLAGS       = '-Og') #optimizes but with debugging
+	    #env.Append(CCFLAGS       = '-Os') #optimizes but for size
+	    env.Append(CCFLAGS       = '-ffunction-sections -fdata-sections')
+	    env.Append(CCFLAGS       = '-Wl,--gc-sections')
 	    # assembler
 	    env.Replace(AS           = 'avr-as')
 	    env.Append(ASFLAGS       = '-mmcu=atmega128rfa1')
-	    env.Append(ASFLAGS       = '-ggdb')
+	    env.Append(ASFLAGS       = '')
 	    # archiver
 	    env.Replace(AR           = 'avr-ar')
 	    #env.Append(ARFLAGS       = '-mmcu=atmega128rfa1')
@@ -381,7 +389,8 @@ elif env['toolchain']=='avr':
 	    # linker
 	    env.Replace(LINK         = 'avr-gcc')        
 	    env.Append(LINKFLAGS     = '-mmcu=atmega128rfa1')
-	    env.Append(LINKFLAGS     = '-ggdb')
+	    env.Append(LINKFLAGS       = '-ffunction-sections -fdata-sections')
+	    env.Append(LINKFLAGS       = '-Wl,--gc-sections')	    
 	    env.Append(LINKFLAGS     = '')
     
     # convert ELF to iHex

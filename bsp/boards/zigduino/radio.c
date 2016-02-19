@@ -3,7 +3,6 @@
 		//From derfmega
 \author Sven Akkermans <sven.akkermans@cs.kuleuven.be>, September 2015.
  */
-#include <avr/io.h>
 
 #include "at86rf231.h"
 #include "radio.h"

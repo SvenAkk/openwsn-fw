@@ -8,9 +8,6 @@
 #include "board.h"
 #include "board_info.h"
 
-#include <avr/wdt.h>
-
-
 //=========================== define ==========================================
 
 //Macros for watchdog timer (modified from wdt.h)

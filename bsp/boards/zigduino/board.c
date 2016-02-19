@@ -4,11 +4,9 @@
 \author Sven Akkermans <sven.akkermans@cs.kuleuven.be>, September 2015.
  */
 
-#include <avr/io.h>
 #include <avr/wdt.h>
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
-
 
 #include "board.h"
 

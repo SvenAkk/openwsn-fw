@@ -3,9 +3,6 @@
 
 \author Sven Akkermans <sven.akkermans@cs.kuleuven.be>, September 2015.
 */
-#include <avr/pgmspace.h>
-#include <avr/fuse.h>
-#include <avr/eeprom.h>
 
 #include "spi.h"
 #include "leds.h"

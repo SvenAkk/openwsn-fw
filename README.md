@@ -1,7 +1,5 @@
 This fork of the main branch is an independent project by Sven Akkermans, a (new) Phd Student at the Belgian University KU Leuven.
 
-This branch is the incorporation of a uJVM into a (potentially reduced) OpenWSN stack for the Zigduino platform.
-
 
 Purpose is to port the OpenWSN stack to the Zigduino platform with Atmega128RFA1 microprocessor. This also requires integrating the AVR toolchain within the current build structure.
 

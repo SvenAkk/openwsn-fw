@@ -428,13 +428,24 @@ def jtagUploadFunc(location):
  # Last fuse fd -> f5 due to immutable bits, otherwise avrdude gives a verification error
     elif env['toolchain']=='avr':
         if env['board'] in ['zigduino']:
-            return Builder(
-                action      = 'avrdude -c jtag3 -p m128rfa1  -B 1 -U flash:w:$SOURCE',
-                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0xd7:m -U efuse:w:0xf5:m', #if you need to do non-debug fuses
-                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0x17:m -U efuse:w:0xf5:m', #if you need to do debug fuses
-                suffix      = '.phonyupload',
-                src_suffix  = '.ihex',
-            )
+        	if env['programmer'] in ['jtag3']:
+	            return Builder(
+	                action      = 'avrdude -c jtag3 -p m128rfa1  -B 1 -U flash:w:$SOURCE',
+	                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0xd7:m -U efuse:w:0xf5:m', #if you need to do non-debug fuses
+	                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0x17:m -U efuse:w:0xf5:m', #if you need to do debug fuses
+	                suffix      = '.phonyupload',
+	                src_suffix  = '.ihex',
+	            )
+	        elif env['programmer'] in ['atmelice']:
+	            return Builder(
+	                action      = 'avrdude -c atmelice -p m128rfa1  -B 1 -U flash:w:$SOURCE',
+	                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0xd7:m -U efuse:w:0xf5:m', #if you need to do non-debug fuses
+	                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0x17:m -U efuse:w:0xf5:m', #if you need to do debug fuses
+	                suffix      = '.phonyupload',
+	                src_suffix  = '.ihex',
+	            )
+	        else:
+				raise SystemError('programmer={0} unsupported.'.format(env['programmer']))
     else:
         if env['fet_version']==2:
             # MSP-FET430uif is running v2 Firmware
@@ -471,13 +482,24 @@ def ispUploadFunc(location):
  # Last fuse fd -> f5 due to immutable bits, otherwise avrdude gives a verification error
     if env['toolchain']=='avr':
         if env['board'] in ['zigduino']:
-            return Builder(
-                action      = 'avrdude -c jtag3isp -p m128rfa1  -B 1 -U flash:w:$SOURCE',
-                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0xd7:m -U efuse:w:0xf5:m', #if you need to do non-debug fuses
-                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0x17:m -U efuse:w:0xf5:m', #if you need to do debug fuses
-                suffix      = '.phonyupload',
-                src_suffix  = '.ihex',
-            )
+        	if env['programmer'] in ['jtag3']:
+	            return Builder(
+	                action      = 'avrdude -c jtag3isp -p m128rfa1  -B 1 -U flash:w:$SOURCE',
+	                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0xd7:m -U efuse:w:0xf5:m', #if you need to do non-debug fuses
+	                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0x17:m -U efuse:w:0xf5:m', #if you need to do debug fuses
+	                suffix      = '.phonyupload',
+	                src_suffix  = '.ihex',
+	            )
+	        elif env['programmer'] in ['atmelice']:
+	            return Builder(
+	                action      = 'avrdude -c atmelice_isp -p m128rfa1  -B 1 -U flash:w:$SOURCE',
+	                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0xd7:m -U efuse:w:0xf5:m', #if you need to do non-debug fuses
+	                #+	' -U lfuse:w:0xf7:m -U hfuse:w:0x17:m -U efuse:w:0xf5:m', #if you need to do debug fuses
+	                suffix      = '.phonyupload',
+	                src_suffix  = '.ihex',
+	            )
+	        else:
+				raise SystemError('programmer={0} unsupported.'.format(env['programmer']))
         else:
             raise SystemError('board={0} unsupported.'.format(board))
 

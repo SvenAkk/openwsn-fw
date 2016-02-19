@@ -52,6 +52,7 @@ project:
                    COMx for Windows, /dev entry for Linux
     isp            Will upload binary over ISP.
                    Location is irrelevant, just to what the uploader is connected to.
+    programmer	   Specifies the programmer used
     fet_version    Firmware version running on the MSP-FET430uif for jtag.
                    2, 3
     
@@ -130,6 +131,10 @@ command_line_options = {
         'openos',
         'freertos',
     ],
+    'programmer': [
+        'jtag3',
+        'atmelice',
+    ],
     'fet_version':      ['2','3'],
     'verbose':          ['0','1'],
     'fastsim':          ['1','0'],
@@ -193,6 +198,13 @@ command_line_vars.AddVariables(
         '',                                                # help
         command_line_options['kernel'][0],                 # default
         validate_option,                                   # validator
+        None,                                              # converter
+    ),
+    (
+        'programmer',                                      # key
+        '',                                                # help
+        command_line_options['programmer'][0],             # default
+        None,			                                   # validator
         None,                                              # converter
     ),
     (

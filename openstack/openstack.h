@@ -19,4 +19,6 @@
 
 void openstack_init(void);
 
+void lightweight_openstack_init(void);
+
 #endif

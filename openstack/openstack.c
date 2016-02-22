@@ -85,3 +85,14 @@ void openstack_init(void) {
       (errorparameter_t)0
    );
 }
+
+void lightweight_openstack_init(void) {
+	   //===== drivers
+	   openserial_init();
+
+	   openserial_printInfo(
+	      COMPONENT_OPENWSN,ERR_BOOTED,
+	      (errorparameter_t)0,
+	      (errorparameter_t)0
+	   );
+}

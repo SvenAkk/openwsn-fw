@@ -69,6 +69,30 @@ void board_init() {
 	sei();
 }
 
+void lightweight_board_init() {
+
+
+	// turn off power to all periphrals ( will be enabled specifically later)
+	PRR0 = 0x00;
+	PRR1 = 0x00;
+
+	//disable interrupts
+	cli();
+
+
+	// initialize bsp modules
+//	debugpins_init();
+	leds_init();
+	uart_init();
+//	spi_init();
+//	bsp_timer_init();
+//	radio_init();
+//	radiotimer_init();
+
+	// enable interrupts
+	sei();
+}
+
 // Uses high-level functions from avr/sleep.h
 void board_sleep() {
 	//  Symbol Counter can wakeup if the Transceiver

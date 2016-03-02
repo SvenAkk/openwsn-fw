@@ -374,10 +374,10 @@ elif env['toolchain']=='avr':
 	    env.Append(CCFLAGS       = '-Wextra') #turn on extra warning flags
 	    env.Append(CCFLAGS       = '-ggdb') #turn on debugging
 	    env.Append(CCFLAGS       = '-g3') #debugging with all extra info
-	    env.Append(CCFLAGS       = '-Og') #optimizes but with debugging
-	    #env.Append(CCFLAGS       = '-Os') #optimizes but for size
-	    env.Append(CCFLAGS       = '-ffunction-sections -fdata-sections')
-	    env.Append(CCFLAGS       = '-Wl,--gc-sections')
+	    #env.Append(CCFLAGS       = '-Og') #optimizes but with debugging #OPT
+	    #env.Append(CCFLAGS       = '-Os') #optimizes but for size #OPT
+	    #env.Append(CCFLAGS       = '-ffunction-sections -fdata-sections') #OPT
+	    #env.Append(CCFLAGS       = '-Wl,--gc-sections') #OPT
 	    # assembler
 	    env.Replace(AS           = 'avr-as')
 	    env.Append(ASFLAGS       = '-mmcu=atmega128rfa1')
@@ -389,8 +389,8 @@ elif env['toolchain']=='avr':
 	    # linker
 	    env.Replace(LINK         = 'avr-gcc')        
 	    env.Append(LINKFLAGS     = '-mmcu=atmega128rfa1')
-	    env.Append(LINKFLAGS       = '-ffunction-sections -fdata-sections')
-	    env.Append(LINKFLAGS       = '-Wl,--gc-sections')	    
+	   # env.Append(LINKFLAGS       = '-ffunction-sections -fdata-sections') #OPT
+	    #env.Append(LINKFLAGS       = '-Wl,--gc-sections')	    #OPT
 	    env.Append(LINKFLAGS     = '')
     
     # convert ELF to iHex

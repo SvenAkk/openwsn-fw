@@ -17,3 +17,8 @@ settings
 *.map
 *.lst
 *~
+.cproject
+.pydevproject
+.settings/
+.project
+

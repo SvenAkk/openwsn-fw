@@ -184,12 +184,16 @@ ISR(SCNT_CMP3_vect) {
 	debugpins_isr_clr();
 }
 
-ISR(SCNT_OVFL_vect) { //TODO counter overflow case?
+//The 32bit counter will overflow after quite some time.
+//The radiotimer is all relative and will continue, the bsptimer needs to execute a special procedure to continue working.
+ISR(SCNT_OVFL_vect) {
 	debugpins_isr_set();
-//	radiotimer_overflow_isr();
+	if(bsp_timer_overflow_isr()==KICK_SCHEDULER){
+		return_to_sleep=0;
+	}
+
 	debugpins_isr_clr();
 }
-
 /* Hang on any unsupported interrupt */
 /* Useful for diagnosing unknown interrupts that reset the mcu.
  * Currently set up for 12mega128rfa1.

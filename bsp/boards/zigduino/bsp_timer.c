@@ -14,6 +14,7 @@
 typedef struct {
 	bsp_timer_cbt    cb;
 	PORT_TIMER_WIDTH last_compare_value;
+	PORT_TIMER_WIDTH delay_ticks;
 } bsp_timer_vars_t;
 
 bsp_timer_vars_t bsp_timer_vars;
@@ -103,6 +104,8 @@ void bsp_timer_scheduleIn(PORT_TIMER_WIDTH delayTicks){
 
 	delayTicks = (delayTicks + (TIMER_PRESCALE/2)) * TIMER_PRESCALE;  //Counter runs at 62.5KHz  and we want 32KHz = 1s
 
+	bsp_timer_vars.delay_ticks = delayTicks; // necessary to recover from overflow
+
 	temp_last_compare_value = bsp_timer_vars.last_compare_value;
 	newCompareValue      =  bsp_timer_vars.last_compare_value + delayTicks;
 	bsp_timer_vars.last_compare_value   =  newCompareValue;
@@ -155,6 +158,21 @@ PORT_TIMER_WIDTH   bsp_timer_get_currentValue(){
 kick_scheduler_t   bsp_timer_isr(){
 	// call the callback
 	bsp_timer_vars.cb();
+	// kick the OS
+	return KICK_SCHEDULER;
+}
+
+kick_scheduler_t   bsp_timer_overflow_isr(){
+	uint16_t passed_time;
+	uint16_t adjusted_delay_ticks;
+
+	// the timer has overflown, we need to set the bsp timer to fire in the previously scheduled delay_ticks
+	// minus the time that has expired before overflow.
+	// 2^32 = 4294967296
+	passed_time = 4294967296 - bsp_timer_vars.last_compare_value;
+	adjusted_delay_ticks = bsp_timer_vars.delay_ticks - passed_time;
+	// call the callback
+	bsp_timer_scheduleIn(adjusted_delay_ticks);
 	// kick the OS
 	return KICK_SCHEDULER;
 }
